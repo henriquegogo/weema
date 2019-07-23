@@ -57,11 +57,8 @@ int main() {
         }
         else if (ev.type == ButtonRelease) {
             XUngrabPointer(dpy, CurrentTime);
-            XSetInputFocus(dpy, ev.xbutton.subwindow, None, CurrentTime);
-        }
-        else if (ev.type == EnterNotify) {
-            XRaiseWindow(dpy, ev.xcrossing.window);
-            XSetInputFocus(dpy, ev.xcrossing.window, None, CurrentTime);
+            if (ev.xbutton.subwindow != None)
+                XSetInputFocus(dpy, ev.xbutton.subwindow, None, CurrentTime);
         }
     }
 }
