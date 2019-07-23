@@ -18,7 +18,7 @@ int main() {
     if (!(dpy = XOpenDisplay(0x0))) return 1;
 
     root = DefaultRootWindow(dpy);
-    XSelectInput(dpy, root, SubstructureNotifyMask|EnterWindowMask);
+    XSelectInput(dpy, root, SubstructureNotifyMask|EnterWindowMask|LeaveWindowMask);
 
     // Intercept keys and mouse buttons
     XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask, root, True, GrabModeAsync, GrabModeAsync);
@@ -35,7 +35,7 @@ int main() {
             XRaiseWindow(dpy, ev.xcirculate.window);
             XSetInputFocus(dpy, ev.xcirculate.window, None, CurrentTime);
         }
-        else if (ev.type == EnterNotify && ev.xcrossing.window != None) {
+        else if ((ev.type == EnterNotify || ev.type == LeaveNotify) && ev.xcrossing.window != None) {
             XSetInputFocus(dpy, ev.xcrossing.window, None, CurrentTime);
         }
         // Mouse clicks
