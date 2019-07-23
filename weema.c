@@ -18,6 +18,7 @@ int main() {
     if (!(dpy = XOpenDisplay(0x0))) return 1;
 
     root = DefaultRootWindow(dpy);
+    XSelectInput(dpy, root, KeyPressMask|ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|SubstructureNotifyMask);
 
     // Intercept keys and mouse buttons
     XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask, root, True, GrabModeAsync, GrabModeAsync);
@@ -28,11 +29,11 @@ int main() {
     for(;;) {
         XNextEvent(dpy, &ev);
         // Keyboard keypress
-        if (ev.type == KeyPress && ev.xkey.subwindow != None) { 
-            if (ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("Tab"))) {
-                XCirculateSubwindows(dpy, root, RaiseLowest);
-                XSetInputFocus(dpy, ev.xcrossing.window, None, CurrentTime);
-            }
+        if (ev.type == KeyPress && ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("Tab")))
+            XCirculateSubwindowsUp(dpy, root);
+        else if (ev.type == CirculateNotify) {
+            XRaiseWindow(dpy, ev.xcirculate.window);
+            XSetInputFocus(dpy, ev.xcirculate.window, None, CurrentTime);
         }
         // Mouse clicks
         else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
