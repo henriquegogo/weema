@@ -1,5 +1,5 @@
 /* Weema is written by Henrique Gogó <henriquegogo@gmail.com>, 2019.
- * Forked from TinyWM written by Nick Welch <mack@incise.org>, 2005.
+ * Inpired by Nick Welch's TinyWM.
  *
  * This software is in the public domain
  * and is provided AS IS, with NO WARRANTY. */
@@ -21,7 +21,6 @@ int main() {
 
     // Intercept keys and mouse buttons
     XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask, root, True, GrabModeAsync, GrabModeAsync);
-    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F4")),  Mod1Mask, root, True, GrabModeAsync, GrabModeAsync);
     XGrabButton(dpy, 1, Mod1Mask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
     XGrabButton(dpy, 2, Mod1Mask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
     XGrabButton(dpy, 3, Mod1Mask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
@@ -32,8 +31,6 @@ int main() {
         if (ev.type == KeyPress && ev.xkey.subwindow != None) { 
             if (ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("Tab")))
                 XCirculateSubwindows(dpy, root, RaiseLowest);
-            else if (ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("F4")))
-                XDestroyWindow(dpy, ev.xkey.subwindow);          
             XSetInputFocus(dpy, ev.xcrossing.window, None, CurrentTime);
         }
         // Mouse clicks
