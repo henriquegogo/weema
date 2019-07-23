@@ -1,0 +1,21 @@
+Weema is written by Henrique Gogó as a initial fork from Nick Welch's TinyWM, 2019.
+
+Weema is a ridiculously tiny window manager implemented in nearly as few lines
+of C as possible, without being obfuscated or entirely useless. It allows you
+to move, resize, focus (sloppy), and raise windows -- that's it!  Weema's main
+purpose is to serve as a quick example of some window manager programming
+basics.
+
+Files:
+
+  Makefile: highly advanced build system
+  weema.c: the code
+
+Usage:
+
+  Focus follows pointer.
+  Alt+Button1, drag: interactive window move
+  Alt+Button2, drag: interactive window resize
+  Alt+Button1 / Alt+Button2, click: raise and focus window
+  Alt+Button3, click: move current window below
+  Alt+Tab: alternate windows
