@@ -38,6 +38,9 @@ int main() {
         else if (ev.type == EnterNotify && ev.xcrossing.window != None) {
             XSetInputFocus(dpy, ev.xcrossing.window, None, CurrentTime);
         }
+        else if (ev.type == EnterNotify && ev.xcrossing.subwindow != None) {
+            XSetInputFocus(dpy, ev.xcrossing.subwindow, None, CurrentTime);
+        }
         // Mouse clicks
         else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
             XGrabPointer(dpy, ev.xbutton.subwindow, True, PointerMotionMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
