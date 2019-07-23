@@ -29,17 +29,20 @@ int main() {
         XNextEvent(dpy, &ev);
         // Keyboard keypress
         if (ev.type == KeyPress && ev.xkey.subwindow != None) { 
-            if (ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("Tab")))
+            if (ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("Tab"))) {
                 XCirculateSubwindows(dpy, root, RaiseLowest);
-            XSetInputFocus(dpy, ev.xcrossing.window, None, CurrentTime);
+                XSetInputFocus(dpy, ev.xcrossing.window, None, CurrentTime);
+            }
         }
         // Mouse clicks
         else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
             XGrabPointer(dpy, ev.xbutton.subwindow, True, PointerMotionMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
             XGetWindowAttributes(dpy, ev.xbutton.subwindow, &attr);
             start = ev.xbutton;
-            if (ev.xbutton.button == 1 || ev.xbutton.button == 2)
+            if (ev.xbutton.button == 1 || ev.xbutton.button == 2) {
                 XRaiseWindow(dpy, ev.xbutton.subwindow);
+                XSetInputFocus(dpy, ev.xbutton.subwindow, None, CurrentTime);
+            }
             else if (ev.xbutton.button == 3)
                 XLowerWindow(dpy, ev.xbutton.subwindow);
         }
@@ -57,8 +60,6 @@ int main() {
         }
         else if (ev.type == ButtonRelease) {
             XUngrabPointer(dpy, CurrentTime);
-            if (ev.xbutton.subwindow != None)
-                XSetInputFocus(dpy, ev.xbutton.subwindow, None, CurrentTime);
         }
     }
 }
