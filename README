@@ -1,4 +1,5 @@
-Weema is written by Henrique Gogó as a initial fork from Nick Welch's TinyWM, 2019.
+Weema is written by Henrique Gogó <henriquegogo@gmail.com>, 2019.
+Inpired by Nick Welch's TinyWM.
 
 Weema is a minimalist window manager for everyone that don't need more than just
 move, resize and alternate windows. That's it.
