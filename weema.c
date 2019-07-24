@@ -20,17 +20,26 @@ int main() {
     root = DefaultRootWindow(dpy);
     XSelectInput(dpy, root, SubstructureNotifyMask|EnterWindowMask|LeaveWindowMask);
 
-    // Intercept keys and mouse buttons
+    // Intercept keys and mouse buttons. Mod1Mask = Alt. LockMask = CapsLock. Mod2Mask = NumLock
     XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask, root, True, GrabModeAsync, GrabModeAsync);
+    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask|LockMask, root, True, GrabModeAsync, GrabModeAsync);
+    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask|Mod2Mask, root, True, GrabModeAsync, GrabModeAsync);
+    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask|Mod2Mask|LockMask, root, True, GrabModeAsync, GrabModeAsync);
     XGrabButton(dpy, 1, Mod1Mask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+    XGrabButton(dpy, 1, Mod1Mask|LockMask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+    XGrabButton(dpy, 1, Mod1Mask|Mod2Mask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+    XGrabButton(dpy, 1, Mod1Mask|Mod2Mask|LockMask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
     XGrabButton(dpy, 2, Mod1Mask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-    XGrabButton(dpy, 3, Mod1Mask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+    XGrabButton(dpy, 2, Mod1Mask|LockMask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+    XGrabButton(dpy, 2, Mod1Mask|Mod2Mask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+    XGrabButton(dpy, 2, Mod1Mask|Mod2Mask|LockMask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
 
     for(;;) {
         XNextEvent(dpy, &ev);
         // Keyboard keypress
-        if (ev.type == KeyPress && ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("Tab")))
+        if (ev.type == KeyPress && ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("Tab"))) {
             XCirculateSubwindowsUp(dpy, root);
+        }
         else if (ev.type == CirculateNotify) {
             XRaiseWindow(dpy, ev.xcirculate.window);
             XSetInputFocus(dpy, ev.xcirculate.window, None, CurrentTime);
@@ -47,8 +56,6 @@ int main() {
                 XRaiseWindow(dpy, ev.xbutton.subwindow);
                 XSetInputFocus(dpy, ev.xbutton.subwindow, None, CurrentTime);
             }
-            else if (ev.xbutton.button == 3)
-                XLowerWindow(dpy, ev.xbutton.subwindow);
         }
         // Mouse motion
         else if (ev.type == MotionNotify) {
