@@ -25,6 +25,10 @@ int main() {
     XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask|LockMask,          root, True, GrabModeAsync, GrabModeAsync);
     XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask|Mod2Mask,          root, True, GrabModeAsync, GrabModeAsync);
     XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask|Mod2Mask|LockMask, root, True, GrabModeAsync, GrabModeAsync);
+    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F4")), Mod1Mask,                   root, True, GrabModeAsync, GrabModeAsync);
+    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F4")), Mod1Mask|LockMask,          root, True, GrabModeAsync, GrabModeAsync);
+    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F4")), Mod1Mask|Mod2Mask,          root, True, GrabModeAsync, GrabModeAsync);
+    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F4")), Mod1Mask|Mod2Mask|LockMask, root, True, GrabModeAsync, GrabModeAsync);
     XGrabButton(dpy, 1, Mod1Mask,                   root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
     XGrabButton(dpy, 1, Mod1Mask|LockMask,          root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
     XGrabButton(dpy, 1, Mod1Mask|Mod2Mask,          root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
@@ -39,6 +43,16 @@ int main() {
         // Keyboard keypress
         if (ev.type == KeyPress && ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("Tab"))) {
             XCirculateSubwindowsUp(dpy, root);
+        }
+        if (ev.type == KeyPress && ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("F4"))) {
+            XEvent event;
+            event.xclient.type = ClientMessage;
+            event.xclient.window = ev.xkey.subwindow;
+            event.xclient.message_type = XInternAtom(dpy, "WM_PROTOCOLS", True);
+            event.xclient.format = 32;
+            event.xclient.data.l[0] = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
+            event.xclient.data.l[1] = CurrentTime;
+            XSendEvent(dpy, ev.xkey.subwindow, False, NoEventMask, &event);
         }
         else if (ev.type == CirculateNotify) {
             XRaiseWindow(dpy, ev.xcirculate.window);
