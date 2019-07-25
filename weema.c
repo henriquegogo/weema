@@ -44,7 +44,7 @@ int main() {
         if (ev.type == KeyPress && ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("Tab"))) {
             XCirculateSubwindowsUp(dpy, root);
         }
-        else if (ev.type == KeyPress && ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("F4"))) {
+        else if (ev.type == KeyPress && ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("F4")) && ev.xkey.subwindow) {
             XEvent event;
             event.xclient.type = ClientMessage;
             event.xclient.window = ev.xkey.subwindow;
@@ -54,7 +54,7 @@ int main() {
             event.xclient.data.l[1] = CurrentTime;
             XSendEvent(dpy, ev.xkey.subwindow, False, NoEventMask, &event);
         }
-        else if (ev.type == CirculateNotify) {
+        else if (ev.type == CirculateNotify && ev.xcirculate.window != None) {
             XRaiseWindow(dpy, ev.xcirculate.window);
             XSetInputFocus(dpy, ev.xcirculate.window, None, CurrentTime);
         }
