@@ -85,8 +85,5 @@ int main() {
             XRaiseWindow(dpy, ev.xcirculate.window);
             XSetInputFocus(dpy, ev.xcirculate.window, None, CurrentTime);
         }
-        else if (ev.type == EnterNotify || ev.type == LeaveNotify) {
-            XSetInputFocus(dpy, ev.xcrossing.window, None, CurrentTime);
-        }
     }
 }
