@@ -57,16 +57,13 @@ int main() {
         // Mouse clicks
         else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
             XRaiseWindow(dpy, ev.xbutton.subwindow);
+            XSetInputFocus(dpy, ev.xbutton.subwindow, None, CurrentTime);
             XGrabPointer(dpy, ev.xbutton.subwindow, True, PointerMotionMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
             XGetWindowAttributes(dpy, ev.xbutton.subwindow, &attr);
             start = ev.xbutton;
         }
         else if (ev.type == ButtonRelease) {
             XUngrabPointer(dpy, CurrentTime);
-            if (ev.xbutton.subwindow != None)
-                XSetInputFocus(dpy, ev.xbutton.subwindow, None, CurrentTime);
-            else if (ev.xbutton.window != None)
-                XSetInputFocus(dpy, ev.xbutton.window, None, CurrentTime);
         }
         // Mouse motion
         else if (ev.type == MotionNotify) {
