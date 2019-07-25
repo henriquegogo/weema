@@ -54,12 +54,6 @@ int main() {
             event.xclient.data.l[1] = CurrentTime;
             XSendEvent(dpy, ev.xkey.subwindow, False, NoEventMask, &event);
         }
-        else if (ev.type == KeyRelease) {
-            if (ev.xkey.subwindow != None)
-                XSetInputFocus(dpy, ev.xkey.subwindow, None, CurrentTime);
-            else if (ev.xkey.window != None)
-                XSetInputFocus(dpy, ev.xkey.window, None, CurrentTime);
-        }
         // Mouse clicks
         else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
             XRaiseWindow(dpy, ev.xbutton.subwindow);
