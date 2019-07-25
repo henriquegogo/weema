@@ -54,12 +54,11 @@ int main() {
             event.xclient.data.l[1] = CurrentTime;
             XSendEvent(dpy, ev.xkey.subwindow, False, NoEventMask, &event);
         }
-        else if (ev.type == CirculateNotify && ev.xcirculate.window != None) {
-            XRaiseWindow(dpy, ev.xcirculate.window);
-            XSetInputFocus(dpy, ev.xcirculate.window, None, CurrentTime);
-        }
-        else if ((ev.type == EnterNotify || ev.type == LeaveNotify) && ev.xcrossing.window != None) {
-            XSetInputFocus(dpy, ev.xcrossing.window, None, CurrentTime);
+        else if (ev.type == KeyRelease) {
+            if (ev.xkey.subwindow != None)
+                XSetInputFocus(dpy, ev.xkey.subwindow, None, CurrentTime);
+            else if (ev.xkey.window != None)
+                XSetInputFocus(dpy, ev.xkey.window, None, CurrentTime);
         }
         // Mouse clicks
         else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
@@ -70,9 +69,10 @@ int main() {
         }
         else if (ev.type == ButtonRelease) {
             XUngrabPointer(dpy, CurrentTime);
-            if (ev.xbutton.subwindow != None) {
+            if (ev.xbutton.subwindow != None)
                 XSetInputFocus(dpy, ev.xbutton.subwindow, None, CurrentTime);
-            }
+            else if (ev.xbutton.window != None)
+                XSetInputFocus(dpy, ev.xbutton.window, None, CurrentTime);
         }
         // Mouse motion
         else if (ev.type == MotionNotify) {
@@ -85,6 +85,14 @@ int main() {
                 attr.y + (start.button == 1 ? ydiff : 0),
                 MAX(1, attr.width + (start.button == 2 ? xdiff : 0)),
                 MAX(1, attr.height + (start.button == 2 ? ydiff : 0)));
+        }
+        // Other events
+        else if (ev.type == CirculateNotify && ev.xcirculate.window != None) {
+            XRaiseWindow(dpy, ev.xcirculate.window);
+            XSetInputFocus(dpy, ev.xcirculate.window, None, CurrentTime);
+        }
+        else if ((ev.type == EnterNotify || ev.type == LeaveNotify) && ev.xcrossing.window != None) {
+            XSetInputFocus(dpy, ev.xcrossing.window, None, CurrentTime);
         }
     }
 }
