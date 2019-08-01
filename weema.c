@@ -83,6 +83,7 @@ int main() {
         }
         // Other events
         else if (ev.type == CreateNotify || ev.type == DestroyNotify || ev.type == CirculateNotify) {
+            // I dont know, but if this happen on CreateNotify, just Google Chrome is afected with no mouse right-click feedback
             XSetInputFocus(dpy, root, None, CurrentTime);
         }
     }
