@@ -46,7 +46,7 @@ int main() {
         XNextEvent(dpy, &ev);
         // Keyboard keypress
         if (ev.type == KeyPress && ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("Tab"))) {
-            XCirculateSubwindowsUp(dpy, root);
+            XCirculateSubwindowsDown(dpy, root);
         }
         else if (ev.type == KeyPress && ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("F4")) && ev.xkey.subwindow) {
             XEvent event;
