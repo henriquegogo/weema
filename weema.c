@@ -62,7 +62,6 @@ int main() {
         else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
             if (ev.xbutton.button == 3) XLowerWindow(dpy, ev.xbutton.subwindow);
             else XRaiseWindow(dpy, ev.xbutton.subwindow);
-            XSetInputFocus(dpy, ev.xbutton.subwindow, None, CurrentTime);
             XGrabPointer(dpy, ev.xbutton.subwindow, True, PointerMotionMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
             XGetWindowAttributes(dpy, ev.xbutton.subwindow, &attr);
             start = ev.xbutton;
