@@ -83,11 +83,7 @@ int main() {
                 MAX(1, attr.height + (start.button == 2 ? ydiff : 0)));
         }
         // Other events
-        else if (ev.type == CirculateNotify && ev.xcirculate.window != None) {
-            XRaiseWindow(dpy, ev.xcirculate.window);
-            XSetInputFocus(dpy, ev.xcirculate.window, None, CurrentTime);
-        }
-        else if (ev.type == CreateNotify || ev.type == DestroyNotify) {
+        else if (ev.type == CreateNotify || ev.type == DestroyNotify || ev.type == CirculateNotify) {
             XSetInputFocus(dpy, root, None, CurrentTime);
         }
     }
