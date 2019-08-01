@@ -18,7 +18,7 @@ int main() {
     if (!(dpy = XOpenDisplay(0x0))) return 1;
 
     root = DefaultRootWindow(dpy);
-    XSelectInput(dpy, root, SubstructureNotifyMask|EnterWindowMask|LeaveWindowMask);
+    XSelectInput(dpy, root, SubstructureNotifyMask);
 
     // Intercept keys and mouse buttons. Mod1Mask = Alt. LockMask = CapsLock. Mod2Mask = NumLock
     XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask,                   root, True, GrabModeAsync, GrabModeAsync);
@@ -37,6 +37,10 @@ int main() {
     XGrabButton(dpy, 2, Mod1Mask|LockMask,          root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
     XGrabButton(dpy, 2, Mod1Mask|Mod2Mask,          root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
     XGrabButton(dpy, 2, Mod1Mask|Mod2Mask|LockMask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+    XGrabButton(dpy, 3, Mod1Mask,                   root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+    XGrabButton(dpy, 3, Mod1Mask|LockMask,          root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+    XGrabButton(dpy, 3, Mod1Mask|Mod2Mask,          root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+    XGrabButton(dpy, 3, Mod1Mask|Mod2Mask|LockMask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
 
     for(;;) {
         XNextEvent(dpy, &ev);
@@ -56,7 +60,8 @@ int main() {
         }
         // Mouse clicks
         else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
-            XRaiseWindow(dpy, ev.xbutton.subwindow);
+            if (ev.xbutton.button == 3) XLowerWindow(dpy, ev.xbutton.subwindow);
+            else XRaiseWindow(dpy, ev.xbutton.subwindow);
             XSetInputFocus(dpy, ev.xbutton.subwindow, None, CurrentTime);
             XGrabPointer(dpy, ev.xbutton.subwindow, True, PointerMotionMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
             XGetWindowAttributes(dpy, ev.xbutton.subwindow, &attr);
@@ -81,6 +86,9 @@ int main() {
         else if (ev.type == CirculateNotify && ev.xcirculate.window != None) {
             XRaiseWindow(dpy, ev.xcirculate.window);
             XSetInputFocus(dpy, ev.xcirculate.window, None, CurrentTime);
+        }
+        else if (ev.type == CreateNotify || ev.type == DestroyNotify) {
+            XSetInputFocus(dpy, root, None, CurrentTime);
         }
     }
 }
