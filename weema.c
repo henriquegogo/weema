@@ -6,20 +6,20 @@
 
 #include <X11/Xlib.h>
 
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
 int main() {
     Display * dpy;
     Window root;
+    XWindowAttributes root_attr;
     XWindowAttributes attr;
     XButtonEvent start;
     XEvent ev;
 
-    KeyCode tab_key, up_key, left_key, right_key, f4_key, del_key;
+    KeyCode tab_key, up_key, down_key, left_key, right_key, f4_key, del_key;
 
     if (!(dpy = XOpenDisplay(0x0))) return 1;
 
     root = DefaultRootWindow(dpy);
+    XGetWindowAttributes(dpy, root, &root_attr);
     XSelectInput(dpy, root, SubstructureNotifyMask);
 
     // Intercept keys and mouse buttons. Mod2Mask = NumLock, Mod3Mask = ScrollLock, LockMask = CapsLock
@@ -27,6 +27,7 @@ int main() {
     for (int i = 0; i < 8; i++) {
         XGrabKey(dpy, tab_key   = XKeysymToKeycode(dpy, XStringToKeysym("Tab")),   Mod1Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(dpy, up_key    = XKeysymToKeycode(dpy, XStringToKeysym("Up")),    Mod4Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
+        XGrabKey(dpy, down_key  = XKeysymToKeycode(dpy, XStringToKeysym("Down")),  Mod4Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(dpy, left_key  = XKeysymToKeycode(dpy, XStringToKeysym("Left")),  Mod4Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(dpy, right_key = XKeysymToKeycode(dpy, XStringToKeysym("Right")), Mod4Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(dpy, f4_key    = XKeysymToKeycode(dpy, XStringToKeysym("F4")),    Mod1Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
@@ -38,26 +39,34 @@ int main() {
 
     for(;;) {
         XNextEvent(dpy, &ev);
-        // Keyboard keypress
+
         if (ev.type == KeyPress) {
             if (ev.xkey.keycode == tab_key) {
                 XCirculateSubwindowsDown(dpy, root);
             }
             if (ev.xkey.subwindow != None) {
+                XGetWindowAttributes(dpy, ev.xkey.subwindow, &attr);
+
                 if (ev.xkey.keycode == up_key) {
-                    XGetWindowAttributes(dpy, root, &attr);
                     XMoveWindow(dpy, ev.xkey.subwindow, 0, 0);
-                    XResizeWindow(dpy, ev.xkey.subwindow, attr.width, attr.height);
+                    XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width, root_attr.height);
+                }
+                else if (ev.xkey.keycode == down_key) {
+                    XMoveWindow(dpy, ev.xkey.subwindow, root_attr.width * 0.33 / 2, root_attr.height * 0.33 / 2);
+                    XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width * 0.66, root_attr.height * 0.66);
+                    XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, root_attr.width * 0.66 / 2, root_attr.height * 0.66 / 2);
                 }
                 else if (ev.xkey.keycode == left_key) {
-                    XGetWindowAttributes(dpy, root, &attr);
+                    int ratio = attr.width == root_attr.width / 2 && attr.x == 0 ? 3 : 2;
                     XMoveWindow(dpy, ev.xkey.subwindow, 0, 0);
-                    XResizeWindow(dpy, ev.xkey.subwindow, attr.width / 2, attr.height);
+                    XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width / ratio, root_attr.height);
+                    XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, root_attr.width / ratio / 2, root_attr.height / 2);
                 }
                 else if (ev.xkey.keycode == right_key) {
-                    XGetWindowAttributes(dpy, root, &attr);
-                    XMoveWindow(dpy, ev.xkey.subwindow, attr.width / 2, 0);
-                    XResizeWindow(dpy, ev.xkey.subwindow, attr.width / 2, attr.height);
+                    int ratio = attr.width == root_attr.width / 2 && attr.x != 0 ? 3 : 2;
+                    XMoveWindow(dpy, ev.xkey.subwindow, root_attr.width - root_attr.width / ratio, 0);
+                    XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width / ratio, root_attr.height);
+                    XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, root_attr.width / ratio / 2, root_attr.height / 2);
                 }
                 else if (ev.xkey.keycode == del_key) {
                 }
@@ -73,7 +82,6 @@ int main() {
                 }
             }
         }
-        // Mouse clicks
         else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
             if (ev.xbutton.button == 3) XLowerWindow(dpy, ev.xbutton.subwindow);
             else XRaiseWindow(dpy, ev.xbutton.subwindow);
@@ -84,17 +92,17 @@ int main() {
         else if (ev.type == ButtonRelease) {
             XUngrabPointer(dpy, CurrentTime);
         }
-        // Mouse motion
         else if (ev.type == MotionNotify) {
-            int xdiff, ydiff;
-            while(XCheckTypedEvent(dpy, MotionNotify, &ev));
-            xdiff = ev.xbutton.x_root - start.x_root;
-            ydiff = ev.xbutton.y_root - start.y_root;
-            XMoveResizeWindow(dpy, ev.xmotion.window,
-                attr.x + (start.button == 1 ? xdiff : 0),
-                attr.y + (start.button == 1 ? ydiff : 0),
-                MAX(1, attr.width + (start.button == 2 ? xdiff : 0)),
-                MAX(1, attr.height + (start.button == 2 ? ydiff : 0)));
+            while (XCheckTypedEvent(dpy, MotionNotify, &ev));
+            int xdiff = ev.xbutton.x_root - start.x_root;
+            int ydiff = ev.xbutton.y_root - start.y_root;
+
+            if (start.button == 1) {
+                XMoveWindow(dpy, ev.xmotion.window, attr.x + xdiff, attr.y + ydiff);
+            }
+            else if (start.button == 2) {
+                XResizeWindow(dpy, ev.xmotion.window, attr.width + xdiff, attr.height + ydiff);
+            }
         }
         // Other events
         else if (ev.type == CreateNotify || ev.type == DestroyNotify || ev.type == CirculateNotify) {
