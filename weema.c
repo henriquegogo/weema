@@ -40,7 +40,7 @@ int main() {
         XNextEvent(dpy, &ev);
 
         if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
-            XCirculateSubwindowsDown(dpy, root);
+            XCirculateSubwindowsUp(dpy, root);
             XSetInputFocus(dpy, PointerRoot, RevertToPointerRoot, CurrentTime);
         }
         else if (ev.type == KeyPress && ev.xkey.subwindow != None) {
@@ -100,6 +100,10 @@ int main() {
             int ydiff = ev.xbutton.y_root - start.y_root;
             if (start.button == 1) XMoveWindow(dpy, ev.xmotion.window, attr.x + xdiff, attr.y + ydiff);
             else if (start.button == 2) XResizeWindow(dpy, ev.xmotion.window, attr.width + xdiff, attr.height + ydiff);
+        }
+        else if (ev.type == CirculateNotify) {
+            XGetWindowAttributes(dpy, ev.xcirculate.window, &attr);
+            XWarpPointer(dpy, None, ev.xcirculate.window, None, None, None, None, attr.width / 2, attr.height / 2);
         }
     }
 }
