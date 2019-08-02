@@ -42,6 +42,7 @@ int main() {
         if (ev.type == KeyPress) {
             if (ev.xkey.keycode == tab_key) {
                 XCirculateSubwindowsDown(dpy, root);
+                XSetInputFocus(dpy, ev.xkey.window, RevertToPointerRoot, CurrentTime); // For some reason, this break chrome menus
             }
             else if (ev.xkey.subwindow != None) {
                 XGetWindowAttributes(dpy, ev.xkey.subwindow, &attr);
@@ -100,11 +101,6 @@ int main() {
             int ydiff = ev.xbutton.y_root - start.y_root;
             if (start.button == 1) XMoveWindow(dpy, ev.xmotion.window, attr.x + xdiff, attr.y + ydiff);
             else if (start.button == 2) XResizeWindow(dpy, ev.xmotion.window, attr.width + xdiff, attr.height + ydiff);
-        }
-        // Other events
-        else if (ev.type == CirculateNotify) {
-            // Prevent this event if it's a menu
-            XSetInputFocus(dpy, ev.xcirculate.event, RevertToPointerRoot, CurrentTime);
         }
     }
 }
