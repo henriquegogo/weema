@@ -78,10 +78,11 @@ int main() {
                 XSendEvent(dpy, ev.xkey.subwindow, False, NoEventMask, &event);
             }
         }
+        else if (ev.type == KeyRelease && ev.xkey.subwindow != None) {
+            XSetInputFocus(dpy, ev.xkey.subwindow, RevertToPointerRoot, CurrentTime);
+        }
         else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
-            if (ev.xbutton.button == 3) {
-                XLowerWindow(dpy, ev.xbutton.subwindow);
-            }
+            if (ev.xbutton.button == 3) XLowerWindow(dpy, ev.xbutton.subwindow);
             else {
                 XRaiseWindow(dpy, ev.xbutton.subwindow);
                 XSetInputFocus(dpy, ev.xbutton.subwindow, RevertToPointerRoot, CurrentTime);
