@@ -21,26 +21,14 @@ int main() {
     XSelectInput(dpy, root, SubstructureNotifyMask);
 
     // Intercept keys and mouse buttons. Mod1Mask = Alt. LockMask = CapsLock. Mod2Mask = NumLock
-    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask,                   root, True, GrabModeAsync, GrabModeAsync);
-    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask|LockMask,          root, True, GrabModeAsync, GrabModeAsync);
-    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask|Mod2Mask,          root, True, GrabModeAsync, GrabModeAsync);
-    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), Mod1Mask|Mod2Mask|LockMask, root, True, GrabModeAsync, GrabModeAsync);
-    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F4")),  Mod1Mask,                   root, True, GrabModeAsync, GrabModeAsync);
-    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F4")),  Mod1Mask|LockMask,          root, True, GrabModeAsync, GrabModeAsync);
-    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F4")),  Mod1Mask|Mod2Mask,          root, True, GrabModeAsync, GrabModeAsync);
-    XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F4")),  Mod1Mask|Mod2Mask|LockMask, root, True, GrabModeAsync, GrabModeAsync);
-    XGrabButton(dpy, 1, Mod1Mask,                   root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-    XGrabButton(dpy, 1, Mod1Mask|LockMask,          root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-    XGrabButton(dpy, 1, Mod1Mask|Mod2Mask,          root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-    XGrabButton(dpy, 1, Mod1Mask|Mod2Mask|LockMask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-    XGrabButton(dpy, 2, Mod1Mask,                   root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-    XGrabButton(dpy, 2, Mod1Mask|LockMask,          root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-    XGrabButton(dpy, 2, Mod1Mask|Mod2Mask,          root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-    XGrabButton(dpy, 2, Mod1Mask|Mod2Mask|LockMask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-    XGrabButton(dpy, 3, Mod1Mask,                   root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-    XGrabButton(dpy, 3, Mod1Mask|LockMask,          root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-    XGrabButton(dpy, 3, Mod1Mask|Mod2Mask,          root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-    XGrabButton(dpy, 3, Mod1Mask|Mod2Mask|LockMask, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+    unsigned int modifiers[4] = { Mod1Mask, Mod1Mask|LockMask, Mod1Mask|Mod2Mask, Mod1Mask|Mod2Mask|LockMask };
+    for (int i = 0; i < 4; i++) {
+        XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
+        XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F4")),  modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
+        XGrabButton(dpy, 1, modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+        XGrabButton(dpy, 2, modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+        XGrabButton(dpy, 3, modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+    }
 
     for(;;) {
         XNextEvent(dpy, &ev);
