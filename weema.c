@@ -14,7 +14,7 @@ int main() {
     XButtonEvent start;
     XEvent ev;
 
-    KeyCode tab_key, up_key, down_key, left_key, right_key, f4_key, del_key;
+    KeyCode tab_key, up_key, down_key, left_key, right_key, f4_key;
 
     if (!(dpy = XOpenDisplay(0x0))) return 1;
 
@@ -31,7 +31,6 @@ int main() {
         XGrabKey(dpy, left_key  = XKeysymToKeycode(dpy, XStringToKeysym("Left")),  Mod4Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(dpy, right_key = XKeysymToKeycode(dpy, XStringToKeysym("Right")), Mod4Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(dpy, f4_key    = XKeysymToKeycode(dpy, XStringToKeysym("F4")),    Mod1Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
-        XGrabKey(dpy, del_key   = XKeysymToKeycode(dpy, XStringToKeysym("Del")),   ControlMask|Mod1Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabButton(dpy, 1, Mod1Mask|modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
         XGrabButton(dpy, 2, Mod1Mask|modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
         XGrabButton(dpy, 3, Mod1Mask|modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
@@ -44,7 +43,7 @@ int main() {
             if (ev.xkey.keycode == tab_key) {
                 XCirculateSubwindowsDown(dpy, root);
             }
-            if (ev.xkey.subwindow != None) {
+            else if (ev.xkey.subwindow != None) {
                 XGetWindowAttributes(dpy, ev.xkey.subwindow, &attr);
 
                 if (ev.xkey.keycode == up_key) {
@@ -67,8 +66,6 @@ int main() {
                     XMoveWindow(dpy, ev.xkey.subwindow, root_attr.width - root_attr.width / ratio, 0);
                     XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width / ratio, root_attr.height);
                     XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, root_attr.width / ratio / 2, root_attr.height / 2);
-                }
-                else if (ev.xkey.keycode == del_key) {
                 }
                 else if (ev.xkey.keycode == f4_key) {
                     XEvent event;
