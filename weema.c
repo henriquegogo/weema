@@ -93,13 +93,8 @@ int main() {
             while (XCheckTypedEvent(dpy, MotionNotify, &ev));
             int xdiff = ev.xbutton.x_root - start.x_root;
             int ydiff = ev.xbutton.y_root - start.y_root;
-
-            if (start.button == 1) {
-                XMoveWindow(dpy, ev.xmotion.window, attr.x + xdiff, attr.y + ydiff);
-            }
-            else if (start.button == 2) {
-                XResizeWindow(dpy, ev.xmotion.window, attr.width + xdiff, attr.height + ydiff);
-            }
+            if (start.button == 1) XMoveWindow(dpy, ev.xmotion.window, attr.x + xdiff, attr.y + ydiff);
+            else if (start.button == 2) XResizeWindow(dpy, ev.xmotion.window, attr.width + xdiff, attr.height + ydiff);
         }
         // Other events
         else if (ev.type == CreateNotify || ev.type == DestroyNotify || ev.type == CirculateNotify) {
