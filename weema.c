@@ -25,6 +25,7 @@ int main() {
     for (int i = 0; i < 4; i++) {
         XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("Tab")), modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F4")),  modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
+        XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F11")), modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabButton(dpy, 1, modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
         XGrabButton(dpy, 2, modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
         XGrabButton(dpy, 3, modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
@@ -45,6 +46,11 @@ int main() {
             event.xclient.data.l[0] = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
             event.xclient.data.l[1] = CurrentTime;
             XSendEvent(dpy, ev.xkey.subwindow, False, NoEventMask, &event);
+        }
+        else if (ev.type == KeyPress && ev.xkey.keycode == XKeysymToKeycode(dpy, XStringToKeysym("F11")) && ev.xkey.subwindow) {
+            XGetWindowAttributes(dpy, root, &attr);
+            XMoveWindow(dpy, ev.xkey.subwindow, 0, 0);
+            XResizeWindow(dpy, ev.xkey.subwindow, attr.width, attr.height);
         }
         // Mouse clicks
         else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
