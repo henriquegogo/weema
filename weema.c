@@ -42,7 +42,6 @@ int main() {
 
         if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
             XCirculateSubwindowsUp(dpy, root);
-            XSetInputFocus(dpy, PointerRoot, RevertToPointerRoot, CurrentTime);
         }
         else if (ev.xkey.keycode == del_key) {
             XCloseDisplay(dpy);
@@ -100,6 +99,7 @@ int main() {
                 event.xclient.data.l[0] = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
                 event.xclient.data.l[1] = CurrentTime;
                 XSendEvent(dpy, ev.xkey.subwindow, False, NoEventMask, &event);
+                XCirculateSubwindowsUp(dpy, root);
             }
         }
         else if (ev.type == KeyRelease && ev.xkey.subwindow != None) {
