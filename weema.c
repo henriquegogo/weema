@@ -14,7 +14,7 @@ int main() {
     XButtonEvent start;
     XEvent ev;
 
-    KeyCode tab_key, up_key, down_key, left_key, right_key, f4_key;
+    KeyCode tab_key, up_key, down_key, left_key, right_key, f4_key, del_key;
 
     if (!(dpy = XOpenDisplay(0x0))) return 1;
 
@@ -31,6 +31,7 @@ int main() {
         XGrabKey(dpy, left_key  = XKeysymToKeycode(dpy, XStringToKeysym("Left")),  Mod4Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(dpy, right_key = XKeysymToKeycode(dpy, XStringToKeysym("Right")), Mod4Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(dpy, f4_key    = XKeysymToKeycode(dpy, XStringToKeysym("F4")),    Mod1Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
+        XGrabKey(dpy, del_key   = XKeysymToKeycode(dpy, XStringToKeysym("Delete")),Mod1Mask|Mod4Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabButton(dpy, 1, Mod1Mask|modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
         XGrabButton(dpy, 2, Mod1Mask|modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
         XGrabButton(dpy, 3, Mod1Mask|modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
@@ -42,6 +43,9 @@ int main() {
         if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
             XCirculateSubwindowsUp(dpy, root);
             XSetInputFocus(dpy, PointerRoot, RevertToPointerRoot, CurrentTime);
+        }
+        else if (ev.xkey.keycode == del_key) {
+            XCloseDisplay(dpy);
         }
         else if (ev.type == KeyPress && ev.xkey.subwindow != None) {
             XGetWindowAttributes(dpy, ev.xkey.subwindow, &attr);
