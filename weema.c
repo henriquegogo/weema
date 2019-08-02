@@ -43,7 +43,7 @@ int main() {
         if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
             XCirculateSubwindowsUp(dpy, root);
         }
-        else if (ev.xkey.keycode == del_key) {
+        else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
             XCloseDisplay(dpy);
         }
         else if (ev.type == KeyPress && ev.xkey.subwindow != None) {
