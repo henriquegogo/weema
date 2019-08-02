@@ -103,10 +103,8 @@ int main() {
         }
         // Other events
         else if (ev.type == CirculateNotify) {
+            // Prevent this event if it's a menu
             XSetInputFocus(dpy, ev.xcirculate.event, RevertToPointerRoot, CurrentTime);
-        }
-        else if (ev.type == DestroyNotify) {
-            XSetInputFocus(dpy, PointerRoot, RevertToPointerRoot, CurrentTime);
         }
     }
 }
