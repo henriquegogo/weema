@@ -39,45 +39,43 @@ int main() {
     for(;;) {
         XNextEvent(dpy, &ev);
 
-        if (ev.type == KeyPress) {
-            if (ev.xkey.keycode == tab_key) {
-                XCirculateSubwindowsDown(dpy, root);
-                XSetInputFocus(dpy, PointerRoot, RevertToPointerRoot, CurrentTime);
-            }
-            else if (ev.xkey.subwindow != None) {
-                XGetWindowAttributes(dpy, ev.xkey.subwindow, &attr);
+        if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
+            XCirculateSubwindowsDown(dpy, root);
+            XSetInputFocus(dpy, PointerRoot, RevertToPointerRoot, CurrentTime);
+        }
+        else if (ev.type == KeyPress && ev.xkey.subwindow != None) {
+            XGetWindowAttributes(dpy, ev.xkey.subwindow, &attr);
 
-                if (ev.xkey.keycode == up_key) {
-                    XMoveWindow(dpy, ev.xkey.subwindow, 0, 0);
-                    XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width, root_attr.height);
-                }
-                else if (ev.xkey.keycode == down_key) {
-                    XMoveWindow(dpy, ev.xkey.subwindow, root_attr.width * 0.33 / 2, root_attr.height * 0.33 / 2);
-                    XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width * 0.66, root_attr.height * 0.66);
-                    XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, root_attr.width * 0.66 / 2, root_attr.height * 0.66 / 2);
-                }
-                else if (ev.xkey.keycode == left_key) {
-                    int ratio = attr.width == root_attr.width / 2 && attr.x == 0 ? 3 : 2;
-                    XMoveWindow(dpy, ev.xkey.subwindow, 0, 0);
-                    XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width / ratio, root_attr.height);
-                    XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, root_attr.width / ratio / 2, root_attr.height / 2);
-                }
-                else if (ev.xkey.keycode == right_key) {
-                    int ratio = attr.width == root_attr.width / 2 && attr.x != 0 ? 3 : 2;
-                    XMoveWindow(dpy, ev.xkey.subwindow, root_attr.width - root_attr.width / ratio, 0);
-                    XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width / ratio, root_attr.height);
-                    XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, root_attr.width / ratio / 2, root_attr.height / 2);
-                }
-                else if (ev.xkey.keycode == f4_key) {
-                    XEvent event;
-                    event.xclient.type = ClientMessage;
-                    event.xclient.window = ev.xkey.subwindow;
-                    event.xclient.message_type = XInternAtom(dpy, "WM_PROTOCOLS", True);
-                    event.xclient.format = 32;
-                    event.xclient.data.l[0] = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
-                    event.xclient.data.l[1] = CurrentTime;
-                    XSendEvent(dpy, ev.xkey.subwindow, False, NoEventMask, &event);
-                }
+            if (ev.xkey.keycode == up_key) {
+                XMoveWindow(dpy, ev.xkey.subwindow, 0, 0);
+                XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width, root_attr.height);
+            }
+            else if (ev.xkey.keycode == down_key) {
+                XMoveWindow(dpy, ev.xkey.subwindow, root_attr.width * 0.33 / 2, root_attr.height * 0.33 / 2);
+                XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width * 0.66, root_attr.height * 0.66);
+                XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, root_attr.width * 0.66 / 2, root_attr.height * 0.66 / 2);
+            }
+            else if (ev.xkey.keycode == left_key) {
+                int ratio = attr.width == root_attr.width / 2 && attr.x == 0 ? 3 : 2;
+                XMoveWindow(dpy, ev.xkey.subwindow, 0, 0);
+                XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width / ratio, root_attr.height);
+                XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, root_attr.width / ratio / 2, root_attr.height / 2);
+            }
+            else if (ev.xkey.keycode == right_key) {
+                int ratio = attr.width == root_attr.width / 2 && attr.x != 0 ? 3 : 2;
+                XMoveWindow(dpy, ev.xkey.subwindow, root_attr.width - root_attr.width / ratio, 0);
+                XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width / ratio, root_attr.height);
+                XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, root_attr.width / ratio / 2, root_attr.height / 2);
+            }
+            else if (ev.xkey.keycode == f4_key) {
+                XEvent event;
+                event.xclient.type = ClientMessage;
+                event.xclient.window = ev.xkey.subwindow;
+                event.xclient.message_type = XInternAtom(dpy, "WM_PROTOCOLS", True);
+                event.xclient.format = 32;
+                event.xclient.data.l[0] = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
+                event.xclient.data.l[1] = CurrentTime;
+                XSendEvent(dpy, ev.xkey.subwindow, False, NoEventMask, &event);
             }
         }
         else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
