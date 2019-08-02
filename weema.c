@@ -42,7 +42,7 @@ int main() {
         if (ev.type == KeyPress) {
             if (ev.xkey.keycode == tab_key) {
                 XCirculateSubwindowsDown(dpy, root);
-                XSetInputFocus(dpy, ev.xkey.window, RevertToPointerRoot, CurrentTime); // For some reason, this break chrome menus
+                XSetInputFocus(dpy, PointerRoot, RevertToPointerRoot, CurrentTime);
             }
             else if (ev.xkey.subwindow != None) {
                 XGetWindowAttributes(dpy, ev.xkey.subwindow, &attr);
