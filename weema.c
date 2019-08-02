@@ -80,8 +80,13 @@ int main() {
             }
         }
         else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
-            if (ev.xbutton.button == 3) XLowerWindow(dpy, ev.xbutton.subwindow);
-            else XRaiseWindow(dpy, ev.xbutton.subwindow);
+            if (ev.xbutton.button == 3) {
+                XLowerWindow(dpy, ev.xbutton.subwindow);
+            }
+            else {
+                XRaiseWindow(dpy, ev.xbutton.subwindow);
+                XSetInputFocus(dpy, ev.xbutton.subwindow, RevertToPointerRoot, CurrentTime);
+            }
             XGrabPointer(dpy, ev.xbutton.subwindow, True, PointerMotionMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
             XGetWindowAttributes(dpy, ev.xbutton.subwindow, &attr);
             start = ev.xbutton;
@@ -97,9 +102,11 @@ int main() {
             else if (start.button == 2) XResizeWindow(dpy, ev.xmotion.window, attr.width + xdiff, attr.height + ydiff);
         }
         // Other events
-        else if (ev.type == CreateNotify || ev.type == DestroyNotify || ev.type == CirculateNotify) {
-            // I dont know, but if this happen on CreateNotify, just Google Chrome is afected with no mouse right-click feedback
-            XSetInputFocus(dpy, root, None, CurrentTime);
+        else if (ev.type == CirculateNotify) {
+            XSetInputFocus(dpy, ev.xcirculate.event, RevertToPointerRoot, CurrentTime);
+        }
+        else if (ev.type == DestroyNotify) {
+            XSetInputFocus(dpy, PointerRoot, RevertToPointerRoot, CurrentTime);
         }
     }
 }
