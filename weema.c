@@ -9,8 +9,8 @@
 int main() {
     Display * dpy;
     Window root;
-    XWindowAttributes root_attr;
-    XWindowAttributes attr;
+    XWindowAttributes rattr;
+    XWindowAttributes wattr;
     XButtonEvent start;
     XEvent ev;
 
@@ -19,7 +19,7 @@ int main() {
     if (!(dpy = XOpenDisplay(0x0))) return 1;
 
     root = DefaultRootWindow(dpy);
-    XGetWindowAttributes(dpy, root, &root_attr);
+    XGetWindowAttributes(dpy, root, &rattr);
     XSelectInput(dpy, root, SubstructureNotifyMask);
 
     // Intercept keys and mouse buttons. Mod2Mask = NumLock, Mod3Mask = ScrollLock, LockMask = CapsLock
@@ -31,7 +31,7 @@ int main() {
         XGrabKey(dpy, left_key  = XKeysymToKeycode(dpy, XStringToKeysym("Left")),  Mod4Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(dpy, right_key = XKeysymToKeycode(dpy, XStringToKeysym("Right")), Mod4Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(dpy, f4_key    = XKeysymToKeycode(dpy, XStringToKeysym("F4")),    Mod1Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
-        XGrabKey(dpy, del_key   = XKeysymToKeycode(dpy, XStringToKeysym("Delete")),Mod1Mask|Mod4Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
+        XGrabKey(dpy, del_key   = XKeysymToKeycode(dpy, XStringToKeysym("Delete")),Mod4Mask|Mod1Mask|modifiers[i], root, True, GrabModeAsync, GrabModeAsync);
         XGrabButton(dpy, 1, Mod1Mask|modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
         XGrabButton(dpy, 2, Mod1Mask|modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
         XGrabButton(dpy, 3, Mod1Mask|modifiers[i], root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
@@ -48,28 +48,48 @@ int main() {
             XCloseDisplay(dpy);
         }
         else if (ev.type == KeyPress && ev.xkey.subwindow != None) {
-            XGetWindowAttributes(dpy, ev.xkey.subwindow, &attr);
+            XGetWindowAttributes(dpy, ev.xkey.subwindow, &wattr);
 
             if (ev.xkey.keycode == up_key) {
                 XMoveWindow(dpy, ev.xkey.subwindow, 0, 0);
-                XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width, root_attr.height);
+                XResizeWindow(dpy, ev.xkey.subwindow, rattr.width, rattr.height);
             }
             else if (ev.xkey.keycode == down_key) {
-                XMoveWindow(dpy, ev.xkey.subwindow, root_attr.width * 0.33 / 2, root_attr.height * 0.33 / 2);
-                XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width * 0.66, root_attr.height * 0.66);
-                XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, root_attr.width * 0.66 / 2, root_attr.height * 0.66 / 2);
+                XMoveWindow(dpy, ev.xkey.subwindow, rattr.width * 0.33 / 2, rattr.height * 0.33 / 2);
+                XResizeWindow(dpy, ev.xkey.subwindow, rattr.width * 0.66, rattr.height * 0.66);
+                XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, rattr.width * 0.66 / 2, rattr.height * 0.66 / 2);
             }
             else if (ev.xkey.keycode == left_key) {
-                int ratio = attr.width == root_attr.width / 2 && attr.x == 0 ? 3 : 2;
-                XMoveWindow(dpy, ev.xkey.subwindow, 0, 0);
-                XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width / ratio, root_attr.height);
-                XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, root_attr.width / ratio / 2, root_attr.height / 2);
+                Bool is_positioned = wattr.height == rattr.height && wattr.x == rattr.width - wattr.width && wattr.y == 0;
+                if (wattr.width == rattr.width / 3 && is_positioned) {
+                    XMoveWindow(dpy, ev.xkey.subwindow, rattr.width / 2, 0);
+                    XResizeWindow(dpy, ev.xkey.subwindow, rattr.width / 2, rattr.height);
+                }
+                else if (wattr.width == rattr.width / 2 && is_positioned) {
+                    XMoveWindow(dpy, ev.xkey.subwindow, rattr.width / 3, 0);
+                    XResizeWindow(dpy, ev.xkey.subwindow, rattr.width / 3 * 2, rattr.height);
+                }
+                else {
+                    int width = wattr.width == rattr.width / 2 ? rattr.width / 3 :  rattr.width / 2;
+                    XMoveWindow(dpy, ev.xkey.subwindow, 0, 0);
+                    XResizeWindow(dpy, ev.xkey.subwindow, width, rattr.height);
+                    XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, width / 2, rattr.height / 2);
+                }
             }
             else if (ev.xkey.keycode == right_key) {
-                int ratio = attr.width == root_attr.width / 2 && attr.x != 0 ? 3 : 2;
-                XMoveWindow(dpy, ev.xkey.subwindow, root_attr.width - root_attr.width / ratio, 0);
-                XResizeWindow(dpy, ev.xkey.subwindow, root_attr.width / ratio, root_attr.height);
-                XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, root_attr.width / ratio / 2, root_attr.height / 2);
+                Bool is_positioned = wattr.height == rattr.height && wattr.x == 0 && wattr.y == 0;
+                if (wattr.width == rattr.width / 3 && is_positioned) {
+                    XResizeWindow(dpy, ev.xkey.subwindow, rattr.width / 2, rattr.height);
+                }
+                else if (wattr.width == rattr.width / 2 && is_positioned) {
+                    XResizeWindow(dpy, ev.xkey.subwindow, rattr.width / 3 * 2, rattr.height);
+                }
+                else {
+                    int width = wattr.width == rattr.width / 2 ? rattr.width / 3 : rattr.width / 2;
+                    XMoveWindow(dpy, ev.xkey.subwindow, rattr.width - width, 0);
+                    XResizeWindow(dpy, ev.xkey.subwindow, width, rattr.height);
+                    XWarpPointer(dpy, None, ev.xkey.subwindow, None, None, None, None, width / 2, rattr.height / 2);
+                }
             }
             else if (ev.xkey.keycode == f4_key) {
                 XEvent event;
@@ -92,7 +112,7 @@ int main() {
                 XSetInputFocus(dpy, ev.xbutton.subwindow, RevertToPointerRoot, CurrentTime);
             }
             XGrabPointer(dpy, ev.xbutton.subwindow, True, PointerMotionMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-            XGetWindowAttributes(dpy, ev.xbutton.subwindow, &attr);
+            XGetWindowAttributes(dpy, ev.xbutton.subwindow, &wattr);
             start = ev.xbutton;
         }
         else if (ev.type == ButtonRelease) {
@@ -102,12 +122,12 @@ int main() {
             while (XCheckTypedEvent(dpy, MotionNotify, &ev));
             int xdiff = ev.xbutton.x_root - start.x_root;
             int ydiff = ev.xbutton.y_root - start.y_root;
-            if (start.button == 1) XMoveWindow(dpy, ev.xmotion.window, attr.x + xdiff, attr.y + ydiff);
-            else if (start.button == 2) XResizeWindow(dpy, ev.xmotion.window, attr.width + xdiff, attr.height + ydiff);
+            if (start.button == 1) XMoveWindow(dpy, ev.xmotion.window, wattr.x + xdiff, wattr.y + ydiff);
+            else if (start.button == 2) XResizeWindow(dpy, ev.xmotion.window, wattr.width + xdiff, wattr.height + ydiff);
         }
         else if (ev.type == CirculateNotify) {
-            XGetWindowAttributes(dpy, ev.xcirculate.window, &attr);
-            XWarpPointer(dpy, None, ev.xcirculate.window, None, None, None, None, attr.width / 2, attr.height / 2);
+            XGetWindowAttributes(dpy, ev.xcirculate.window, &wattr);
+            XWarpPointer(dpy, None, ev.xcirculate.window, None, None, None, None, wattr.width / 2, wattr.height / 2);
         }
     }
 }
