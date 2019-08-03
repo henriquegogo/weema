@@ -15,7 +15,7 @@ KeyCode tab_key, up_key, down_key, left_key, right_key, f4_key, del_key;
 void setup() {
     root_win = DefaultRootWindow(display);
     XGetWindowAttributes(display, root_win, &rattr);
-    XSelectInput(display, root_win, SubstructureNotifyMask);
+    XSelectInput(display, root_win, SubstructureNotifyMask|EnterWindowMask);
 
     // Intercept keys and mouse buttons. Mod2Mask = NumLock, Mod3Mask = ScrollLock, LockMask = CapsLock
     unsigned int modifiers[8] = { None, Mod2Mask, Mod3Mask, LockMask, Mod2Mask|Mod3Mask, Mod2Mask|LockMask, Mod3Mask|LockMask, Mod2Mask|Mod3Mask|LockMask };
@@ -45,6 +45,11 @@ void close_window(Window win) {
     XCirculateSubwindowsUp(display, root_win);
 }
 
+void raise_window(Window win) {
+    XRaiseWindow(display, win);
+    XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime);
+}
+
 void centralize_mouse(Window win) {
     XGetWindowAttributes(display, win, &wattr);
     XWarpPointer(display, None, win, None, None, None, None, wattr.width / 2, wattr.height / 2);
@@ -52,13 +57,8 @@ void centralize_mouse(Window win) {
 
 void handle_click(XButtonEvent click_event) {
     if (click_event.subwindow != None) {
-        if (click_event.button == 3) {
-            XLowerWindow(display, click_event.subwindow);
-        }
-        else {
-            XRaiseWindow(display, click_event.subwindow);
-            XSetInputFocus(display, click_event.subwindow, RevertToPointerRoot, CurrentTime);
-        }
+        if (click_event.button == 3) XLowerWindow(display, click_event.subwindow);
+        else raise_window(click_event.subwindow);
         XGrabPointer(display, click_event.subwindow, True, PointerMotionMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
         XGetWindowAttributes(display, click_event.subwindow, &wattr);
         click_start = click_event;
@@ -74,8 +74,8 @@ void handle_motion() {
 }
 
 void handle_arrow_keys(XKeyEvent key_event) {
-    if (ev.xkey.subwindow != None) {
-        XGetWindowAttributes(display, ev.xkey.subwindow, &wattr);
+    if (key_event.subwindow != None) {
+        XGetWindowAttributes(display, key_event.subwindow, &wattr);
 
         if (key_event.keycode == up_key) {
             XMoveWindow(display, key_event.subwindow, 0, 0);
@@ -118,6 +118,8 @@ void handle_arrow_keys(XKeyEvent key_event) {
                 XWarpPointer(display, None, key_event.subwindow, None, None, None, None, width / 2, rattr.height / 2);
             }
         }
+
+        raise_window(key_event.subwindow);
     }
 }
 
@@ -155,6 +157,9 @@ int main() {
         }
         else if (ev.type == CirculateNotify) {
             centralize_mouse(ev.xcirculate.window);
+        }
+        else if (ev.type == EnterNotify) {
+            XSetInputFocus(display, ev.xcrossing.window, RevertToPointerRoot, CurrentTime);
         }
     }
 }
