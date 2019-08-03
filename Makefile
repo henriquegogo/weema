@@ -11,4 +11,3 @@ install:
 		
 clean:
 	rm -f weema
-

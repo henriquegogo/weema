@@ -3,11 +3,6 @@ Weema is written by Henrique Gogó <henriquegogo@gmail.com>, 2019.
 Weema is a minimalist window manager for everyone that don't need more than just
 move, resize and alternate windows. That's it.
 
-Files:
-
-  Makefile: highly advanced build system
-  weema.c: the code
-
 Usage:
 
   Alt+Button1: raise window and move
