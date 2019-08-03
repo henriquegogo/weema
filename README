@@ -1,5 +1,4 @@
 Weema is written by Henrique Gogó <henriquegogo@gmail.com>, 2019.
-Inpired by Nick Welch's TinyWM.
 
 Weema is a minimalist window manager for everyone that don't need more than just
 move, resize and alternate windows. That's it.
@@ -11,11 +10,9 @@ Files:
 
 Usage:
 
-  Focus follows pointer.
-  Alt+Button1, drag: interactive window move
-  Alt+Button2, drag: interactive window resize
-  Alt+Button1 / Alt+Button2, click: raise and focus window
-  Alt+Button3, click: move current window below
+  Alt+Button1: raise window and move
+  Alt+Button2: raise window and resize
+  Alt+Button3: lower window
   Alt+Tab: alternate windows
   Alt+F4: close window
   Super+Up: maximize window
@@ -23,3 +20,7 @@ Usage:
   Super+Left: move window left with full height
   Super+Right: move window right with full height
   Super+Alt+Delete: close window manager
+
+License:
+
+  MIT
