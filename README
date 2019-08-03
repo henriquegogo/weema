@@ -17,3 +17,9 @@ Usage:
   Alt+Button1 / Alt+Button2, click: raise and focus window
   Alt+Button3, click: move current window below
   Alt+Tab: alternate windows
+  Alt+F4: close window
+  Super+Up: maximize window
+  Super+Down: move window to center and resize
+  Super+Left: move window left with full height
+  Super+Right: move window right with full height
+  Super+Alt+Delete: close window manager
