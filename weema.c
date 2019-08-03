@@ -1,4 +1,4 @@
-/* Weema is written by Henrique Gogó <henriquegogo@gmail.com>, 2019.
+/* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2019.
  * MIT License */
 
 #include <X11/Xlib.h>
