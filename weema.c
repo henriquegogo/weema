@@ -5,8 +5,8 @@
 
 Display * display;
 Window root_win;
-XWindowAttributes rattr;
-XWindowAttributes wattr;
+XWindowAttributes root_attr;
+XWindowAttributes clicked_win_attr;
 XButtonEvent click_start;
 XEvent ev;
 
@@ -14,7 +14,7 @@ KeyCode tab_key, up_key, down_key, left_key, right_key, f4_key, del_key;
 
 void setup() {
     root_win = DefaultRootWindow(display);
-    XGetWindowAttributes(display, root_win, &rattr);
+    XGetWindowAttributes(display, root_win, &root_attr);
     XSelectInput(display, root_win, SubstructureNotifyMask|EnterWindowMask);
 
     // Intercept keys and mouse buttons. Mod2Mask = NumLock, Mod3Mask = ScrollLock, LockMask = CapsLock
@@ -51,8 +51,9 @@ void raise_window(Window win) {
 }
 
 void centralize_mouse(Window win) {
-    XGetWindowAttributes(display, win, &wattr);
-    XWarpPointer(display, None, win, None, None, None, None, wattr.width / 2, wattr.height / 2);
+    XWindowAttributes win_attr;
+    XGetWindowAttributes(display, win, &win_attr);
+    XWarpPointer(display, None, win, None, None, None, None, win_attr.width / 2, win_attr.height / 2);
 }
 
 void handle_click(XButtonEvent click_event) {
@@ -60,7 +61,7 @@ void handle_click(XButtonEvent click_event) {
         if (click_event.button == 3) XLowerWindow(display, click_event.subwindow);
         else raise_window(click_event.subwindow);
         XGrabPointer(display, click_event.subwindow, True, PointerMotionMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-        XGetWindowAttributes(display, click_event.subwindow, &wattr);
+        XGetWindowAttributes(display, click_event.subwindow, &clicked_win_attr);
         click_start = click_event;
     }
 }
@@ -69,53 +70,54 @@ void handle_motion() {
     while (XCheckTypedEvent(display, MotionNotify, &ev));
     int xdiff = ev.xbutton.x_root - click_start.x_root;
     int ydiff = ev.xbutton.y_root - click_start.y_root;
-    if (click_start.button == 1) XMoveWindow(display, ev.xmotion.window, wattr.x + xdiff, wattr.y + ydiff);
-    else if (click_start.button == 2) XResizeWindow(display, ev.xmotion.window, wattr.width + xdiff, wattr.height + ydiff);
+    if (click_start.button == 1) XMoveWindow(display, ev.xmotion.window, clicked_win_attr.x + xdiff, clicked_win_attr.y + ydiff);
+    else if (click_start.button == 2) XResizeWindow(display, ev.xmotion.window, clicked_win_attr.width + xdiff, clicked_win_attr.height + ydiff);
 }
 
 void handle_arrow_keys(XKeyEvent key_event) {
     if (key_event.subwindow != None) {
-        XGetWindowAttributes(display, key_event.subwindow, &wattr);
+        XWindowAttributes win_attr;
+        XGetWindowAttributes(display, key_event.subwindow, &win_attr);
 
         if (key_event.keycode == up_key) {
             XMoveWindow(display, key_event.subwindow, 0, 0);
-            XResizeWindow(display, key_event.subwindow, rattr.width, rattr.height);
+            XResizeWindow(display, key_event.subwindow, root_attr.width, root_attr.height);
         }
         else if (key_event.keycode == down_key) {
-            XMoveWindow(display, key_event.subwindow, rattr.width * 0.33 / 2, rattr.height * 0.33 / 2);
-            XResizeWindow(display, key_event.subwindow, rattr.width * 0.66, rattr.height * 0.66);
-            XWarpPointer(display, None, key_event.subwindow, None, None, None, None, rattr.width * 0.66 / 2, rattr.height * 0.66 / 2);
+            XMoveWindow(display, key_event.subwindow, root_attr.width * 0.33 / 2, root_attr.height * 0.33 / 2);
+            XResizeWindow(display, key_event.subwindow, root_attr.width * 0.66, root_attr.height * 0.66);
+            XWarpPointer(display, None, key_event.subwindow, None, None, None, None, root_attr.width * 0.66 / 2, root_attr.height * 0.66 / 2);
         }
         else if (key_event.keycode == left_key) {
-            Bool is_positioned = wattr.height == rattr.height && wattr.x == rattr.width - wattr.width && wattr.y == 0;
-            if (wattr.width == rattr.width / 3 && is_positioned) {
-                XMoveWindow(display, key_event.subwindow, rattr.width / 2, 0);
-                XResizeWindow(display, key_event.subwindow, rattr.width / 2, rattr.height);
+            Bool is_positioned = win_attr.height == root_attr.height && win_attr.x == root_attr.width - win_attr.width && win_attr.y == 0;
+            if (win_attr.width == root_attr.width / 3 && is_positioned) {
+                XMoveWindow(display, key_event.subwindow, root_attr.width / 2, 0);
+                XResizeWindow(display, key_event.subwindow, root_attr.width / 2, root_attr.height);
             }
-            else if (wattr.width == rattr.width / 2 && is_positioned) {
-                XMoveWindow(display, key_event.subwindow, rattr.width / 3, 0);
-                XResizeWindow(display, key_event.subwindow, rattr.width / 3 * 2, rattr.height);
+            else if (win_attr.width == root_attr.width / 2 && is_positioned) {
+                XMoveWindow(display, key_event.subwindow, root_attr.width / 3, 0);
+                XResizeWindow(display, key_event.subwindow, root_attr.width / 3 * 2, root_attr.height);
             }
             else {
-                int width = wattr.width == rattr.width / 2 ? rattr.width / 3 :  rattr.width / 2;
+                int width = win_attr.width == root_attr.width / 2 ? root_attr.width / 3 :  root_attr.width / 2;
                 XMoveWindow(display, key_event.subwindow, 0, 0);
-                XResizeWindow(display, key_event.subwindow, width, rattr.height);
-                XWarpPointer(display, None, key_event.subwindow, None, None, None, None, width / 2, rattr.height / 2);
+                XResizeWindow(display, key_event.subwindow, width, root_attr.height);
+                XWarpPointer(display, None, key_event.subwindow, None, None, None, None, width / 2, root_attr.height / 2);
             }
         }
         else if (key_event.keycode == right_key) {
-            Bool is_positioned = wattr.height == rattr.height && wattr.x == 0 && wattr.y == 0;
-            if (wattr.width == rattr.width / 3 && is_positioned) {
-                XResizeWindow(display, key_event.subwindow, rattr.width / 2, rattr.height);
+            Bool is_positioned = win_attr.height == root_attr.height && win_attr.x == 0 && win_attr.y == 0;
+            if (win_attr.width == root_attr.width / 3 && is_positioned) {
+                XResizeWindow(display, key_event.subwindow, root_attr.width / 2, root_attr.height);
             }
-            else if (wattr.width == rattr.width / 2 && is_positioned) {
-                XResizeWindow(display, key_event.subwindow, rattr.width / 3 * 2, rattr.height);
+            else if (win_attr.width == root_attr.width / 2 && is_positioned) {
+                XResizeWindow(display, key_event.subwindow, root_attr.width / 3 * 2, root_attr.height);
             }
             else {
-                int width = wattr.width == rattr.width / 2 ? rattr.width / 3 : rattr.width / 2;
-                XMoveWindow(display, key_event.subwindow, rattr.width - width, 0);
-                XResizeWindow(display, key_event.subwindow, width, rattr.height);
-                XWarpPointer(display, None, key_event.subwindow, None, None, None, None, width / 2, rattr.height / 2);
+                int width = win_attr.width == root_attr.width / 2 ? root_attr.width / 3 : root_attr.width / 2;
+                XMoveWindow(display, key_event.subwindow, root_attr.width - width, 0);
+                XResizeWindow(display, key_event.subwindow, width, root_attr.height);
+                XWarpPointer(display, None, key_event.subwindow, None, None, None, None, width / 2, root_attr.height / 2);
             }
         }
 
