@@ -50,6 +50,13 @@ void raise_window(Window win) {
     XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime);
 }
 
+void draw_border(Window win) {
+    if (win != None) {
+        XSetWindowBorderWidth(display, win, 1);
+        XSetWindowBorder(display, win, 0);
+    }
+}
+
 void centralize_mouse(Window win) {
     XGetWindowAttributes(display, win, &win_attr);
     XWarpPointer(display, None, win, None, None, None, None, win_attr.width / 2, win_attr.height / 2);
@@ -130,6 +137,8 @@ int main() {
 
     for(;;) {
         XNextEvent(display, &ev);
+
+        draw_border(ev.xany.window); // Dicover which event should call this. CreateNotify doesn't work
 
         if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
             XCirculateSubwindowsUp(display, root_win);
