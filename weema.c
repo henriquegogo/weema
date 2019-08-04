@@ -6,7 +6,7 @@
 Display * display;
 Window root_win;
 XWindowAttributes root_attr;
-XWindowAttributes clicked_win_attr;
+XWindowAttributes win_attr;
 XButtonEvent click_start;
 XEvent ev;
 
@@ -51,7 +51,6 @@ void raise_window(Window win) {
 }
 
 void centralize_mouse(Window win) {
-    XWindowAttributes win_attr;
     XGetWindowAttributes(display, win, &win_attr);
     XWarpPointer(display, None, win, None, None, None, None, win_attr.width / 2, win_attr.height / 2);
 }
@@ -61,7 +60,7 @@ void handle_click(XButtonEvent click_event) {
         if (click_event.button == 3) XLowerWindow(display, click_event.subwindow);
         else raise_window(click_event.subwindow);
         XGrabPointer(display, click_event.subwindow, True, PointerMotionMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-        XGetWindowAttributes(display, click_event.subwindow, &clicked_win_attr);
+        XGetWindowAttributes(display, click_event.subwindow, &win_attr);
         click_start = click_event;
     }
 }
@@ -70,13 +69,12 @@ void handle_motion() {
     while (XCheckTypedEvent(display, MotionNotify, &ev));
     int xdiff = ev.xbutton.x_root - click_start.x_root;
     int ydiff = ev.xbutton.y_root - click_start.y_root;
-    if (click_start.button == 1) XMoveWindow(display, ev.xmotion.window, clicked_win_attr.x + xdiff, clicked_win_attr.y + ydiff);
-    else if (click_start.button == 2) XResizeWindow(display, ev.xmotion.window, clicked_win_attr.width + xdiff, clicked_win_attr.height + ydiff);
+    if (click_start.button == 1) XMoveWindow(display, ev.xmotion.window, win_attr.x + xdiff, win_attr.y + ydiff);
+    else if (click_start.button == 2) XResizeWindow(display, ev.xmotion.window, win_attr.width + xdiff, win_attr.height + ydiff);
 }
 
 void handle_arrow_keys(XKeyEvent key_event) {
     if (key_event.subwindow != None) {
-        XWindowAttributes win_attr;
         XGetWindowAttributes(display, key_event.subwindow, &win_attr);
 
         if (key_event.keycode == up_key) {
