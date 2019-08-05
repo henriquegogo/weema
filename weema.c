@@ -34,6 +34,7 @@ void setup() {
 }
 
 void close_window(Window win) {
+    XCirculateSubwindowsDown(display, root_win);
     XEvent event;
     event.xclient.type = ClientMessage;
     event.xclient.window = win;
@@ -42,12 +43,6 @@ void close_window(Window win) {
     event.xclient.data.l[0] = XInternAtom(display, "WM_DELETE_WINDOW", False);
     event.xclient.data.l[1] = CurrentTime;
     XSendEvent(display, win, False, NoEventMask, &event);
-    XCirculateSubwindowsUp(display, root_win);
-}
-
-void raise_window(Window win) {
-    XRaiseWindow(display, win);
-    XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime);
 }
 
 void draw_border(Window win) {
@@ -55,6 +50,12 @@ void draw_border(Window win) {
         XSetWindowBorderWidth(display, win, 1);
         XSetWindowBorder(display, win, 0);
     }
+}
+
+void raise_window(Window win) {
+    XRaiseWindow(display, win);
+    XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime);
+    draw_border(win);
 }
 
 void centralize_mouse(Window win) {
@@ -137,8 +138,6 @@ int main() {
 
     for(;;) {
         XNextEvent(display, &ev);
-
-        draw_border(ev.xany.window); // Dicover which event should call this. CreateNotify doesn't work
 
         if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
             XCirculateSubwindowsUp(display, root_win);
