@@ -52,21 +52,15 @@ void draw_border(Window win) {
     }
 }
 
-void raise_window(Window win) {
-    XRaiseWindow(display, win);
-    XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime);
-}
-
 void centralize_mouse(Window win) {
     XGetWindowAttributes(display, win, &win_attr);
     XWarpPointer(display, None, win, None, None, None, None, win_attr.width / 2, win_attr.height / 2);
-    draw_border(win);
 }
 
 void handle_click(XButtonEvent click_event) {
     if (click_event.subwindow != None) {
         if (click_event.button == 3) XLowerWindow(display, click_event.subwindow);
-        else raise_window(click_event.subwindow);
+        else XRaiseWindow(display, click_event.subwindow);
         XGrabPointer(display, click_event.subwindow, True, PointerMotionMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
         XGetWindowAttributes(display, click_event.subwindow, &win_attr);
         click_start = click_event;
@@ -126,8 +120,6 @@ void handle_arrow_keys(XKeyEvent key_event) {
                 XWarpPointer(display, None, key_event.subwindow, None, None, None, None, width / 2, root_attr.height / 2);
             }
         }
-
-        raise_window(key_event.subwindow);
     }
 }
 
@@ -151,9 +143,6 @@ int main() {
         else if (ev.type == KeyPress) {
             handle_arrow_keys(ev.xkey);
         }
-        else if (ev.type == KeyRelease && ev.xkey.subwindow != None) {
-            XSetInputFocus(display, ev.xkey.subwindow, RevertToPointerRoot, CurrentTime);
-        }
         else if (ev.type == ButtonPress) {
             handle_click(ev.xbutton);
         }
@@ -165,9 +154,6 @@ int main() {
         }
         else if (ev.type == CirculateNotify) {
             centralize_mouse(ev.xcirculate.window);
-        }
-        else if (ev.type == EnterNotify) {
-            XSetInputFocus(display, ev.xcrossing.window, RevertToPointerRoot, CurrentTime);
         }
     }
 }
