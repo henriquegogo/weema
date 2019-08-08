@@ -155,8 +155,8 @@ int main() {
             XCloseDisplay(display);
         }
         else if (ev.type == KeyPress && ev.xkey.keycode == f4_key) {
-            lower_window(ev.xkey.subwindow);
             close_window(ev.xkey.subwindow);
+            XSetInputFocus(display, PointerRoot, RevertToPointerRoot, None);
         }
         else if (ev.type == KeyPress) {
             handle_arrow_keys(ev.xkey);
