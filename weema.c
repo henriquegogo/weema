@@ -15,7 +15,7 @@ KeyCode tab_key, up_key, down_key, left_key, right_key, f4_key, del_key;
 void setup() {
     root_win = DefaultRootWindow(display);
     XGetWindowAttributes(display, root_win, &root_attr);
-    XSelectInput(display, root_win, SubstructureNotifyMask|EnterWindowMask);
+    XSelectInput(display, root_win, SubstructureNotifyMask);
 
     // Intercept keys and mouse buttons. Mod2Mask = NumLock, Mod3Mask = ScrollLock, LockMask = CapsLock
     unsigned int modifiers[8] = { None, Mod2Mask, Mod3Mask, LockMask, Mod2Mask|Mod3Mask, Mod2Mask|LockMask, Mod3Mask|LockMask, Mod2Mask|Mod3Mask|LockMask };
