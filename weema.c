@@ -34,14 +34,16 @@ void setup() {
 }
 
 void close_window(Window win) {
-    XEvent event;
-    event.xclient.type = ClientMessage;
-    event.xclient.window = win;
-    event.xclient.message_type = XInternAtom(display, "WM_PROTOCOLS", True);
-    event.xclient.format = 32;
-    event.xclient.data.l[0] = XInternAtom(display, "WM_DELETE_WINDOW", False);
-    event.xclient.data.l[1] = CurrentTime;
-    XSendEvent(display, win, False, NoEventMask, &event);
+    if (win != None) {
+        XEvent event;
+        event.xclient.type = ClientMessage;
+        event.xclient.window = win;
+        event.xclient.message_type = XInternAtom(display, "WM_PROTOCOLS", True);
+        event.xclient.format = 32;
+        event.xclient.data.l[0] = XInternAtom(display, "WM_DELETE_WINDOW", False);
+        event.xclient.data.l[1] = CurrentTime;
+        XSendEvent(display, win, False, NoEventMask, &event);
+    }
 }
 
 void raise_window(Window win) {
@@ -152,7 +154,7 @@ int main() {
         else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
             XCloseDisplay(display);
         }
-        else if (ev.type == KeyPress && ev.xkey.keycode == f4_key && ev.xkey.subwindow != None) {
+        else if (ev.type == KeyPress && ev.xkey.keycode == f4_key) {
             lower_window(ev.xkey.subwindow);
             close_window(ev.xkey.subwindow);
         }
