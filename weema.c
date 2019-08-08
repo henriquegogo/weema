@@ -34,7 +34,6 @@ void setup() {
 }
 
 void close_window(Window win) {
-    XCirculateSubwindowsDown(display, root_win);
     XEvent event;
     event.xclient.type = ClientMessage;
     event.xclient.window = win;
