@@ -45,6 +45,20 @@ void close_window(Window win) {
     XSendEvent(display, win, False, NoEventMask, &event);
 }
 
+void raise_window(Window win) {
+    if (win != None) {
+        XRaiseWindow(display, win);
+        XSetInputFocus(display, win, RevertToPointerRoot, None);
+    }
+}
+
+void lower_window(Window win) {
+    if (win != None) {
+        XLowerWindow(display, win);
+        XSetInputFocus(display, PointerRoot, RevertToPointerRoot, None);
+    }
+}
+
 void draw_border(Window win) {
     if (win != None) {
         XSetWindowBorderWidth(display, win, 1);
@@ -59,8 +73,8 @@ void centralize_mouse(Window win) {
 
 void handle_click(XButtonEvent click_event) {
     if (click_event.subwindow != None) {
-        if (click_event.button == 3) XLowerWindow(display, click_event.subwindow);
-        else XRaiseWindow(display, click_event.subwindow);
+        if (click_event.button == 3) lower_window(click_event.subwindow);
+        else raise_window(click_event.subwindow);
         XGrabPointer(display, click_event.subwindow, True, PointerMotionMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
         XGetWindowAttributes(display, click_event.subwindow, &win_attr);
         click_start = click_event;
@@ -120,6 +134,8 @@ void handle_arrow_keys(XKeyEvent key_event) {
                 XWarpPointer(display, None, key_event.subwindow, None, None, None, None, width / 2, root_attr.height / 2);
             }
         }
+
+        raise_window(key_event.subwindow);
     }
 }
 
@@ -138,6 +154,7 @@ int main() {
             XCloseDisplay(display);
         }
         else if (ev.type == KeyPress && ev.xkey.keycode == f4_key && ev.xkey.subwindow != None) {
+            lower_window(ev.xkey.subwindow);
             close_window(ev.xkey.subwindow);
         }
         else if (ev.type == KeyPress) {
@@ -153,6 +170,7 @@ int main() {
             handle_motion();
         }
         else if (ev.type == CirculateNotify) {
+            raise_window(ev.xcirculate.window);
             centralize_mouse(ev.xcirculate.window);
         }
     }
