@@ -188,7 +188,7 @@ int main() {
             handle_motion();
         }
         else if (ev.type == CirculateNotify) {
-            raise_window(ev.xcirculate.window);
+            XSetInputFocus(display, ev.xcirculate.window, RevertToPointerRoot, None);
             centralize_mouse(ev.xcirculate.window);
         }
     }
