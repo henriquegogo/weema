@@ -1,6 +1,7 @@
-/* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2019.
+/* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2020.
  * MIT License */
 
+#include <stdlib.h>
 #include <X11/Xlib.h>
 
 Display * display;
@@ -10,7 +11,7 @@ XWindowAttributes win_attr;
 XButtonEvent click_start;
 XEvent ev;
 
-KeyCode tab_key, up_key, down_key, left_key, right_key, f4_key, del_key;
+KeyCode tab_key, up_key, down_key, left_key, right_key, f4_key, del_key, p_key, t_key, vol_up_key, vol_down_key, print_key;
 
 void setup() {
     root_win = DefaultRootWindow(display);
@@ -27,6 +28,10 @@ void setup() {
         XGrabKey(display, right_key = XKeysymToKeycode(display, XStringToKeysym("Right")), Mod4Mask|modifiers[i], root_win, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(display, f4_key    = XKeysymToKeycode(display, XStringToKeysym("F4")),    Mod1Mask|modifiers[i], root_win, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(display, del_key   = XKeysymToKeycode(display, XStringToKeysym("Delete")),Mod4Mask|Mod1Mask|modifiers[i], root_win, True, GrabModeAsync, GrabModeAsync);
+        XGrabKey(display, p_key     = XKeysymToKeycode(display, XStringToKeysym("p")),     Mod1Mask|modifiers[i], root_win, True, GrabModeAsync, GrabModeAsync);
+        XGrabKey(display, vol_up_key   = XKeysymToKeycode(display, XStringToKeysym("XF86AudioRaiseVolume")), modifiers[i], root_win, True, GrabModeAsync, GrabModeAsync);
+        XGrabKey(display, vol_down_key = XKeysymToKeycode(display, XStringToKeysym("XF86AudioLowerVolume")), modifiers[i], root_win, True, GrabModeAsync, GrabModeAsync);
+        XGrabKey(display, print_key = XKeysymToKeycode(display, XStringToKeysym("Print")), Mod1Mask|modifiers[i], root_win, True, GrabModeAsync, GrabModeAsync);
         XGrabButton(display, 1, Mod1Mask|modifiers[i], root_win, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
         XGrabButton(display, 2, Mod1Mask|modifiers[i], root_win, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
         XGrabButton(display, 3, Mod1Mask|modifiers[i], root_win, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
@@ -157,6 +162,18 @@ int main() {
         else if (ev.type == KeyPress && ev.xkey.keycode == f4_key) {
             close_window(ev.xkey.subwindow);
             XSetInputFocus(display, PointerRoot, RevertToPointerRoot, None);
+        }
+        else if (ev.type == KeyPress && ev.xkey.keycode == p_key) {
+            system("weema-cmd.sh launcher");
+        }
+        else if (ev.type == KeyPress && ev.xkey.keycode == vol_up_key) {
+            system("weema-cmd.sh volumeup");
+        }
+        else if (ev.type == KeyPress && ev.xkey.keycode == vol_down_key) {
+            system("weema-cmd.sh volumedown");
+        }
+        else if (ev.type == KeyPress && ev.xkey.keycode == print_key) {
+            system("weema-cmd.sh printscreenarea");
         }
         else if (ev.type == KeyPress) {
             handle_arrow_keys(ev.xkey);
