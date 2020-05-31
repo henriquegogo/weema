@@ -14,7 +14,7 @@ XEvent ev;
 KeyCode tab_key, up_key, down_key, left_key, right_key, f4_key, del_key, p_key, t_key, vol_up_key, vol_down_key, print_key;
 
 void setup() {
-    root_win = DefaultRootWindow(display);
+    root_win = XDefaultRootWindow(display);
     XGetWindowAttributes(display, root_win, &root_attr);
     XSelectInput(display, root_win, SubstructureNotifyMask);
 
@@ -63,18 +63,6 @@ void lower_window(Window win) {
         XLowerWindow(display, win);
         XSetInputFocus(display, PointerRoot, RevertToPointerRoot, None);
     }
-}
-
-void draw_border(Window win) {
-    if (win != None) {
-        XSetWindowBorderWidth(display, win, 1);
-        XSetWindowBorder(display, win, 0);
-    }
-}
-
-void centralize_mouse(Window win) {
-    XGetWindowAttributes(display, win, &win_attr);
-    XWarpPointer(display, None, win, None, None, None, None, win_attr.width / 2, win_attr.height / 2);
 }
 
 void handle_click(XButtonEvent click_event) {
@@ -189,7 +177,6 @@ int main() {
         }
         else if (ev.type == CirculateNotify) {
             XSetInputFocus(display, ev.xcirculate.window, RevertToPointerRoot, None);
-            centralize_mouse(ev.xcirculate.window);
         }
     }
 }
