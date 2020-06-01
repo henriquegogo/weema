@@ -1,6 +1,6 @@
 BINDIR?=/usr/bin
 PREFIX?=/usr/X11R6
-CFLAGS?=-Os -pedantic -Wall -Wno-maybe-uninitialized -Wno-unused-result
+CFLAGS?=-Os -pedantic -Wall -Wextra
 
 all:
 	$(CC) $(CFLAGS) -I$(PREFIX)/include weema.c -L$(PREFIX)/lib -lX11 -o weema
