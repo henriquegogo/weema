@@ -1,19 +1,27 @@
-Weema by Henrique Gogó <henriquegogo@gmail.com>, 2019.
+Weema by Henrique Gogó <henriquegogo@gmail.com>, 2020.
 
 Window manager for minimalists
 
 Usage:
 
-  Alt+Button1: raise window and move
-  Alt+Button2: raise window and resize
-  Alt+Button3: lower window
+  Copy weema-cmd.sh file to a bin folder and configure
+  Edit .xinitrc file to 'exec weema'
+
+Binds:
+
+  Alt+Button1: raise window
+  Alt+P: open application launcher
+  Alt+PrntScr: print screen area selector
   Alt+Tab: alternate windows
   Alt+F4: close window
+  Ctrl+Alt+T: open terminal
+  Volume up: increase volume
+  Volume down: decrease volume
+  Super+Alt+Delete: close window manager
   Super+Up: maximize window
   Super+Down: move window to center and resize
   Super+Left: move window left with full height
   Super+Right: move window right with full height
-  Super+Alt+Delete: close window manager
 
 License:
 
