@@ -1,6 +1,7 @@
 /* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2020.
  * MIT License */
 
+#include <X11/X.h>
 #include <stdlib.h>
 #include <X11/Xlib.h>
 
@@ -21,6 +22,7 @@ void setup() {
     // Intercept keys and mouse buttons. Mod2Mask = NumLock, Mod3Mask = ScrollLock, LockMask = CapsLock
     unsigned int modifiers[8] = { None, Mod2Mask, Mod3Mask, LockMask, Mod2Mask|Mod3Mask, Mod2Mask|LockMask, Mod3Mask|LockMask, Mod2Mask|Mod3Mask|LockMask };
     for (int i = 0; i < 8; i++) {
+        XGrabButton(display, 1, Mod1Mask|modifiers[i], root_win, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
         XGrabKey(display, p_key     = XKeysymToKeycode(display, XStringToKeysym("p")),     Mod1Mask|modifiers[i], root_win, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(display, t_key     = XKeysymToKeycode(display, XStringToKeysym("t")),     ControlMask|Mod1Mask|modifiers[i], root_win, True, GrabModeAsync, GrabModeAsync);
         XGrabKey(display, vol_up_key   = XKeysymToKeycode(display, XStringToKeysym("XF86AudioRaiseVolume")), modifiers[i], root_win, True, GrabModeAsync, GrabModeAsync);
@@ -44,7 +46,11 @@ int main() {
     for(;;) {
         XNextEvent(display, &ev);
 
-        if (ev.type == KeyPress && ev.xkey.keycode == p_key) {
+        if (ev.type == ButtonPress) {
+            XRaiseWindow(display, ev.xkey.subwindow);
+            XSetInputFocus(display, ev.xkey.subwindow, RevertToPointerRoot, None); 
+        }
+        else if (ev.type == KeyPress && ev.xkey.keycode == p_key) {
             system("weema-cmd.sh launcher");
         }
         else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
@@ -65,6 +71,7 @@ int main() {
         else if (ev.type == CirculateNotify) {
             XGetWindowAttributes(display, ev.xcirculate.window, &win_attr);
             XWarpPointer(display, None, ev.xcirculate.window, None, None, None, None, win_attr.width / 2, win_attr.height / 2);
+            XSetInputFocus(display, ev.xcirculate.window, RevertToParent, None);
         }
         else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
             XCloseDisplay(display);
