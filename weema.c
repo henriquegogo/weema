@@ -4,11 +4,10 @@
 #include <stdlib.h>
 #include <X11/Xlib.h>
 
-Display * display;
+Display *display;
 Window root_win;
 XWindowAttributes root_attr;
 XWindowAttributes win_attr;
-XButtonEvent click_start;
 XEvent ev;
 
 KeyCode up_key;
