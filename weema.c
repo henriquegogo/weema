@@ -84,10 +84,12 @@ int main() {
                 XGetWindowAttributes(display, ev.xkey.subwindow, &win_attr);
 
                 if (ev.xkey.keycode == up_key) {
+                    // Full screen
                     XMoveWindow(display, ev.xkey.subwindow, 0, 0);
                     XResizeWindow(display, ev.xkey.subwindow, root_attr.width, root_attr.height);
                 }
                 else if (ev.xkey.keycode == down_key) {
+                    // Float window centralized
                     XMoveWindow(display, ev.xkey.subwindow, root_attr.width * 0.33 / 2, root_attr.height * 0.33 / 2);
                     XResizeWindow(display, ev.xkey.subwindow, root_attr.width * 0.66, root_attr.height * 0.66);
                     XWarpPointer(display, None, ev.xkey.subwindow, None, None, None, None, root_attr.width * 0.66 / 2, root_attr.height * 0.66 / 2);
@@ -95,29 +97,35 @@ int main() {
                 else if (ev.xkey.keycode == left_key) {
                     Bool is_positioned = win_attr.height == root_attr.height && win_attr.x == root_attr.width - win_attr.width && win_attr.y == 0;
                     if (win_attr.width == root_attr.width / 3 && is_positioned) {
+                        // Has 1/3 width at right. Resize to 1/2 at right
                         XMoveWindow(display, ev.xkey.subwindow, root_attr.width / 2, 0);
                         XResizeWindow(display, ev.xkey.subwindow, root_attr.width / 2, root_attr.height);
                     }
                     else if (win_attr.width == root_attr.width / 2 && is_positioned) {
+                        // Has 1/2 width at right. Resize to 2/3 at right
                         XMoveWindow(display, ev.xkey.subwindow, root_attr.width / 3, 0);
                         XResizeWindow(display, ev.xkey.subwindow, root_attr.width / 3 * 2, root_attr.height);
                     }
                     else {
-                        int width = win_attr.width == root_attr.width / 2 ? root_attr.width / 3 :  root_attr.width / 2;
-                        XMoveWindow(display, ev.xkey.subwindow, 0, 0);
+                        // Isn't at left. Move to left. Toggle width to 1/2 or 1/3 values
+                        int width = win_attr.width == root_attr.width / 2 ? root_attr.width / 3 : root_attr.width / 2;
+                        XMoveWindow(display, ev.xkey.subwindow, 1, 0);
                         XResizeWindow(display, ev.xkey.subwindow, width, root_attr.height);
                         XWarpPointer(display, None, ev.xkey.subwindow, None, None, None, None, width / 2, root_attr.height / 2);
                     }
                 }
                 else if (ev.xkey.keycode == right_key) {
-                    Bool is_positioned = win_attr.height == root_attr.height && win_attr.x == 0 && win_attr.y == 0;
+                    Bool is_positioned = win_attr.height == root_attr.height && win_attr.x == 1 && win_attr.y == 0;
                     if (win_attr.width == root_attr.width / 3 && is_positioned) {
+                        // Has 1/3 width at left. Resize to 1/2 at left
                         XResizeWindow(display, ev.xkey.subwindow, root_attr.width / 2, root_attr.height);
                     }
                     else if (win_attr.width == root_attr.width / 2 && is_positioned) {
-                        XResizeWindow(display, ev.xkey.subwindow, root_attr.width / 3 * 2, root_attr.height);
+                        // Has 1/2 width at left. Resize to 2/3 at left
+                        XResizeWindow(display, ev.xkey.subwindow, root_attr.width / 3 * 2 + 1, root_attr.height);
                     }
                     else {
+                        // Isn't at right. Move to right. Toggle width to 1/2 or 1/3 values
                         int width = win_attr.width == root_attr.width / 2 ? root_attr.width / 3 : root_attr.width / 2;
                         XMoveWindow(display, ev.xkey.subwindow, root_attr.width - width, 0);
                         XResizeWindow(display, ev.xkey.subwindow, width, root_attr.height);
