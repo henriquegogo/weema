@@ -6,9 +6,9 @@ all:
 	$(CC) $(CFLAGS) -I$(PREFIX)/include weema.c -L$(PREFIX)/lib -lX11 -o weema
 
 install:
-	install -d ${DESTDIR}${BINDIR}
-	install -m 755 weema-cmd ${DESTDIR}${BINDIR}
-	install -m 755 weema ${DESTDIR}${BINDIR}
+	install -d ${BINDIR}
+	install -m 755 weema-cmd ${BINDIR}
+	install -m 755 weema ${BINDIR}
 
 uninstall:
 	rm ${BINDIR} weema-cmd
