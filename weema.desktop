@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Weema
+Comment=Minimalistic X11 window manager
+Type=Application
+Terminal=False
+Exec=/usr/bin/weema
+TryExec=weema
+Keywords=X11;windowmanager;
+
+[Window Manager]
+SessionManaged=true

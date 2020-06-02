@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <X11/Xlib.h>
 
-Display *display;
+Display *display = NULL;
 Window root_win;
 XWindowAttributes root_attr;
 XWindowAttributes win_attr;
@@ -39,7 +39,7 @@ void WeeGrabButton(int buttoncode, unsigned int modifiers) {
             GrabModeAsync, GrabModeAsync, None, None);
 }
 
-int WeeGetKeycode(char *key) {
+int WeeGetKeycode(const char *key) {
     return XKeysymToKeycode(display, XStringToKeysym(key));
 }
 
@@ -68,7 +68,7 @@ void WeeSetupGrab() {
     }
 }
 
-void WeeRunCmd(char *cmd) {
+void WeeRunCmd(const char *cmd) {
     (void)(system(cmd)+1);
 }
 
@@ -110,14 +110,14 @@ void WeeResizeToBottom(Window win) {
 }
 
 void WeeResizeToLeft(Window win) {
-    Bool is_positioned = win_attr.x == root_attr.width - win_attr.width;
+    Bool at_right = win_attr.x == root_attr.width - win_attr.width;
 
-    if (win_attr.width == root_attr.width / 3 && is_positioned) {
+    if (win_attr.width == root_attr.width / 3 && at_right) {
         // Has 1/3 width at right. Resize to 1/2 at right
         XMoveWindow(display, win, root_attr.width / 2, win_attr.y);
         XResizeWindow(display, win, root_attr.width / 2, win_attr.height);
     }
-    else if (win_attr.width == root_attr.width / 2 && is_positioned) {
+    else if (win_attr.width == root_attr.width / 2 && at_right) {
         // Has 1/2 width at right. Resize to 2/3 at right
         XMoveWindow(display, win, root_attr.width / 3, win_attr.y);
         XResizeWindow(display, win, root_attr.width / 3 * 2, win_attr.height);
@@ -134,13 +134,13 @@ void WeeResizeToLeft(Window win) {
 }
 
 void WeeResizeToRight(Window win) {
-    Bool is_positioned = win_attr.x == 1;
+    Bool at_left = win_attr.x == 1;
 
-    if (win_attr.width == root_attr.width / 3 && is_positioned) {
+    if (win_attr.width == root_attr.width / 3 && at_left) {
         // Has 1/3 width at left. Resize to 1/2 at left
         XResizeWindow(display, win, root_attr.width / 2, win_attr.height);
     }
-    else if (win_attr.width == root_attr.width / 2 && is_positioned) {
+    else if (win_attr.width == root_attr.width / 2 && at_left) {
         // Has 1/2 width at left. Resize to 2/3 at left
         XResizeWindow(display, win, root_attr.width / 3 * 2 + 1, win_attr.height);
     }
@@ -220,7 +220,7 @@ void WeeInterceptEvents() {
         WeeRunCmd("weema-cmd launcher");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
-        WeeRunCmd("weema-cmd terminal");
+        WeeRunCmd("x-terminal-emulator &");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == vol_up_key) {
         WeeRunCmd("weema-cmd volumeup");
@@ -261,6 +261,7 @@ int main() {
 
     WeeInitRootWindow();
     WeeSetupGrab();
+    WeeRunCmd("weema-cmd init");
 
     for(;;) {
         WeeInterceptEvents();
