@@ -2,6 +2,15 @@ Weema by Henrique Gogó <henriquegogo@gmail.com>, 2020.
 
 Window manager for minimalists
 
+Installation:
+
+  $ make
+  $ sudo make install
+
+Uninstall:
+  
+  $ sudo make uninstall
+
 Usage:
 
   Copy weema-cmd file to a bin folder and configure
