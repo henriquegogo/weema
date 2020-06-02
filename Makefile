@@ -13,9 +13,9 @@ install:
 	install -m 755 weema.desktop ${XSESSIONSDIR}
 
 uninstall:
-	rm ${BINDIR} weema-cmd
-	rm ${BINDIR} weema
-	rm ${XSESSIONSDIR} weema.desktop
+	rm ${BINDIR}/weema-cmd
+	rm ${BINDIR}/weema
+	rm ${XSESSIONSDIR}/weema.desktop
 		
 clean:
 	rm -f weema
