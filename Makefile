@@ -7,7 +7,12 @@ all:
 
 install:
 	install -d ${DESTDIR}${BINDIR}
+	install -m 755 weema-cmd ${DESTDIR}${BINDIR}
 	install -m 755 weema ${DESTDIR}${BINDIR}
+
+uninstall:
+	rm ${BINDIR} weema-cmd
+	rm ${BINDIR} weema
 		
 clean:
 	rm -f weema
