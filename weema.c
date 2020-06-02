@@ -8,6 +8,7 @@ Display *display;
 Window root_win;
 XWindowAttributes root_attr;
 XWindowAttributes win_attr;
+XButtonEvent click_start;
 XEvent ev;
 
 KeyCode up_key;
@@ -31,6 +32,11 @@ void WeeInitRootWindow() {
 
 void WeeGrabKey(int keycode, unsigned int modifiers) {
     XGrabKey(display, keycode, modifiers, root_win, True, GrabModeAsync, GrabModeAsync);
+}
+
+void WeeGrabButton(int buttoncode, unsigned int modifiers) {
+    XGrabButton(display, buttoncode, modifiers, root_win, True, ButtonPressMask,
+            GrabModeAsync, GrabModeAsync, None, None);
 }
 
 int WeeGetKeycode(char *key) {
@@ -58,8 +64,7 @@ void WeeSetupGrab() {
         WeeGrabKey(right_key = WeeGetKeycode("Right"), Mod4Mask|modifiers[i]);
         WeeGrabKey(up_key    = WeeGetKeycode("Up"),    ShiftMask|Mod4Mask|modifiers[i]);
         WeeGrabKey(down_key  = WeeGetKeycode("Down"),  ShiftMask|Mod4Mask|modifiers[i]);
-        XGrabButton(display, 1, Mod1Mask|modifiers[i],
-                root_win, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+        WeeGrabButton(1, Mod1Mask|modifiers[i]);
     }
 }
 
@@ -179,12 +184,37 @@ void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modi
     }
 }
 
+void WeeRaiseAndFocus(Window win) {
+    XRaiseWindow(display, win);
+    XSetInputFocus(display, win, RevertToPointerRoot, None); 
+}
+
+void WeeHandleClick(XButtonEvent button_event) {
+    XGrabPointer(display, button_event.subwindow, True, PointerMotionMask|ButtonReleaseMask,
+            GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+    XGetWindowAttributes(display, button_event.subwindow, &win_attr);
+    click_start = button_event;
+}
+
+void WeeHandleMotion() {
+    while (XCheckTypedEvent(display, MotionNotify, &ev));
+    int xdiff = ev.xbutton.x_root - click_start.x_root;
+    int ydiff = ev.xbutton.y_root - click_start.y_root;
+    XMoveWindow(display, ev.xmotion.window, win_attr.x + xdiff, win_attr.y + ydiff);
+}
+
 void WeeInterceptEvents() {
     XNextEvent(display, &ev);
 
     if (ev.type == ButtonPress) {
-        XRaiseWindow(display, ev.xkey.subwindow);
-        XSetInputFocus(display, ev.xkey.subwindow, RevertToPointerRoot, None); 
+        WeeRaiseAndFocus(ev.xbutton.subwindow);
+        WeeHandleClick(ev.xbutton);
+    }
+    else if (ev.type == ButtonRelease) {
+        XUngrabPointer(display, CurrentTime);
+    }
+    else if (ev.type == MotionNotify) {
+        WeeHandleMotion();
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == p_key) {
         WeeRunCmd("weema-cmd.sh launcher");

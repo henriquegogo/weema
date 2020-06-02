@@ -9,7 +9,7 @@ Usage:
 
 Binds:
 
-  Alt+Button1: raise window
+  Alt+Button1: raise and move window
   Alt+P: open application launcher
   Alt+PrntScr: print screen area selector
   Alt+Tab: alternate windows
