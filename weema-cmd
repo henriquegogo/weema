@@ -1,5 +1,7 @@
+#!/bin/sh
+
 if [ $1 = "launcher" ]; then
-  dmenu_run
+  dmenu_run -l 5 -p "$(date +'%d %a %H:%M')"
 elif [ $1 = "terminal" ]; then
   x-terminal-emulator &
 elif [ $1 = "volumeup" ]; then

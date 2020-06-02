@@ -4,7 +4,7 @@ Window manager for minimalists
 
 Usage:
 
-  Copy weema-cmd.sh file to a bin folder and configure
+  Copy weema-cmd file to a bin folder and configure
   Edit .xinitrc file to 'exec weema'
 
 Binds:
