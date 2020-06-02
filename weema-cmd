@@ -1,9 +1,10 @@
 #!/bin/sh
 
-if [ $1 = "launcher" ]; then
+if [ $1 = "init" ]; then
+  xsetroot -cursor_name arrow
+  feh --bg-scale ~/wallpaper.jpg &
+elif [ $1 = "launcher" ]; then
   dmenu_run -l 5 -p "$(date +'%d %a %H:%M')"
-elif [ $1 = "terminal" ]; then
-  x-terminal-emulator &
 elif [ $1 = "volumeup" ]; then
   amixer set Master 3+
 elif [ $1 = "volumedown" ]; then
