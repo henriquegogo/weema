@@ -18,10 +18,12 @@ Binds:
   Volume up: increase volume
   Volume down: decrease volume
   Super+Alt+Delete: close window manager
-  Super+Up: maximize window
-  Super+Down: move window to center and resize
-  Super+Left: move window left with full height
-  Super+Right: move window right with full height
+  Super+Shift+Up: maximize window
+  Super+Shift+Down: move window to center and resize
+  Super+Up: move window to top with half height
+  Super+Down: move window to bottom with half height
+  Super+Left: move window left and resize width
+  Super+Right: move window right and resize width
 
 License:
 
