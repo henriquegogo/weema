@@ -56,6 +56,8 @@ void WeeSetupGrab() {
         WeeGrabKey(down_key  = WeeGetKeycode("Down"),  Mod4Mask|modifiers[i]);
         WeeGrabKey(left_key  = WeeGetKeycode("Left"),  Mod4Mask|modifiers[i]);
         WeeGrabKey(right_key = WeeGetKeycode("Right"), Mod4Mask|modifiers[i]);
+        WeeGrabKey(up_key    = WeeGetKeycode("Up"),    ShiftMask|Mod4Mask|modifiers[i]);
+        WeeGrabKey(down_key  = WeeGetKeycode("Down"),  ShiftMask|Mod4Mask|modifiers[i]);
         XGrabButton(display, 1, Mod1Mask|modifiers[i],
                 root_win, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
     }
@@ -76,8 +78,10 @@ void WeeCloseWindow(Window win) {
     XSendEvent(display, win, False, NoEventMask, &event);
 }
 
-void WeeMoveCursor(Window win, int x, int y) {
-    XWarpPointer(display, None, win, None, None, None, None, x, y);
+void WeeMoveCursor(Window win) {
+    XGetWindowAttributes(display, win, &win_attr);
+    XWarpPointer(display, None, win, None, None, None, None,
+            win_attr.width / 2, win_attr.height / 2);
 }
 
 void WeeResizeFullScreen(Window win) {
@@ -88,22 +92,30 @@ void WeeResizeFullScreen(Window win) {
 void WeeResizeFloatCentralized(Window win) {
     XMoveWindow(display, win, root_attr.width * 0.33 / 2, root_attr.height * 0.33 / 2);
     XResizeWindow(display, win, root_attr.width * 0.66, root_attr.height * 0.66);
-    WeeMoveCursor(win, root_attr.width * 0.66 / 2, root_attr.height * 0.66 / 2);
+}
+
+void WeeResizeToTop(Window win) {
+    XMoveWindow(display, win, win_attr.x, 0);
+    XResizeWindow(display, win, win_attr.width, root_attr.height / 2 + 1);
+}
+
+void WeeResizeToBottom(Window win) {
+    XMoveWindow(display, win, win_attr.x, root_attr.height / 2);
+    XResizeWindow(display, win, win_attr.width, root_attr.height / 2 + 1);
 }
 
 void WeeResizeToLeft(Window win) {
-    Bool is_positioned = win_attr.height == root_attr.height
-        && win_attr.x == root_attr.width - win_attr.width && win_attr.y == 0;
+    Bool is_positioned = win_attr.x == root_attr.width - win_attr.width;
 
     if (win_attr.width == root_attr.width / 3 && is_positioned) {
         // Has 1/3 width at right. Resize to 1/2 at right
-        XMoveWindow(display, win, root_attr.width / 2, 0);
-        XResizeWindow(display, win, root_attr.width / 2, root_attr.height);
+        XMoveWindow(display, win, root_attr.width / 2, win_attr.y);
+        XResizeWindow(display, win, root_attr.width / 2, win_attr.height);
     }
     else if (win_attr.width == root_attr.width / 2 && is_positioned) {
         // Has 1/2 width at right. Resize to 2/3 at right
-        XMoveWindow(display, win, root_attr.width / 3, 0);
-        XResizeWindow(display, win, root_attr.width / 3 * 2, root_attr.height);
+        XMoveWindow(display, win, root_attr.width / 3, win_attr.y);
+        XResizeWindow(display, win, root_attr.width / 3 * 2, win_attr.height);
     }
     else {
         // Isn't at left. Move to left. Toggle width to 1/2 or 1/3 values
@@ -111,23 +123,21 @@ void WeeResizeToLeft(Window win) {
             ? root_attr.width / 3
             : root_attr.width / 2;
 
-        XMoveWindow(display, win, 1, 0);
-        XResizeWindow(display, win, width, root_attr.height);
-        WeeMoveCursor(win, width / 2, root_attr.height / 2);
+        XMoveWindow(display, win, 1, win_attr.y);
+        XResizeWindow(display, win, width, win_attr.height);
     }
 }
 
 void WeeResizeToRight(Window win) {
-    Bool is_positioned = win_attr.height == root_attr.height
-        && win_attr.x == 1 && win_attr.y == 0;
+    Bool is_positioned = win_attr.x == 1;
 
     if (win_attr.width == root_attr.width / 3 && is_positioned) {
         // Has 1/3 width at left. Resize to 1/2 at left
-        XResizeWindow(display, win, root_attr.width / 2, root_attr.height);
+        XResizeWindow(display, win, root_attr.width / 2, win_attr.height);
     }
     else if (win_attr.width == root_attr.width / 2 && is_positioned) {
         // Has 1/2 width at left. Resize to 2/3 at left
-        XResizeWindow(display, win, root_attr.width / 3 * 2 + 1, root_attr.height);
+        XResizeWindow(display, win, root_attr.width / 3 * 2 + 1, win_attr.height);
     }
     else {
         // Isn't at right. Move to right. Toggle width to 1/2 or 1/3 values
@@ -135,26 +145,37 @@ void WeeResizeToRight(Window win) {
             ? root_attr.width / 3
             : root_attr.width / 2;
 
-        XMoveWindow(display, win, root_attr.width - width, 0);
-        XResizeWindow(display, win, width, root_attr.height);
-        WeeMoveCursor(win, width / 2, root_attr.height / 2);
+        XMoveWindow(display, win, root_attr.width - width, win_attr.y);
+        XResizeWindow(display, win, width, win_attr.height);
     }
 }
 
-void WeeHandleWindowPosition(Window win, unsigned int keycode) {
+void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
     XGetWindowAttributes(display, win, &win_attr);
 
-    if (keycode == up_key) {
+    if (keycode == up_key && modifiers & ShiftMask) {
         WeeResizeFullScreen(win);
+        WeeMoveCursor(win);
+    }
+    else if (keycode == down_key && modifiers & ShiftMask) {
+        WeeResizeFloatCentralized(win);
+        WeeMoveCursor(win);
+    }
+    else if (keycode == up_key) {
+        WeeResizeToTop(win);
+        WeeMoveCursor(win);
     }
     else if (keycode == down_key) {
-        WeeResizeFloatCentralized(win);
+        WeeResizeToBottom(win);
+        WeeMoveCursor(win);
     }
     else if (keycode == left_key) {
         WeeResizeToLeft(win);
+        WeeMoveCursor(win);
     }
     else if (keycode == right_key) {
         WeeResizeToRight(win);
+        WeeMoveCursor(win);
     }
 }
 
@@ -191,7 +212,7 @@ void WeeInterceptEvents() {
     }
     else if (ev.type == CirculateNotify) {
         XGetWindowAttributes(display, ev.xcirculate.window, &win_attr);
-        WeeMoveCursor(ev.xcirculate.window, win_attr.width / 2, win_attr.height / 2);
+        WeeMoveCursor(ev.xcirculate.window);
         XSetInputFocus(display, ev.xcirculate.window, RevertToParent, None);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
@@ -201,7 +222,7 @@ void WeeInterceptEvents() {
         WeeCloseWindow(ev.xkey.subwindow);
     }
     else if (ev.type == KeyPress && ev.xkey.subwindow != None) {
-        WeeHandleWindowPosition(ev.xkey.subwindow, ev.xkey.keycode);
+        WeeHandleWindowPosition(ev.xkey.subwindow, ev.xkey.keycode, ev.xkey.state);
     }
 }
 
