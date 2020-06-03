@@ -13,8 +13,8 @@ Uninstall:
 
 Usage:
 
-  Copy weema-cmd file to a bin folder and configure
-  Edit .xinitrc file to 'exec weema'
+  Edit .xinitrc file to 'exec weema' or select 'Weema'
+  in your display manager.
 
 Binds:
 
@@ -33,6 +33,17 @@ Binds:
   Super+Down: move window to bottom with half height
   Super+Left: move window left and resize width
   Super+Right: move window right and resize width
+
+Third party optional dependencies:
+  
+  Default weema-cmd script use some third party applications
+  to manage some functions. You can edit weema-cmd and change
+  them if you desire.
+
+  - feh: set background image
+  - dmenu: applications launcher
+  - alsa-utils: volume control
+  - scrot: print screen
 
 License:
 
