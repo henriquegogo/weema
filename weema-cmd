@@ -9,6 +9,6 @@ elif [ $1 = "volumeup" ]; then
   amixer set Master 3+
 elif [ $1 = "volumedown" ]; then
   amixer set Master 3-
-elif [ $1 = "printscreenarea" ]; then
-  scrot -s
+elif [ $1 = "printscreen" ]; then
+  scrot
 fi

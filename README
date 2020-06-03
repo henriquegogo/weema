@@ -19,14 +19,14 @@ Usage:
 Binds:
 
   Alt+Button1: raise and move window
-  Alt+P: open application launcher
-  Alt+PrntScr: print screen area selector
   Alt+Tab: alternate windows
   Alt+F4: close window
-  Ctrl+Alt+T: open terminal
+  Ctrl+Alt+Delete: close window manager
+  PrntScr: print screen
   Volume up: increase volume
   Volume down: decrease volume
-  Super+Alt+Delete: close window manager
+  Super+R: open application launcher
+  Super+T: open terminal
   Super+Shift+Up: maximize window
   Super+Shift+Down: move window to center and resize
   Super+Up: move window to top with half height
