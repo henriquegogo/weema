@@ -15,7 +15,7 @@ KeyCode up_key;
 KeyCode down_key;
 KeyCode left_key;
 KeyCode right_key;
-KeyCode p_key;
+KeyCode r_key;
 KeyCode t_key;
 KeyCode vol_up_key;
 KeyCode vol_down_key;
@@ -51,13 +51,13 @@ void WeeSetupGrab() {
     for (int i = 0; i < 8; i++) {
         WeeGrabKey(vol_up_key   = WeeGetKeycode("XF86AudioRaiseVolume"), modifiers[i]);
         WeeGrabKey(vol_down_key = WeeGetKeycode("XF86AudioLowerVolume"), modifiers[i]);
-        WeeGrabKey(p_key     = WeeGetKeycode("p"), Mod1Mask|modifiers[i]);
-        WeeGrabKey(t_key     = WeeGetKeycode("t"), ControlMask|Mod1Mask|modifiers[i]);
-        WeeGrabKey(print_key = WeeGetKeycode("Print"), Mod1Mask|modifiers[i]);
+        WeeGrabKey(r_key     = WeeGetKeycode("r"),     Mod4Mask|modifiers[i]);
+        WeeGrabKey(t_key     = WeeGetKeycode("t"),     Mod4Mask|modifiers[i]);
+        WeeGrabKey(print_key = WeeGetKeycode("Print"), modifiers[i]);
         WeeGrabKey(tab_key   = WeeGetKeycode("Tab"),   Mod1Mask|modifiers[i]);
         WeeGrabKey(tab_key   = WeeGetKeycode("Tab"),   ShiftMask|Mod1Mask|modifiers[i]);
         WeeGrabKey(f4_key    = WeeGetKeycode("F4"),    Mod1Mask|modifiers[i]);
-        WeeGrabKey(del_key   = WeeGetKeycode("Delete"),Mod4Mask|Mod1Mask|modifiers[i]);
+        WeeGrabKey(del_key   = WeeGetKeycode("Delete"),ControlMask|Mod1Mask|modifiers[i]);
         WeeGrabKey(up_key    = WeeGetKeycode("Up"),    Mod4Mask|modifiers[i]);
         WeeGrabKey(down_key  = WeeGetKeycode("Down"),  Mod4Mask|modifiers[i]);
         WeeGrabKey(left_key  = WeeGetKeycode("Left"),  Mod4Mask|modifiers[i]);
@@ -216,7 +216,7 @@ void WeeInterceptEvents() {
     else if (ev.type == MotionNotify) {
         WeeHandleMotion();
     }
-    else if (ev.type == KeyPress && ev.xkey.keycode == p_key) {
+    else if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
         WeeRunCmd("weema-cmd launcher");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
@@ -229,7 +229,7 @@ void WeeInterceptEvents() {
         WeeRunCmd("weema-cmd volumedown");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == print_key) {
-        WeeRunCmd("weema-cmd printscreenarea");
+        WeeRunCmd("weema-cmd printscreen");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
         // Move two cicles down and one up to focus last raised window
