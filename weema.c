@@ -87,6 +87,11 @@ void WeeCloseWindow(Window win) {
     XSendEvent(display, win, False, NoEventMask, &event);
 }
 
+void WeeDrawBorder(Window win) {
+    XSetWindowBorderWidth(display, win, 1);
+    XSetWindowBorder(display, win, 0);
+}
+
 void WeeMoveCursor(Window win) {
     XGetWindowAttributes(display, win, &win_attr);
     XWarpPointer(display, None, win, None, None, None, None,
@@ -119,7 +124,7 @@ void WeeResizeToBottom(Window win) {
 }
 
 void WeeResizeToLeft(Window win) {
-    Bool at_left = win_attr.x == 1;
+    Bool at_left = win_attr.x == 0;
     Bool at_right = win_attr.x == root_attr.width - win_attr.width;
     int half = root_attr.width / 2;
     int third = root_attr.width / 3;
@@ -133,11 +138,11 @@ void WeeResizeToLeft(Window win) {
         XResizeWindow(display, win, third * 2, win_attr.height);
     }
     else if ((win_attr.width == half || win_attr.width == third) && at_left) {
-        XMoveWindow(display, win, 1, win_attr.y);
+        XMoveWindow(display, win, 0, win_attr.y);
         XResizeWindow(display, win, third, win_attr.height);
     }
     else {
-        XMoveWindow(display, win, 1, win_attr.y);
+        XMoveWindow(display, win, 0, win_attr.y);
         XResizeWindow(display, win, half, win_attr.height);
     }
 }
@@ -206,6 +211,7 @@ void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modi
 void WeeRaiseAndFocus(Window win) {
     XRaiseWindow(display, win);
     XSetInputFocus(display, win, RevertToPointerRoot, None); 
+    WeeDrawBorder(win);
 }
 
 void WeeHandleClick(XButtonEvent button_event) {
@@ -266,6 +272,7 @@ void WeeInterceptEvents() {
         XGetWindowAttributes(display, ev.xcirculate.window, &win_attr);
         WeeMoveCursor(ev.xcirculate.window);
         XSetInputFocus(display, ev.xcirculate.window, RevertToParent, None);
+        WeeDrawBorder(ev.xcirculate.window);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(display);
