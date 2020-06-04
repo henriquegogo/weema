@@ -17,6 +17,7 @@ KeyCode left_key;
 KeyCode right_key;
 KeyCode r_key;
 KeyCode t_key;
+KeyCode l_key;
 KeyCode vol_up_key;
 KeyCode vol_down_key;
 KeyCode f4_key;
@@ -53,6 +54,7 @@ void WeeSetupGrab() {
         WeeGrabKey(vol_down_key = WeeGetKeycode("XF86AudioLowerVolume"), modifiers[i]);
         WeeGrabKey(r_key     = WeeGetKeycode("r"),     Mod4Mask|modifiers[i]);
         WeeGrabKey(t_key     = WeeGetKeycode("t"),     Mod4Mask|modifiers[i]);
+        WeeGrabKey(l_key     = WeeGetKeycode("l"),     Mod4Mask|modifiers[i]);
         WeeGrabKey(print_key = WeeGetKeycode("Print"), modifiers[i]);
         WeeGrabKey(tab_key   = WeeGetKeycode("Tab"),   Mod1Mask|modifiers[i]);
         WeeGrabKey(tab_key   = WeeGetKeycode("Tab"),   ShiftMask|Mod1Mask|modifiers[i]);
@@ -239,6 +241,9 @@ void WeeInterceptEvents() {
     else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
         WeeRunCmd("x-terminal-emulator &");
     }
+    else if (ev.type == KeyPress && ev.xkey.keycode == l_key) {
+        WeeRunCmd("weema-cmd lock &");
+    }
     else if (ev.type == KeyPress && ev.xkey.keycode == vol_up_key) {
         WeeRunCmd("weema-cmd volumeup &");
     }
@@ -278,7 +283,7 @@ int main() {
 
     WeeInitRootWindow();
     WeeSetupGrab();
-    WeeRunCmd("weema-cmd init");
+    WeeRunCmd("weema-cmd init &");
 
     for(;;) {
         WeeInterceptEvents();
