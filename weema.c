@@ -176,7 +176,7 @@ void WeeResizeToRight(Window win) {
 
 void WeeRaiseAndFocus(Window win) {
     XRaiseWindow(display, win);
-    XSetInputFocus(display, win, RevertToPointerRoot, None); 
+    XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
     WeeDrawBorder(win);
 }
 
@@ -290,7 +290,7 @@ void WeeInterceptEvents() {
     else if (ev.type == CirculateNotify) {
         XGetWindowAttributes(display, ev.xcirculate.window, &win_attr);
         WeeCenterCursor(ev.xcirculate.window);
-        XSetInputFocus(display, ev.xcirculate.window, RevertToParent, None);
+        XSetInputFocus(display, ev.xcirculate.window, RevertToPointerRoot, CurrentTime);
         WeeDrawBorder(ev.xcirculate.window);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
