@@ -151,7 +151,7 @@ void WeeResizeToLeft(Window win) {
 }
 
 void WeeResizeToRight(Window win) {
-    Bool at_left = win_attr.x == 1;
+    Bool at_left = win_attr.x == 0;
     Bool at_right = win_attr.x == root_attr.width - win_attr.width;
     int half = root_attr.width / 2;
     int third = root_attr.width / 3;
@@ -160,7 +160,7 @@ void WeeResizeToRight(Window win) {
         XResizeWindow(display, win, half, win_attr.height);
     }
     else if (win_attr.width == half && at_left) {
-        XResizeWindow(display, win, third * 2 + 1, win_attr.height);
+        XResizeWindow(display, win, third * 2, win_attr.height);
     }
     else if ((win_attr.width == half || win_attr.width == third) && at_right) {
         XMoveWindow(display, win, root_attr.width - third, win_attr.y);
