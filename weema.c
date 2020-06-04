@@ -18,6 +18,7 @@ KeyCode right_key;
 KeyCode r_key;
 KeyCode t_key;
 KeyCode l_key;
+KeyCode b_key;
 KeyCode vol_up_key;
 KeyCode vol_down_key;
 KeyCode f4_key;
@@ -55,6 +56,7 @@ void WeeSetupGrab() {
         WeeGrabKey(r_key     = WeeGetKeycode("r"),     Mod4Mask|modifiers[i]);
         WeeGrabKey(t_key     = WeeGetKeycode("t"),     Mod4Mask|modifiers[i]);
         WeeGrabKey(l_key     = WeeGetKeycode("l"),     Mod4Mask|modifiers[i]);
+        WeeGrabKey(b_key     = WeeGetKeycode("b"),     Mod4Mask|modifiers[i]);
         WeeGrabKey(print_key = WeeGetKeycode("Print"), modifiers[i]);
         WeeGrabKey(tab_key   = WeeGetKeycode("Tab"),   Mod1Mask|modifiers[i]);
         WeeGrabKey(tab_key   = WeeGetKeycode("Tab"),   ShiftMask|Mod1Mask|modifiers[i]);
@@ -172,49 +174,57 @@ void WeeResizeToRight(Window win) {
     }
 }
 
+void WeeRaiseAndFocus(Window win) {
+    XRaiseWindow(display, win);
+    XSetInputFocus(display, win, RevertToPointerRoot, None); 
+    WeeDrawBorder(win);
+}
+
 void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
     XGetWindowAttributes(display, win, &win_attr);
 
     if (keycode == up_key && modifiers & ShiftMask) {
         WeeResizeFullScreen(win);
         WeeCenterCursor(win);
+        WeeRaiseAndFocus(win);
     }
     else if (keycode == down_key && modifiers & ShiftMask) {
         WeeResizeFloatCentralized(win);
         WeeCenterCursor(win);
+        WeeRaiseAndFocus(win);
     }
     else if (keycode == left_key && modifiers & ShiftMask) {
         WeeResizeToLeft(win);
         WeeCenterCursor(win);
         WeeResizeFullHeight(win);
+        WeeRaiseAndFocus(win);
     }
     else if (keycode == right_key && modifiers & ShiftMask) {
         WeeResizeToRight(win);
         WeeCenterCursor(win);
         WeeResizeFullHeight(win);
+        WeeRaiseAndFocus(win);
     }
     else if (keycode == up_key) {
         WeeResizeToTop(win);
         WeeCenterCursor(win);
+        WeeRaiseAndFocus(win);
     }
     else if (keycode == down_key) {
         WeeResizeToBottom(win);
         WeeCenterCursor(win);
+        WeeRaiseAndFocus(win);
     }
     else if (keycode == left_key) {
         WeeResizeToLeft(win);
         WeeCenterCursor(win);
+        WeeRaiseAndFocus(win);
     }
     else if (keycode == right_key) {
         WeeResizeToRight(win);
         WeeCenterCursor(win);
+        WeeRaiseAndFocus(win);
     }
-}
-
-void WeeRaiseAndFocus(Window win) {
-    XRaiseWindow(display, win);
-    XSetInputFocus(display, win, RevertToPointerRoot, None); 
-    WeeDrawBorder(win);
 }
 
 void WeeHandleClick(XButtonEvent button_event) {
@@ -250,6 +260,10 @@ void WeeInterceptEvents() {
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
         WeeRunCmd("x-terminal-emulator &");
+        WeeMoveCursor(root_win, 10, 100);
+    }
+    else if (ev.type == KeyPress && ev.xkey.keycode == b_key) {
+        WeeRunCmd("x-www-browser &");
         WeeMoveCursor(root_win, 10, 100);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == l_key) {
