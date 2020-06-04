@@ -29,6 +29,8 @@ Binds:
   Super+T: open terminal
   Super+Shift+Up: maximize window
   Super+Shift+Down: move window to center and resize
+  Super+Shift+Left: move window to left with full height
+  Super+Shift+Right: move window to right with full height
   Super+Up: move window to top with half height
   Super+Down: move window to bottom with half height
   Super+Left: move window left and resize width
