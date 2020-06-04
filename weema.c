@@ -234,19 +234,19 @@ void WeeInterceptEvents() {
         WeeHandleMotion();
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
-        WeeRunCmd("weema-cmd launcher");
+        WeeRunCmd("weema-cmd launcher &");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
         WeeRunCmd("x-terminal-emulator &");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == vol_up_key) {
-        WeeRunCmd("weema-cmd volumeup");
+        WeeRunCmd("weema-cmd volumeup &");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == vol_down_key) {
-        WeeRunCmd("weema-cmd volumedown");
+        WeeRunCmd("weema-cmd volumedown &");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == print_key) {
-        WeeRunCmd("weema-cmd printscreen");
+        WeeRunCmd("weema-cmd printscreen &");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
         // Move two cicles down and one up to focus last raised window
