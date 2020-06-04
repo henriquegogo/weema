@@ -12,5 +12,5 @@ elif [ $1 = "volumeup" ]; then
 elif [ $1 = "volumedown" ]; then
   amixer set Master 3-
 elif [ $1 = "printscreen" ]; then
-  scrot
+  scrot -u
 fi
