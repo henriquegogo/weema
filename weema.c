@@ -92,10 +92,13 @@ void WeeDrawBorder(Window win) {
     XSetWindowBorder(display, win, 0);
 }
 
-void WeeMoveCursor(Window win) {
+void WeeMoveCursor(Window win, unsigned int width, unsigned int height) {
+    XWarpPointer(display, None, win, None, None, None, None, width, height);
+}
+
+void WeeCenterCursor(Window win) {
     XGetWindowAttributes(display, win, &win_attr);
-    XWarpPointer(display, None, win, None, None, None, None,
-            win_attr.width / 2, win_attr.height / 2);
+    WeeMoveCursor(win, win_attr.width / 2, win_attr.height / 2);
 }
 
 void WeeResizeFullScreen(Window win) {
@@ -174,37 +177,37 @@ void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modi
 
     if (keycode == up_key && modifiers & ShiftMask) {
         WeeResizeFullScreen(win);
-        WeeMoveCursor(win);
+        WeeCenterCursor(win);
     }
     else if (keycode == down_key && modifiers & ShiftMask) {
         WeeResizeFloatCentralized(win);
-        WeeMoveCursor(win);
+        WeeCenterCursor(win);
     }
     else if (keycode == left_key && modifiers & ShiftMask) {
         WeeResizeToLeft(win);
-        WeeMoveCursor(win);
+        WeeCenterCursor(win);
         WeeResizeFullHeight(win);
     }
     else if (keycode == right_key && modifiers & ShiftMask) {
         WeeResizeToRight(win);
-        WeeMoveCursor(win);
+        WeeCenterCursor(win);
         WeeResizeFullHeight(win);
     }
     else if (keycode == up_key) {
         WeeResizeToTop(win);
-        WeeMoveCursor(win);
+        WeeCenterCursor(win);
     }
     else if (keycode == down_key) {
         WeeResizeToBottom(win);
-        WeeMoveCursor(win);
+        WeeCenterCursor(win);
     }
     else if (keycode == left_key) {
         WeeResizeToLeft(win);
-        WeeMoveCursor(win);
+        WeeCenterCursor(win);
     }
     else if (keycode == right_key) {
         WeeResizeToRight(win);
-        WeeMoveCursor(win);
+        WeeCenterCursor(win);
     }
 }
 
@@ -243,9 +246,11 @@ void WeeInterceptEvents() {
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
         WeeRunCmd("weema-cmd launcher &");
+        WeeMoveCursor(root_win, 10, 100);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
         WeeRunCmd("x-terminal-emulator &");
+        WeeMoveCursor(root_win, 10, 100);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == l_key) {
         WeeRunCmd("weema-cmd lock &");
@@ -270,7 +275,7 @@ void WeeInterceptEvents() {
     }
     else if (ev.type == CirculateNotify) {
         XGetWindowAttributes(display, ev.xcirculate.window, &win_attr);
-        WeeMoveCursor(ev.xcirculate.window);
+        WeeCenterCursor(ev.xcirculate.window);
         XSetInputFocus(display, ev.xcirculate.window, RevertToParent, None);
         WeeDrawBorder(ev.xcirculate.window);
     }
