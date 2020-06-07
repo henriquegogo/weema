@@ -5,6 +5,10 @@ CFLAGS?=-Wpedantic -Wall -Wextra
 all:
 	$(CC) $(CFLAGS) weema.c -lX11 -o weema
 
+debug:
+	$(CC) $(CFLAGS) -g weema.c -lX11 -o weema-debug
+	gdb ./weema-debug
+
 install:
 	install -d ${BINDIR}
 	install -m 755 weema-cmd ${BINDIR}
@@ -17,4 +21,5 @@ uninstall:
 	rm ${XSESSIONSDIR}/weema.desktop
 		
 clean:
-	rm -f weema
+	rm weema
+	rm weema-debug
