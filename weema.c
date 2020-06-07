@@ -104,28 +104,25 @@ void WeeCenterCursor(Window win) {
 }
 
 void WeeResizeFullScreen(Window win) {
-    XMoveWindow(display, win, 0, 0);
-    XResizeWindow(display, win, root_attr.width, root_attr.height);
+    XMoveResizeWindow(display, win, 0, 0, root_attr.width, root_attr.height);
 }
 
 void WeeResizeFullHeight(Window win) {
-    XMoveWindow(display, win, win_attr.x, 0);
-    XResizeWindow(display, win, win_attr.width, root_attr.height);
+    XMoveResizeWindow(display, win, win_attr.x, 0, win_attr.width, root_attr.height);
 }
 
 void WeeResizeFloatCentralized(Window win) {
-    XMoveWindow(display, win, root_attr.width * 0.33 / 2, root_attr.height * 0.33 / 2);
-    XResizeWindow(display, win, root_attr.width * 0.66, root_attr.height * 0.66);
+    XMoveResizeWindow(display, win, root_attr.width * 0.33 / 2, root_attr.height * 0.33 / 2,
+            root_attr.width * 0.66, root_attr.height * 0.66);
 }
 
 void WeeResizeToTop(Window win) {
-    XMoveWindow(display, win, win_attr.x, 0);
-    XResizeWindow(display, win, win_attr.width, root_attr.height / 2 + 1);
+    XMoveResizeWindow(display, win, win_attr.x, 0, win_attr.width, root_attr.height / 2 + 1);
 }
 
 void WeeResizeToBottom(Window win) {
-    XMoveWindow(display, win, win_attr.x, root_attr.height / 2);
-    XResizeWindow(display, win, win_attr.width, root_attr.height / 2 + 1);
+    XMoveResizeWindow(display, win, win_attr.x, root_attr.height / 2,
+            win_attr.width, root_attr.height / 2 + 1);
 }
 
 void WeeResizeToLeft(Window win) {
@@ -135,20 +132,16 @@ void WeeResizeToLeft(Window win) {
     int third = root_attr.width / 3;
 
     if (win_attr.width == third && at_right) {
-        XMoveWindow(display, win, half, win_attr.y);
-        XResizeWindow(display, win, half, win_attr.height);
+        XMoveResizeWindow(display, win, half, win_attr.y, half, win_attr.height);
     }
     else if (win_attr.width == half && at_right) {
-        XMoveWindow(display, win, third, win_attr.y);
-        XResizeWindow(display, win, third * 2, win_attr.height);
+        XMoveResizeWindow(display, win, third, win_attr.y, third * 2, win_attr.height);
     }
     else if ((win_attr.width == half || win_attr.width == third) && at_left) {
-        XMoveWindow(display, win, 0, win_attr.y);
-        XResizeWindow(display, win, third, win_attr.height);
+        XMoveResizeWindow(display, win, 0, win_attr.y, third, win_attr.height);
     }
     else {
-        XMoveWindow(display, win, 0, win_attr.y);
-        XResizeWindow(display, win, half, win_attr.height);
+        XMoveResizeWindow(display, win, 0, win_attr.y, half, win_attr.height);
     }
 }
 
@@ -165,12 +158,10 @@ void WeeResizeToRight(Window win) {
         XResizeWindow(display, win, third * 2, win_attr.height);
     }
     else if ((win_attr.width == half || win_attr.width == third) && at_right) {
-        XMoveWindow(display, win, root_attr.width - third, win_attr.y);
-        XResizeWindow(display, win, third, win_attr.height);
+        XMoveResizeWindow(display, win, root_attr.width - third, win_attr.y, third, win_attr.height);
     }
     else {
-        XMoveWindow(display, win, root_attr.width - half, win_attr.y);
-        XResizeWindow(display, win, half, win_attr.height);
+        XMoveResizeWindow(display, win, root_attr.width - half, win_attr.y, half, win_attr.height);
     }
 }
 
