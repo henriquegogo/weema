@@ -6,25 +6,14 @@
 
 Display *display = NULL;
 Window root_win;
-XWindowAttributes root_attr;
-XWindowAttributes win_attr;
+XWindowAttributes root_attr, win_attr;
 XButtonEvent click_start;
 XEvent ev;
 
-KeyCode up_key;
-KeyCode down_key;
-KeyCode left_key;
-KeyCode right_key;
-KeyCode r_key;
-KeyCode t_key;
-KeyCode l_key;
-KeyCode b_key;
-KeyCode vol_up_key;
-KeyCode vol_down_key;
-KeyCode f4_key;
-KeyCode del_key;
-KeyCode tab_key;
-KeyCode print_key;
+KeyCode up_key, down_key, left_key, right_key,
+        r_key, t_key, l_key, b_key,
+        vol_up_key, vol_down_key,
+        f4_key, del_key, tab_key, print_key;
 
 void WeeInitRootWindow() {
     root_win = XDefaultRootWindow(display);
