@@ -168,7 +168,6 @@ void WeeResizeToRight(Window win) {
 void WeeRaiseAndFocus(Window win) {
     XRaiseWindow(display, win);
     XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
-    WeeDrawBorder(win);
 }
 
 void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
@@ -186,14 +185,14 @@ void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modi
     }
     else if (keycode == left_key && modifiers & ShiftMask) {
         WeeResizeToLeft(win);
-        WeeCenterCursor(win);
         WeeResizeFullHeight(win);
+        WeeCenterCursor(win);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == right_key && modifiers & ShiftMask) {
         WeeResizeToRight(win);
-        WeeCenterCursor(win);
         WeeResizeFullHeight(win);
+        WeeCenterCursor(win);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == up_key) {
@@ -247,15 +246,12 @@ void WeeInterceptEvents() {
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
         WeeRunCmd("weema-cmd launcher &");
-        WeeMoveCursor(root_win, 10, 100);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
         WeeRunCmd("x-terminal-emulator &");
-        WeeMoveCursor(root_win, 10, 100);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == b_key) {
         WeeRunCmd("x-www-browser &");
-        WeeMoveCursor(root_win, 10, 100);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == l_key) {
         WeeRunCmd("weema-cmd lock &");
@@ -282,7 +278,6 @@ void WeeInterceptEvents() {
         XGetWindowAttributes(display, ev.xcirculate.window, &win_attr);
         WeeCenterCursor(ev.xcirculate.window);
         XSetInputFocus(display, ev.xcirculate.window, RevertToPointerRoot, CurrentTime);
-        WeeDrawBorder(ev.xcirculate.window);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(display);
@@ -292,6 +287,13 @@ void WeeInterceptEvents() {
     }
     else if (ev.type == KeyPress && ev.xkey.subwindow != None) {
         WeeHandleWindowPosition(ev.xkey.subwindow, ev.xkey.keycode, ev.xkey.state);
+    }
+    else if (ev.type == MapNotify) {
+        XGetWindowAttributes(display, ev.xmap.window, &win_attr);
+        if (!win_attr.override_redirect && win_attr.map_state == IsViewable) {
+            WeeDrawBorder(ev.xmap.window);
+            WeeCenterCursor(ev.xmap.window);
+        }
     }
 }
 
