@@ -231,6 +231,15 @@ void WeeHandleMotion() {
     XMoveWindow(display, ev.xmotion.window, win_attr.x + xdiff, win_attr.y + ydiff);
 }
 
+void WeeHandleNewWindow(Window win) {
+    XGetWindowAttributes(display, win, &win_attr);
+    if (!win_attr.override_redirect && win_attr.map_state == IsViewable) {
+        WeeDrawBorder(win);
+        WeeCenterCursor(win);
+        WeeRaiseAndFocus(win);
+    }
+}
+
 void WeeInterceptEvents() {
     XNextEvent(display, &ev);
 
@@ -289,11 +298,7 @@ void WeeInterceptEvents() {
         WeeHandleWindowPosition(ev.xkey.subwindow, ev.xkey.keycode, ev.xkey.state);
     }
     else if (ev.type == MapNotify) {
-        XGetWindowAttributes(display, ev.xmap.window, &win_attr);
-        if (!win_attr.override_redirect && win_attr.map_state == IsViewable) {
-            WeeDrawBorder(ev.xmap.window);
-            WeeCenterCursor(ev.xmap.window);
-        }
+        WeeHandleNewWindow(ev.xmap.window);
     }
 }
 
