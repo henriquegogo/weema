@@ -20,6 +20,7 @@ Binds:
 
   Alt+Button1: raise and move window
   Alt+Tab: alternate windows
+  Alt+Shift+Tab: reverse alternate windows
   Alt+F4: close window
   Ctrl+Alt+Delete: close window manager
   PrntScr: print screen
@@ -27,14 +28,16 @@ Binds:
   Volume down: decrease volume
   Super+R: open application launcher
   Super+T: open terminal
-  Super+Shift+Up: maximize window
-  Super+Shift+Down: move window to center and resize
-  Super+Shift+Left: move window to left with full height
-  Super+Shift+Right: move window to right with full height
-  Super+Up: move window to top with half height
-  Super+Down: move window to bottom with half height
-  Super+Left: move window left and resize width
-  Super+Right: move window right and resize width
+  Super+B: open browser
+  Super+L: lock screen
+  Super+Shift+Up: resize window vertically in thirds
+  Super+Shift+Down: resize window vertically in thirds
+  Super+Shift+Left: resize window horizontally in thirds
+  Super+Shift+Right: resize window horizontally in thirds
+  Super+Up: move window to top or maximize if already on top
+  Super+Down: move window to bottom or restore if maximized
+  Super+Left: move window to left
+  Super+Right: move window to right
 
 Third party optional dependencies:
   
