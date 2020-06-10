@@ -63,10 +63,6 @@ void WeeSetupGrab() {
     }
 }
 
-void WeeRunCmd(const char *cmd) {
-    (void)(system(cmd)+1);
-}
-
 void WeeCloseWindow(Window win) {
     XEvent event;
     event.xclient.type = ClientMessage;
@@ -337,25 +333,32 @@ void WeeInterceptEvents() {
         WeeHandleMotion();
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
-        WeeRunCmd("weema-cmd launcher &");
+        (void)(system("if [ \"$WEEMA_LAUNCHER\" ]; then sh -c \"$WEEMA_LAUNCHER &\";\
+                    else dmenu_run -l 5 -p \"$(date +'%d %a %H:%M')\"; fi")+1);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
-        WeeRunCmd("x-terminal-emulator &");
+        (void)(system("if [ \"$WEEMA_TERMINAL\" ]; then sh -c \"$WEEMA_TERMINAL &\";\
+                    else sh -c \"x-terminal-emulator &\"; fi")+1);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == b_key) {
-        WeeRunCmd("x-www-browser &");
+        (void)(system("if [ \"$WEEMA_BROWSER\" ]; then sh -c \"$WEEMA_BROWSER &\";\
+                    else sh -c \"x-www-browser &\"; fi")+1);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == l_key) {
-        WeeRunCmd("weema-cmd lock &");
+        (void)(system("if [ \"$WEEMA_LOCK\" ]; then sh -c \"$WEEMA_LOCK &\";\
+                    else sh -c \"slock &\"; fi")+1);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == vol_up_key) {
-        WeeRunCmd("weema-cmd volumeup &");
+        (void)(system("if [ \"$WEEMA_VOLUMEUP\" ]; then sh -c \"$WEEMA_VOLUMEUP &\";\
+                    else amixer set Master 3+; fi")+1);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == vol_down_key) {
-        WeeRunCmd("weema-cmd volumedown &");
+        (void)(system("if [ \"$WEEMA_VOLUMEDOWN\" ]; then sh -c \"$WEEMA_VOLUMEDOWN &\";\
+                    else amixer set Master 3-; fi")+1);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == print_key) {
-        WeeRunCmd("weema-cmd printscreen &");
+        (void)(system("if [ \"$WEEMA_PRINTSCREEN\" ]; then sh -c \"$WEEMA_PRINTSCREEN &\";\
+                    else sh -c \"scrot -u\"; fi")+1);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
         // Move two cicles down and one up to focus last raised window
@@ -390,8 +393,11 @@ int main() {
 
     WeeInitRootWindow();
     WeeSetupGrab();
-    WeeRunCmd("weema-cmd init &");
 
+    (void)(system("xsetroot -cursor_name arrow -solid \"#030609\"")+1);
+    (void)(system("if [ \"$WEEMA_INIT\" ]; then sh -c \"$WEEMA_INIT &\";\
+                else sh -c \"feh --bg-scale ~/wallpaper.jpg &\"; fi")+1);
+        
     for(;;) {
         WeeInterceptEvents();
     }
