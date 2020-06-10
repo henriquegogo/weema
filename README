@@ -46,6 +46,7 @@ Third party optional dependencies:
   variables in .xinitrc.  These change will override the
   default commands.
 
+  export WEEMA_INIT="feh --bg-scale ~/wallpaper.jpg"
   export WEEMA_LAUNCHER="dmenu_run"
   export WEEMA_TERMINAL="x-terminal-emulator"
   export WEEMA_BROWSER="x-www-browser"
