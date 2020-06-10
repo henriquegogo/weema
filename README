@@ -46,13 +46,13 @@ Third party optional dependencies:
   variables in .xinitrc.  These change will override the
   default commands.
 
-  WEEMA_LAUNCHER="dmenu_run -l 5 -p \"$(date +'%d %a %H:%M')\""
-  WEEMA_TERMINAL="x-terminal-emulator"
-  WEEMA_BROWSER="x-www-browser"
-  WEEMA_LOCK="slock"
-  WEEMA_VOLUMEUP="amixer set Master 3+"
-  WEEMA_VOLUMEDOWN="amixer set Master 3-"
-  WEEMA_PRINTSCREEN="scrot -u"
+  export WEEMA_LAUNCHER="dmenu_run"
+  export WEEMA_TERMINAL="x-terminal-emulator"
+  export WEEMA_BROWSER="x-www-browser"
+  export WEEMA_LOCK="slock"
+  export WEEMA_VOLUMEUP="amixer set Master 3+"
+  export WEEMA_VOLUMEDOWN="amixer set Master 3-"
+  export WEEMA_PRINTSCREEN="scrot"
 
   - feh: set background image
   - dmenu: applications launcher
