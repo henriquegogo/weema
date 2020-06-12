@@ -362,7 +362,7 @@ void WeeInterceptEvents() {
         WeeRunCmd("amixer set Master 3+", "$WEEMA_VOLUMEUP");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == vol_down_key) {
-        WeeRunCmd("amixer set Master 3+", "$WEEMA_VOLUMEDOWN");
+        WeeRunCmd("amixer set Master 3-", "$WEEMA_VOLUMEDOWN");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == print_key) {
         WeeRunCmd("scrot", "$WEEMA_PRINTSCREEN");
