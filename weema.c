@@ -166,14 +166,18 @@ void WeeResizeUp(Window win) {
     else if (win_attr.height <= 2 * third) {
         XResizeWindow(display, win, win_attr.width, half);
     }
-    else if (win_attr.height <= root_attr.height) {
+    else if (win_attr.height <= 3 * quarter) {
         XResizeWindow(display, win, win_attr.width, 2 * third);
+    }
+    else if (win_attr.height <= root_attr.height) {
+        XResizeWindow(display, win, win_attr.width, 3 * quarter);
     }
 }
 
 void WeeResizeDown(Window win) {
     int half = root_attr.height / 2;
     int third = root_attr.height / 3;
+    int quarter = root_attr.height / 4;
 
     if (win_attr.height < third) {
         XResizeWindow(display, win, win_attr.width, third);
@@ -183,6 +187,9 @@ void WeeResizeDown(Window win) {
     }
     else if (win_attr.height < 2 * third) {
         XResizeWindow(display, win, win_attr.width, 2 * third);
+    }
+    else if (win_attr.height < 3 * quarter) {
+        XResizeWindow(display, win, win_attr.width, 3 * quarter);
     }
     else {
         XMoveResizeWindow(display, win, win_attr.x, 0, win_attr.width, root_attr.height);
@@ -203,14 +210,18 @@ void WeeResizeLeft(Window win) {
     else if (win_attr.width <= 2 * third) {
         XResizeWindow(display, win, half, win_attr.height);
     }
-    else if (win_attr.width <= root_attr.width) {
+    else if (win_attr.width <= 3 * quarter) {
         XResizeWindow(display, win, 2 * third, win_attr.height);
+    }
+    else if (win_attr.width <= root_attr.width) {
+        XResizeWindow(display, win, 3 * quarter, win_attr.height);
     }
 }
 
 void WeeResizeRight(Window win) {
     int half = root_attr.width / 2;
     int third = root_attr.width / 3;
+    int quarter = root_attr.width / 4;
 
     if (win_attr.width < third) {
         XResizeWindow(display, win, third, win_attr.height);
@@ -220,6 +231,9 @@ void WeeResizeRight(Window win) {
     }
     else if (win_attr.width < 2 * third) {
         XResizeWindow(display, win, 2 * third, win_attr.height);
+    }
+    else if (win_attr.width < 3 * quarter) {
+        XResizeWindow(display, win, 3 * quarter, win_attr.height);
     }
     else {
         XMoveResizeWindow(display, win, 0, win_attr.y, root_attr.width, win_attr.height);
