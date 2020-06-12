@@ -303,7 +303,7 @@ void WeeRunCmd(char *cmd, char *env_var) {
     char system_cmd[512];
 
     if (env_var != NULL) {
-        sprintf(system_cmd, "if [ \"%s\" ]; then sh -c \"%s &\"; else sh -c \"%s & \"; fi", env_var, env_var, cmd);
+        sprintf(system_cmd, "if [ \"%s\" ]; then sh -c \"%s &\"; else sh -c \"%s &\"; fi", env_var, env_var, cmd);
     }
     else {
         sprintf(system_cmd, "%s", cmd);
@@ -326,7 +326,7 @@ void WeeInterceptEvents() {
         WeeHandleMotion();
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
-        WeeRunCmd("dmenu_run -l 5 -p \"$(date +'%d %a %H:%M')\"", "$WEEMA_LAUNCHER");
+        WeeRunCmd("dmenu_run -l 5 -p '$(date +'%d %a %H:%M')'", "$WEEMA_LAUNCHER");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
         WeeRunCmd("x-terminal-emulator", "$WEEMA_TERMINAL");
