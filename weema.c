@@ -2,6 +2,7 @@
  * MIT License */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <X11/Xlib.h>
 
 Display *display = NULL;
@@ -154,8 +155,12 @@ void WeeMoveRight(Window win) {
 void WeeResizeUp(Window win) {
     int half = root_attr.height / 2;
     int third = root_attr.height / 3;
+    int quarter = root_attr.height / 4;
 
-    if (win_attr.height <= half) {
+    if (win_attr.height <= third) {
+        XResizeWindow(display, win, win_attr.width, quarter);
+    }
+    else if (win_attr.height <= half) {
         XResizeWindow(display, win, win_attr.width, third);
     }
     else if (win_attr.height <= 2 * third) {
@@ -170,7 +175,10 @@ void WeeResizeDown(Window win) {
     int half = root_attr.height / 2;
     int third = root_attr.height / 3;
 
-    if (win_attr.height < half) {
+    if (win_attr.height < third) {
+        XResizeWindow(display, win, win_attr.width, third);
+    }
+    else if (win_attr.height < half) {
         XResizeWindow(display, win, win_attr.width, half);
     }
     else if (win_attr.height < 2 * third) {
@@ -291,6 +299,19 @@ void WeeHandleNewWindow(Window win) {
     }
 }
 
+void WeeRunCmd(char *cmd, char *env_var) {
+    char system_cmd[512];
+
+    if (env_var != NULL) {
+        sprintf(system_cmd, "if [ \"%s\" ]; then sh -c \"%s &\"; else sh -c \"%s & \"; fi", env_var, env_var, cmd);
+    }
+    else {
+        sprintf(system_cmd, "%s", cmd);
+    }
+
+    (void)(system(system_cmd)+1);
+}
+
 void WeeInterceptEvents() {
     XNextEvent(display, &ev);
 
@@ -305,32 +326,25 @@ void WeeInterceptEvents() {
         WeeHandleMotion();
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
-        (void)(system("if [ \"$WEEMA_LAUNCHER\" ]; then sh -c \"$WEEMA_LAUNCHER &\";\
-                    else dmenu_run -l 5 -p \"$(date +'%d %a %H:%M')\"; fi")+1);
+        WeeRunCmd("dmenu_run -l 5 -p \"$(date +'%d %a %H:%M')\"", "$WEEMA_LAUNCHER");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
-        (void)(system("if [ \"$WEEMA_TERMINAL\" ]; then sh -c \"$WEEMA_TERMINAL &\";\
-                    else sh -c \"x-terminal-emulator &\"; fi")+1);
+        WeeRunCmd("x-terminal-emulator", "$WEEMA_TERMINAL");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == b_key) {
-        (void)(system("if [ \"$WEEMA_BROWSER\" ]; then sh -c \"$WEEMA_BROWSER &\";\
-                    else sh -c \"x-www-browser &\"; fi")+1);
+        WeeRunCmd("x-www-browser", "$WEEMA_BROWSER");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == l_key) {
-        (void)(system("if [ \"$WEEMA_LOCK\" ]; then sh -c \"$WEEMA_LOCK &\";\
-                    else sh -c \"slock &\"; fi")+1);
+        WeeRunCmd("slock", "$WEEMA_LOCK");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == vol_up_key) {
-        (void)(system("if [ \"$WEEMA_VOLUMEUP\" ]; then sh -c \"$WEEMA_VOLUMEUP &\";\
-                    else amixer set Master 3+; fi")+1);
+        WeeRunCmd("amixer set Master 3+", "$WEEMA_VOLUMEUP");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == vol_down_key) {
-        (void)(system("if [ \"$WEEMA_VOLUMEDOWN\" ]; then sh -c \"$WEEMA_VOLUMEDOWN &\";\
-                    else amixer set Master 3-; fi")+1);
+        WeeRunCmd("amixer set Master 3+", "$WEEMA_VOLUMEDOWN");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == print_key) {
-        (void)(system("if [ \"$WEEMA_PRINTSCREEN\" ]; then sh -c \"$WEEMA_PRINTSCREEN &\";\
-                    else sh -c \"scrot -u\"; fi")+1);
+        WeeRunCmd("scrot", "$WEEMA_PRINTSCREEN");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
         // Move two cicles down and one up to focus last raised window
@@ -366,9 +380,8 @@ int main() {
     WeeInitRootWindow();
     WeeSetupGrab();
 
-    (void)(system("xsetroot -cursor_name arrow -solid \"#030609\"")+1);
-    (void)(system("if [ \"$WEEMA_INIT\" ]; then sh -c \"$WEEMA_INIT &\";\
-                else sh -c \"feh --bg-scale ~/wallpaper.jpg &\"; fi")+1);
+    WeeRunCmd("xsetroot -cursor_name arrow -solid \"#030609\"", NULL);
+    WeeRunCmd("feh --bg-scale ~/wallpaper.jpg", "$WEEMA_INIT");
         
     for(;;) {
         WeeInterceptEvents();
