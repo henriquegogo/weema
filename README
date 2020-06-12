@@ -30,14 +30,14 @@ Binds:
   Super+T: open terminal
   Super+B: open browser
   Super+L: lock screen
-  Super+Shift+Up: resize window vertically in thirds
-  Super+Shift+Down: resize window vertically in thirds
-  Super+Shift+Left: resize window horizontally in thirds
-  Super+Shift+Right: resize window horizontally in thirds
+  Super+Shift+Up: decrease height
+  Super+Shift+Down: increase height
+  Super+Shift+Left: decrease width
+  Super+Shift+Right: increase width
   Super+Up: move window to top or maximize if already on top
-  Super+Down: move window to bottom or restore if maximized
-  Super+Left: move window to left
-  Super+Right: move window to right
+  Super+Down: move window to bottom or centralize if maximized
+  Super+Left: move window to left or fit height if already on left
+  Super+Right: move window to right or fit height if already on right
 
 Third party optional dependencies:
   
