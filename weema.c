@@ -60,7 +60,7 @@ void WeeSetupGrab() {
         WeeGrabKey(down_key  = WeeGetKeycode("Down"),  ShiftMask|Mod4Mask|modifiers[i]);
         WeeGrabKey(left_key  = WeeGetKeycode("Left"),  ShiftMask|Mod4Mask|modifiers[i]);
         WeeGrabKey(right_key = WeeGetKeycode("Right"), ShiftMask|Mod4Mask|modifiers[i]);
-        WeeGrabButton(1, Mod1Mask|modifiers[i]);
+        WeeGrabButton(AnyButton, Mod1Mask|modifiers[i]);
     }
 }
 
@@ -301,7 +301,8 @@ void WeeHandleMotion() {
     while (XCheckTypedEvent(display, MotionNotify, &ev));
     int xdiff = ev.xbutton.x_root - click_start.x_root;
     int ydiff = ev.xbutton.y_root - click_start.y_root;
-    XMoveWindow(display, ev.xmotion.window, win_attr.x + xdiff, win_attr.y + ydiff);
+    if (click_start.button == 1) XMoveWindow(display, ev.xmotion.window, win_attr.x + xdiff, win_attr.y + ydiff);
+    else if (click_start.button == 2) XResizeWindow(display, ev.xmotion.window, win_attr.width + xdiff, win_attr.height + ydiff);
 }
 
 void WeeHandleNewWindow(Window win) {
