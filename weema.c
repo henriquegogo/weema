@@ -236,44 +236,6 @@ void WeeRaiseAndFocus(Window win) {
     XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
 }
 
-void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
-    XWindowAttributes win_attr;
-    XGetWindowAttributes(display, win, &win_attr);
-
-    if (keycode == up_key && modifiers & ShiftMask) {
-        WeeResizeUp(win, win_attr);
-        WeeRaiseAndFocus(win);
-    }
-    else if (keycode == down_key && modifiers & ShiftMask) {
-        WeeResizeDown(win, win_attr);
-        WeeRaiseAndFocus(win);
-    }
-    else if (keycode == left_key && modifiers & ShiftMask) {
-        WeeResizeLeft(win, win_attr);
-        WeeRaiseAndFocus(win);
-    }
-    else if (keycode == right_key && modifiers & ShiftMask) {
-        WeeResizeRight(win, win_attr);
-        WeeRaiseAndFocus(win);
-    }
-    else if (keycode == up_key) {
-        WeeMoveUp(win, win_attr);
-        WeeRaiseAndFocus(win);
-    }
-    else if (keycode == down_key) {
-        WeeMoveDown(win, win_attr);
-        WeeRaiseAndFocus(win);
-    }
-    else if (keycode == left_key) {
-        WeeMoveLeft(win, win_attr);
-        WeeRaiseAndFocus(win);
-    }
-    else if (keycode == right_key) {
-        WeeMoveRight(win, win_attr);
-        WeeRaiseAndFocus(win);
-    }
-}
-
 void WeeHandleClick(XButtonEvent button_event) {
     XGrabPointer(display, button_event.subwindow, True, PointerMotionMask|ButtonReleaseMask,
             GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
@@ -338,6 +300,38 @@ void WeeRunCmd(char *cmd, char *env_var) {
     }
 
     (void)(system(system_cmd)+1);
+}
+
+void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
+    XWindowAttributes win_attr;
+    XGetWindowAttributes(display, win, &win_attr);
+
+    if (keycode == up_key && modifiers & ShiftMask) {
+        WeeResizeUp(win, win_attr);
+    }
+    else if (keycode == down_key && modifiers & ShiftMask) {
+        WeeResizeDown(win, win_attr);
+    }
+    else if (keycode == left_key && modifiers & ShiftMask) {
+        WeeResizeLeft(win, win_attr);
+    }
+    else if (keycode == right_key && modifiers & ShiftMask) {
+        WeeResizeRight(win, win_attr);
+    }
+    else if (keycode == up_key) {
+        WeeMoveUp(win, win_attr);
+    }
+    else if (keycode == down_key) {
+        WeeMoveDown(win, win_attr);
+    }
+    else if (keycode == left_key) {
+        WeeMoveLeft(win, win_attr);
+    }
+    else if (keycode == right_key) {
+        WeeMoveRight(win, win_attr);
+    }
+
+    WeeRaiseAndFocus(win);
 }
 
 void WeeInterceptEvents() {
