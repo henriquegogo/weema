@@ -320,6 +320,25 @@ void WeeHandleNewWindow(Window win) {
     }
 }
 
+void WeeRefreshStack() {
+    unsigned int i, nwins;
+    Window temp_win, *wins;
+
+    XQueryTree(display, root_win, &temp_win, &temp_win, &wins, &nwins);
+
+    for (i = 0; i < nwins; i++) {
+        XGetWindowAttributes(display, wins[i], &win_attr);
+
+        if (wins[i] != None && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
+            temp_win = wins[i];
+        }
+    }
+
+    WeeRaiseAndFocus(temp_win);
+
+    XFree(wins);
+}
+
 void WeeRunCmd(char *cmd, char *env_var) {
     char system_cmd[512];
 
@@ -392,6 +411,9 @@ void WeeInterceptEvents() {
     }
     else if (ev.type == MapNotify) {
         WeeHandleNewWindow(ev.xmap.window);
+    }
+    else if (ev.type == DestroyNotify) {
+        WeeRefreshStack();
     }
 }
 
