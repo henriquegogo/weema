@@ -378,26 +378,22 @@ void InterceptEvents() {
         XCirculateSubwindowsUp(display, root_win);
     }
     else if (ev.type == CirculateNotify) {
-        Window current_win = GetCurrentWindow();
-        XSetInputFocus(display, current_win, RevertToPointerRoot, CurrentTime); 
+        XSetInputFocus(display, GetCurrentWindow(), RevertToPointerRoot, CurrentTime); 
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(display);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == f4_key) {
-        Window current_win = GetCurrentWindow();
-        CloseWindow(current_win);
+        CloseWindow(GetCurrentWindow());
     }
     else if (ev.type == KeyPress) {
-        Window current_win = GetCurrentWindow();
-        HandleWindowPosition(current_win, ev.xkey.keycode, ev.xkey.state);
+        HandleWindowPosition(GetCurrentWindow(), ev.xkey.keycode, ev.xkey.state);
     }
     else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
     }
     else if (ev.type == DestroyNotify) {
-        Window current_win = GetCurrentWindow();
-        XSetInputFocus(display, current_win, RevertToPointerRoot, CurrentTime); 
+        XSetInputFocus(display, GetCurrentWindow(), RevertToPointerRoot, CurrentTime); 
     }
 }
 
