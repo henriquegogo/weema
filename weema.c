@@ -9,7 +9,6 @@ Display *display = NULL;
 Window root_win;
 XWindowAttributes root_attr, win_attr;
 XButtonEvent click_start;
-XEvent ev;
 
 KeyCode up_key, down_key, left_key, right_key,
         r_key, t_key, l_key, b_key,
@@ -65,14 +64,14 @@ void WeeSetupGrab() {
 }
 
 void WeeCloseWindow(Window win) {
-    XEvent event;
-    event.xclient.type = ClientMessage;
-    event.xclient.window = win;
-    event.xclient.message_type = XInternAtom(display, "WM_PROTOCOLS", True);
-    event.xclient.format = 32;
-    event.xclient.data.l[0] = XInternAtom(display, "WM_DELETE_WINDOW", False);
-    event.xclient.data.l[1] = CurrentTime;
-    XSendEvent(display, win, False, NoEventMask, &event);
+    XEvent ev;
+    ev.xclient.type = ClientMessage;
+    ev.xclient.window = win;
+    ev.xclient.message_type = XInternAtom(display, "WM_PROTOCOLS", True);
+    ev.xclient.format = 32;
+    ev.xclient.data.l[0] = XInternAtom(display, "WM_DELETE_WINDOW", False);
+    ev.xclient.data.l[1] = CurrentTime;
+    XSendEvent(display, win, False, NoEventMask, &ev);
 }
 
 void WeeDrawBorder(Window win) {
@@ -280,7 +279,7 @@ void WeeHandleClick(XButtonEvent button_event) {
     click_start = button_event;
 }
 
-void WeeHandleMotion() {
+void WeeHandleMotion(XEvent ev) {
     while (XCheckTypedEvent(display, MotionNotify, &ev));
 
     int xdiff = ev.xbutton.x_root - click_start.x_root;
@@ -290,7 +289,7 @@ void WeeHandleMotion() {
         XMoveWindow(display, ev.xmotion.window, win_attr.x + xdiff, win_attr.y + ydiff);
     }
     else if (click_start.button == 2) {
-        XResizeWindow(display, ev.xmotion.window, win_attr.width + xdiff, win_attr.height + ydiff);
+        XResizeWindow(display, ev.xmotion.window, abs(win_attr.width + xdiff) + 1, abs(win_attr.height + ydiff) + 1);
     }
 }
 
@@ -337,6 +336,7 @@ void WeeRunCmd(char *cmd, char *env_var) {
 }
 
 void WeeInterceptEvents() {
+    XEvent ev;
     XNextEvent(display, &ev);
     Window current_win = WeeGetCurrentWindow();
 
@@ -350,7 +350,7 @@ void WeeInterceptEvents() {
         XUngrabPointer(display, CurrentTime);
     }
     else if (ev.type == MotionNotify) {
-        WeeHandleMotion();
+        WeeHandleMotion(ev);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
         WeeRunCmd("dmenu_run -l 5 -p '$(date +'%d %a %H:%M')'", "$WEEMA_LAUNCHER");
