@@ -7,7 +7,7 @@
 
 Display *display = NULL;
 Window root_win;
-XWindowAttributes root_attr, win_attr;
+XWindowAttributes root_attr, click_attr;
 XButtonEvent click_start;
 
 KeyCode up_key, down_key, left_key, right_key,
@@ -79,7 +79,7 @@ void WeeDrawBorder(Window win) {
     XSetWindowBorder(display, win, 0);
 }
 
-void WeeMoveUp(Window win) {
+void WeeMoveUp(Window win, XWindowAttributes win_attr) {
     int center_position = (root_attr.height - win_attr.height) / 2;
     Bool at_top = win_attr.y == 0;
 
@@ -94,7 +94,7 @@ void WeeMoveUp(Window win) {
     }
 }
 
-void WeeMoveDown(Window win) {
+void WeeMoveDown(Window win, XWindowAttributes win_attr) {
     int third_width = root_attr.width / 3;
     int third_height = root_attr.height / 3;
     int center_position = (root_attr.height - win_attr.height) / 2;
@@ -111,7 +111,7 @@ void WeeMoveDown(Window win) {
     }
 }
 
-void WeeMoveLeft(Window win) {
+void WeeMoveLeft(Window win, XWindowAttributes win_attr) {
     int center_position = (root_attr.width - win_attr.width) / 2;
     Bool at_left = win_attr.x == 0;
 
@@ -126,7 +126,7 @@ void WeeMoveLeft(Window win) {
     }
 }
 
-void WeeMoveRight(Window win) {
+void WeeMoveRight(Window win, XWindowAttributes win_attr) {
     int center_position = (root_attr.width - win_attr.width) / 2;
     int right_position = root_attr.width - win_attr.width;
     Bool at_right = win_attr.x == root_attr.width - win_attr.width;
@@ -142,7 +142,7 @@ void WeeMoveRight(Window win) {
     }
 }
 
-void WeeResizeUp(Window win) {
+void WeeResizeUp(Window win, XWindowAttributes win_attr) {
     int half = root_attr.height / 2;
     int third = root_attr.height / 3;
     int quarter = root_attr.height / 4;
@@ -164,7 +164,7 @@ void WeeResizeUp(Window win) {
     }
 }
 
-void WeeResizeDown(Window win) {
+void WeeResizeDown(Window win, XWindowAttributes win_attr) {
     int half = root_attr.height / 2;
     int third = root_attr.height / 3;
     int quarter = root_attr.height / 4;
@@ -186,7 +186,7 @@ void WeeResizeDown(Window win) {
     }
 }
 
-void WeeResizeLeft(Window win) {
+void WeeResizeLeft(Window win, XWindowAttributes win_attr) {
     int half = root_attr.width / 2;
     int third = root_attr.width / 3;
     int quarter = root_attr.width / 4;
@@ -208,7 +208,7 @@ void WeeResizeLeft(Window win) {
     }
 }
 
-void WeeResizeRight(Window win) {
+void WeeResizeRight(Window win, XWindowAttributes win_attr) {
     int half = root_attr.width / 2;
     int third = root_attr.width / 3;
     int quarter = root_attr.width / 4;
@@ -236,38 +236,39 @@ void WeeRaiseAndFocus(Window win) {
 }
 
 void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
+    XWindowAttributes win_attr;
     XGetWindowAttributes(display, win, &win_attr);
 
     if (keycode == up_key && modifiers & ShiftMask) {
-        WeeResizeUp(win);
+        WeeResizeUp(win, win_attr);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == down_key && modifiers & ShiftMask) {
-        WeeResizeDown(win);
+        WeeResizeDown(win, win_attr);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == left_key && modifiers & ShiftMask) {
-        WeeResizeLeft(win);
+        WeeResizeLeft(win, win_attr);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == right_key && modifiers & ShiftMask) {
-        WeeResizeRight(win);
+        WeeResizeRight(win, win_attr);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == up_key) {
-        WeeMoveUp(win);
+        WeeMoveUp(win, win_attr);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == down_key) {
-        WeeMoveDown(win);
+        WeeMoveDown(win, win_attr);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == left_key) {
-        WeeMoveLeft(win);
+        WeeMoveLeft(win, win_attr);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == right_key) {
-        WeeMoveRight(win);
+        WeeMoveRight(win, win_attr);
         WeeRaiseAndFocus(win);
     }
 }
@@ -275,7 +276,7 @@ void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modi
 void WeeHandleClick(XButtonEvent button_event) {
     XGrabPointer(display, button_event.subwindow, True, PointerMotionMask|ButtonReleaseMask,
             GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-    XGetWindowAttributes(display, button_event.subwindow, &win_attr);
+    XGetWindowAttributes(display, button_event.subwindow, &click_attr);
     click_start = button_event;
 }
 
@@ -286,14 +287,15 @@ void WeeHandleMotion(XEvent ev) {
     int ydiff = ev.xbutton.y_root - click_start.y_root;
 
     if (click_start.button == 1) {
-        XMoveWindow(display, ev.xmotion.window, win_attr.x + xdiff, win_attr.y + ydiff);
+        XMoveWindow(display, ev.xmotion.window, click_attr.x + xdiff, click_attr.y + ydiff);
     }
     else if (click_start.button == 2) {
-        XResizeWindow(display, ev.xmotion.window, abs(win_attr.width + xdiff) + 1, abs(win_attr.height + ydiff) + 1);
+        XResizeWindow(display, ev.xmotion.window, abs(click_attr.width + xdiff) + 1, abs(click_attr.height + ydiff) + 1);
     }
 }
 
 void WeeHandleNewWindow(Window win) {
+    XWindowAttributes win_attr;
     XGetWindowAttributes(display, win, &win_attr);
 
     if (!win_attr.override_redirect && win_attr.map_state == IsViewable) {
@@ -304,22 +306,22 @@ void WeeHandleNewWindow(Window win) {
 
 Window WeeGetCurrentWindow() {
     unsigned int i, nwins;
-    Window current_win, *wins;
-    XWindowAttributes current_attr;
+    Window win, *wins;
+    XWindowAttributes win_attr;
 
-    XQueryTree(display, root_win, &current_win, &current_win, &wins, &nwins);
+    XQueryTree(display, root_win, &win, &win, &wins, &nwins);
 
     for (i = 0; i < nwins; i++) {
-        XGetWindowAttributes(display, wins[i], &current_attr);
+        XGetWindowAttributes(display, wins[i], &win_attr);
 
-        if (wins[i] != None && !current_attr.override_redirect && current_attr.map_state == IsViewable) {
-            current_win = wins[i];
+        if (wins[i] != None && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
+            win = wins[i];
         }
     }
 
     XFree(wins);
 
-    return current_win;
+    return win;
 }
 
 void WeeRunCmd(char *cmd, char *env_var) {
