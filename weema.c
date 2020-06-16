@@ -21,6 +21,20 @@ void WeeInitRootWindow() {
     XSelectInput(display, root_win, SubstructureNotifyMask);
 }
 
+void WeeRunCmd(char *cmd, char *env_var) {
+    char system_cmd[512];
+
+    if (env_var != NULL) {
+        sprintf(system_cmd, "if [ \"%s\" ]; then sh -c \"%s &\"; else sh -c \"%s &\"; fi",
+                env_var, env_var, cmd);
+    }
+    else {
+        sprintf(system_cmd, "%s", cmd);
+    }
+
+    (void)(system(system_cmd)+1);
+}
+
 void WeeGrabKey(int keycode, unsigned int modifiers) {
     XGrabKey(display, keycode, modifiers, root_win, True, GrabModeAsync, GrabModeAsync);
 }
@@ -286,20 +300,6 @@ Window WeeGetCurrentWindow() {
     XFree(wins);
 
     return win;
-}
-
-void WeeRunCmd(char *cmd, char *env_var) {
-    char system_cmd[512];
-
-    if (env_var != NULL) {
-        sprintf(system_cmd, "if [ \"%s\" ]; then sh -c \"%s &\"; else sh -c \"%s &\"; fi",
-                env_var, env_var, cmd);
-    }
-    else {
-        sprintf(system_cmd, "%s", cmd);
-    }
-
-    (void)(system(system_cmd)+1);
 }
 
 void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
