@@ -80,15 +80,6 @@ void WeeDrawBorder(Window win) {
     XSetWindowBorder(display, win, 0);
 }
 
-void WeeMoveCursor(Window win, unsigned int width, unsigned int height) {
-    XWarpPointer(display, None, win, None, None, None, None, width, height);
-}
-
-void WeeCenterCursor(Window win) {
-    XGetWindowAttributes(display, win, &win_attr);
-    WeeMoveCursor(win, win_attr.width / 2, win_attr.height / 2);
-}
-
 void WeeMoveUp(Window win) {
     int center_position = (root_attr.height - win_attr.height) / 2;
     Bool at_top = win_attr.y == 0;
@@ -250,42 +241,34 @@ void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modi
 
     if (keycode == up_key && modifiers & ShiftMask) {
         WeeResizeUp(win);
-        WeeCenterCursor(win);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == down_key && modifiers & ShiftMask) {
         WeeResizeDown(win);
-        WeeCenterCursor(win);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == left_key && modifiers & ShiftMask) {
         WeeResizeLeft(win);
-        WeeCenterCursor(win);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == right_key && modifiers & ShiftMask) {
         WeeResizeRight(win);
-        WeeCenterCursor(win);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == up_key) {
         WeeMoveUp(win);
-        WeeCenterCursor(win);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == down_key) {
         WeeMoveDown(win);
-        WeeCenterCursor(win);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == left_key) {
         WeeMoveLeft(win);
-        WeeCenterCursor(win);
         WeeRaiseAndFocus(win);
     }
     else if (keycode == right_key) {
         WeeMoveRight(win);
-        WeeCenterCursor(win);
         WeeRaiseAndFocus(win);
     }
 }
@@ -313,30 +296,30 @@ void WeeHandleMotion() {
 
 void WeeHandleNewWindow(Window win) {
     XGetWindowAttributes(display, win, &win_attr);
+
     if (!win_attr.override_redirect && win_attr.map_state == IsViewable) {
         WeeDrawBorder(win);
-        WeeCenterCursor(win);
         WeeRaiseAndFocus(win);
     }
 }
 
-void WeeRefreshStack() {
+Window WeeGetCurrentWindow() {
     unsigned int i, nwins;
-    Window temp_win, *wins;
+    Window current_win, *wins;
 
-    XQueryTree(display, root_win, &temp_win, &temp_win, &wins, &nwins);
+    XQueryTree(display, root_win, &current_win, &current_win, &wins, &nwins);
 
     for (i = 0; i < nwins; i++) {
         XGetWindowAttributes(display, wins[i], &win_attr);
 
         if (wins[i] != None && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
-            temp_win = wins[i];
+            current_win = wins[i];
         }
     }
 
-    WeeRaiseAndFocus(temp_win);
-
     XFree(wins);
+
+    return current_win;
 }
 
 void WeeRunCmd(char *cmd, char *env_var) {
@@ -354,6 +337,7 @@ void WeeRunCmd(char *cmd, char *env_var) {
 
 void WeeInterceptEvents() {
     XNextEvent(display, &ev);
+    Window current_win = WeeGetCurrentWindow();
 
     if (ev.type == ButtonPress) {
         WeeRaiseAndFocus(ev.xbutton.subwindow);
@@ -387,33 +371,28 @@ void WeeInterceptEvents() {
         WeeRunCmd("scrot", "$WEEMA_PRINTSCREEN");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
-        // Move two cicles down and one up to focus last raised window
         XCirculateSubwindowsDown(display, root_win);
-        XCirculateSubwindowsDown(display, root_win);
-        XCirculateSubwindowsUp(display, root_win);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
         XCirculateSubwindowsUp(display, root_win);
     }
     else if (ev.type == CirculateNotify) {
-        XGetWindowAttributes(display, ev.xcirculate.window, &win_attr);
-        WeeCenterCursor(ev.xcirculate.window);
-        XSetInputFocus(display, ev.xcirculate.window, RevertToPointerRoot, CurrentTime);
+        XSetInputFocus(display, current_win, RevertToPointerRoot, CurrentTime); 
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(display);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == f4_key) {
-        WeeCloseWindow(ev.xkey.subwindow);
+        WeeCloseWindow(current_win);
     }
-    else if (ev.type == KeyPress && ev.xkey.subwindow != None) {
-        WeeHandleWindowPosition(ev.xkey.subwindow, ev.xkey.keycode, ev.xkey.state);
+    else if (ev.type == KeyPress) {
+        WeeHandleWindowPosition(current_win, ev.xkey.keycode, ev.xkey.state);
     }
     else if (ev.type == MapNotify) {
         WeeHandleNewWindow(ev.xmap.window);
     }
     else if (ev.type == DestroyNotify) {
-        WeeRefreshStack();
+        XSetInputFocus(display, current_win, RevertToPointerRoot, CurrentTime); 
     }
 }
 
