@@ -101,7 +101,8 @@ void WeeMoveDown(Window win, XWindowAttributes win_attr) {
     Bool is_fullscreen = win_attr.width == root_attr.width && win_attr.height == root_attr.height;
 
     if (is_fullscreen) {
-        XMoveResizeWindow(display, win, third_width / 2 + 1, third_height / 2, third_width * 2, third_height * 2);
+        XMoveResizeWindow(display, win, third_width / 2 + 1, third_height / 2,
+                third_width * 2, third_height * 2);
     }
     else if (win_attr.y < center_position) {
         XMoveWindow(display, win, win_attr.x, center_position);
@@ -290,7 +291,8 @@ void WeeHandleMotion(XEvent ev) {
         XMoveWindow(display, ev.xmotion.window, click_attr.x + xdiff, click_attr.y + ydiff);
     }
     else if (click_start.button == 2) {
-        XResizeWindow(display, ev.xmotion.window, abs(click_attr.width + xdiff) + 1, abs(click_attr.height + ydiff) + 1);
+        XResizeWindow(display, ev.xmotion.window,
+                abs(click_attr.width + xdiff) + 1, abs(click_attr.height + ydiff) + 1);
     }
 }
 
@@ -328,7 +330,8 @@ void WeeRunCmd(char *cmd, char *env_var) {
     char system_cmd[512];
 
     if (env_var != NULL) {
-        sprintf(system_cmd, "if [ \"%s\" ]; then sh -c \"%s &\"; else sh -c \"%s &\"; fi", env_var, env_var, cmd);
+        sprintf(system_cmd, "if [ \"%s\" ]; then sh -c \"%s &\"; else sh -c \"%s &\"; fi",
+                env_var, env_var, cmd);
     }
     else {
         sprintf(system_cmd, "%s", cmd);
