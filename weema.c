@@ -15,55 +15,55 @@ KeyCode up_key, down_key, left_key, right_key,
         vol_up_key, vol_down_key,
         f4_key, del_key, tab_key, print_key;
 
-void WeeInitRootWindow() {
+void InitRootWindow() {
     root_win = XDefaultRootWindow(display);
     XGetWindowAttributes(display, root_win, &root_attr);
     XSelectInput(display, root_win, SubstructureNotifyMask);
 }
 
-void WeeGrabKey(int keycode, unsigned int modifiers) {
+void GrabKey(int keycode, unsigned int modifiers) {
     XGrabKey(display, keycode, modifiers, root_win, True, GrabModeAsync, GrabModeAsync);
 }
 
-void WeeGrabButton(int buttoncode, unsigned int modifiers) {
+void GrabButton(int buttoncode, unsigned int modifiers) {
     XGrabButton(display, buttoncode, modifiers, root_win, True, ButtonPressMask,
             GrabModeAsync, GrabModeAsync, None, None);
 }
 
-int WeeGetKeycode(const char *key) {
+int GetKeycode(const char *key) {
     return XKeysymToKeycode(display, XStringToKeysym(key));
 }
 
-void WeeSetupGrab() {
+void SetupGrab() {
     // Intercept keys and mouse buttons. Mod2Mask=NumLock, Mod3Mask=ScrollLock, LockMask=CapsLock
     unsigned int modifiers[8] = { None, Mod2Mask, Mod3Mask, LockMask,
         Mod2Mask|Mod3Mask, Mod2Mask|LockMask, Mod3Mask|LockMask, Mod2Mask|Mod3Mask|LockMask };
 
     for (int i = 0; i < 8; i++) {
-        WeeGrabKey(vol_up_key   = WeeGetKeycode("XF86AudioRaiseVolume"), modifiers[i]);
-        WeeGrabKey(vol_down_key = WeeGetKeycode("XF86AudioLowerVolume"), modifiers[i]);
-        WeeGrabKey(r_key     = WeeGetKeycode("r"),     Mod4Mask|modifiers[i]);
-        WeeGrabKey(t_key     = WeeGetKeycode("t"),     Mod4Mask|modifiers[i]);
-        WeeGrabKey(l_key     = WeeGetKeycode("l"),     Mod4Mask|modifiers[i]);
-        WeeGrabKey(b_key     = WeeGetKeycode("b"),     Mod4Mask|modifiers[i]);
-        WeeGrabKey(print_key = WeeGetKeycode("Print"), modifiers[i]);
-        WeeGrabKey(tab_key   = WeeGetKeycode("Tab"),   Mod1Mask|modifiers[i]);
-        WeeGrabKey(tab_key   = WeeGetKeycode("Tab"),   ShiftMask|Mod1Mask|modifiers[i]);
-        WeeGrabKey(f4_key    = WeeGetKeycode("F4"),    Mod1Mask|modifiers[i]);
-        WeeGrabKey(del_key   = WeeGetKeycode("Delete"),ControlMask|Mod1Mask|modifiers[i]);
-        WeeGrabKey(up_key    = WeeGetKeycode("Up"),    Mod4Mask|modifiers[i]);
-        WeeGrabKey(down_key  = WeeGetKeycode("Down"),  Mod4Mask|modifiers[i]);
-        WeeGrabKey(left_key  = WeeGetKeycode("Left"),  Mod4Mask|modifiers[i]);
-        WeeGrabKey(right_key = WeeGetKeycode("Right"), Mod4Mask|modifiers[i]);
-        WeeGrabKey(up_key    = WeeGetKeycode("Up"),    ShiftMask|Mod4Mask|modifiers[i]);
-        WeeGrabKey(down_key  = WeeGetKeycode("Down"),  ShiftMask|Mod4Mask|modifiers[i]);
-        WeeGrabKey(left_key  = WeeGetKeycode("Left"),  ShiftMask|Mod4Mask|modifiers[i]);
-        WeeGrabKey(right_key = WeeGetKeycode("Right"), ShiftMask|Mod4Mask|modifiers[i]);
-        WeeGrabButton(AnyButton, Mod1Mask|modifiers[i]);
+        GrabKey(vol_up_key   = GetKeycode("XF86AudioRaiseVolume"), modifiers[i]);
+        GrabKey(vol_down_key = GetKeycode("XF86AudioLowerVolume"), modifiers[i]);
+        GrabKey(r_key     = GetKeycode("r"),     Mod4Mask|modifiers[i]);
+        GrabKey(t_key     = GetKeycode("t"),     Mod4Mask|modifiers[i]);
+        GrabKey(l_key     = GetKeycode("l"),     Mod4Mask|modifiers[i]);
+        GrabKey(b_key     = GetKeycode("b"),     Mod4Mask|modifiers[i]);
+        GrabKey(print_key = GetKeycode("Print"), modifiers[i]);
+        GrabKey(tab_key   = GetKeycode("Tab"),   Mod1Mask|modifiers[i]);
+        GrabKey(tab_key   = GetKeycode("Tab"),   ShiftMask|Mod1Mask|modifiers[i]);
+        GrabKey(f4_key    = GetKeycode("F4"),    Mod1Mask|modifiers[i]);
+        GrabKey(del_key   = GetKeycode("Delete"),ControlMask|Mod1Mask|modifiers[i]);
+        GrabKey(up_key    = GetKeycode("Up"),    Mod4Mask|modifiers[i]);
+        GrabKey(down_key  = GetKeycode("Down"),  Mod4Mask|modifiers[i]);
+        GrabKey(left_key  = GetKeycode("Left"),  Mod4Mask|modifiers[i]);
+        GrabKey(right_key = GetKeycode("Right"), Mod4Mask|modifiers[i]);
+        GrabKey(up_key    = GetKeycode("Up"),    ShiftMask|Mod4Mask|modifiers[i]);
+        GrabKey(down_key  = GetKeycode("Down"),  ShiftMask|Mod4Mask|modifiers[i]);
+        GrabKey(left_key  = GetKeycode("Left"),  ShiftMask|Mod4Mask|modifiers[i]);
+        GrabKey(right_key = GetKeycode("Right"), ShiftMask|Mod4Mask|modifiers[i]);
+        GrabButton(AnyButton, Mod1Mask|modifiers[i]);
     }
 }
 
-void WeeRunCmd(char *cmd, char *env_var) {
+void RunCmd(char *cmd, char *env_var) {
     char system_cmd[512];
 
     if (env_var != NULL) {
@@ -77,7 +77,7 @@ void WeeRunCmd(char *cmd, char *env_var) {
     (void)(system(system_cmd)+1);
 }
 
-void WeeCloseWindow(Window win) {
+void CloseWindow(Window win) {
     XEvent ev;
     ev.xclient.type = ClientMessage;
     ev.xclient.window = win;
@@ -88,12 +88,12 @@ void WeeCloseWindow(Window win) {
     XSendEvent(display, win, False, NoEventMask, &ev);
 }
 
-void WeeDrawBorder(Window win) {
+void DrawBorder(Window win) {
     XSetWindowBorderWidth(display, win, 1);
     XSetWindowBorder(display, win, 0);
 }
 
-void WeeMoveUp(Window win, XWindowAttributes win_attr) {
+void MoveUp(Window win, XWindowAttributes win_attr) {
     int center_position = (root_attr.height - win_attr.height) / 2;
     Bool at_top = win_attr.y == 0;
 
@@ -108,7 +108,7 @@ void WeeMoveUp(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void WeeMoveDown(Window win, XWindowAttributes win_attr) {
+void MoveDown(Window win, XWindowAttributes win_attr) {
     int third_width = root_attr.width / 3;
     int third_height = root_attr.height / 3;
     int center_position = (root_attr.height - win_attr.height) / 2;
@@ -126,7 +126,7 @@ void WeeMoveDown(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void WeeMoveLeft(Window win, XWindowAttributes win_attr) {
+void MoveLeft(Window win, XWindowAttributes win_attr) {
     int center_position = (root_attr.width - win_attr.width) / 2;
     Bool at_left = win_attr.x == 0;
 
@@ -141,7 +141,7 @@ void WeeMoveLeft(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void WeeMoveRight(Window win, XWindowAttributes win_attr) {
+void MoveRight(Window win, XWindowAttributes win_attr) {
     int center_position = (root_attr.width - win_attr.width) / 2;
     int right_position = root_attr.width - win_attr.width;
     Bool at_right = win_attr.x == root_attr.width - win_attr.width;
@@ -157,7 +157,7 @@ void WeeMoveRight(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void WeeResizeUp(Window win, XWindowAttributes win_attr) {
+void ResizeUp(Window win, XWindowAttributes win_attr) {
     int half = root_attr.height / 2;
     int third = root_attr.height / 3;
     int quarter = root_attr.height / 4;
@@ -179,7 +179,7 @@ void WeeResizeUp(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void WeeResizeDown(Window win, XWindowAttributes win_attr) {
+void ResizeDown(Window win, XWindowAttributes win_attr) {
     int half = root_attr.height / 2;
     int third = root_attr.height / 3;
     int quarter = root_attr.height / 4;
@@ -201,7 +201,7 @@ void WeeResizeDown(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void WeeResizeLeft(Window win, XWindowAttributes win_attr) {
+void ResizeLeft(Window win, XWindowAttributes win_attr) {
     int half = root_attr.width / 2;
     int third = root_attr.width / 3;
     int quarter = root_attr.width / 4;
@@ -223,7 +223,7 @@ void WeeResizeLeft(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void WeeResizeRight(Window win, XWindowAttributes win_attr) {
+void ResizeRight(Window win, XWindowAttributes win_attr) {
     int half = root_attr.width / 2;
     int third = root_attr.width / 3;
     int quarter = root_attr.width / 4;
@@ -245,19 +245,19 @@ void WeeResizeRight(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void WeeRaiseAndFocus(Window win) {
+void RaiseAndFocus(Window win) {
     XRaiseWindow(display, win);
     XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
 }
 
-void WeeHandleClick(XButtonEvent button_event) {
+void HandleClick(XButtonEvent button_event) {
     XGrabPointer(display, button_event.subwindow, True, PointerMotionMask|ButtonReleaseMask,
             GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
     XGetWindowAttributes(display, button_event.subwindow, &click_attr);
     click_start = button_event;
 }
 
-void WeeHandleMotion(XEvent ev) {
+void HandleMotion(XEvent ev) {
     while (XCheckTypedEvent(display, MotionNotify, &ev));
 
     int xdiff = ev.xbutton.x_root - click_start.x_root;
@@ -272,17 +272,17 @@ void WeeHandleMotion(XEvent ev) {
     }
 }
 
-void WeeHandleNewWindow(Window win) {
+void HandleNewWindow(Window win) {
     XWindowAttributes win_attr;
     XGetWindowAttributes(display, win, &win_attr);
 
     if (!win_attr.override_redirect && win_attr.map_state == IsViewable) {
-        WeeDrawBorder(win);
-        WeeRaiseAndFocus(win);
+        DrawBorder(win);
+        RaiseAndFocus(win);
     }
 }
 
-Window WeeGetCurrentWindow() {
+Window GetCurrentWindow() {
     unsigned int i, nwins;
     Window win, *wins;
     XWindowAttributes win_attr;
@@ -302,75 +302,75 @@ Window WeeGetCurrentWindow() {
     return win;
 }
 
-void WeeHandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
+void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
     XWindowAttributes win_attr;
     XGetWindowAttributes(display, win, &win_attr);
 
     if (keycode == up_key && modifiers & ShiftMask) {
-        WeeResizeUp(win, win_attr);
+        ResizeUp(win, win_attr);
     }
     else if (keycode == down_key && modifiers & ShiftMask) {
-        WeeResizeDown(win, win_attr);
+        ResizeDown(win, win_attr);
     }
     else if (keycode == left_key && modifiers & ShiftMask) {
-        WeeResizeLeft(win, win_attr);
+        ResizeLeft(win, win_attr);
     }
     else if (keycode == right_key && modifiers & ShiftMask) {
-        WeeResizeRight(win, win_attr);
+        ResizeRight(win, win_attr);
     }
     else if (keycode == up_key) {
-        WeeMoveUp(win, win_attr);
+        MoveUp(win, win_attr);
     }
     else if (keycode == down_key) {
-        WeeMoveDown(win, win_attr);
+        MoveDown(win, win_attr);
     }
     else if (keycode == left_key) {
-        WeeMoveLeft(win, win_attr);
+        MoveLeft(win, win_attr);
     }
     else if (keycode == right_key) {
-        WeeMoveRight(win, win_attr);
+        MoveRight(win, win_attr);
     }
 
-    WeeRaiseAndFocus(win);
+    RaiseAndFocus(win);
 }
 
-void WeeInterceptEvents() {
+void InterceptEvents() {
     XEvent ev;
     XNextEvent(display, &ev);
-    Window current_win = WeeGetCurrentWindow();
+    Window current_win = GetCurrentWindow();
 
     if (ev.type == ButtonPress) {
         if (ev.xbutton.subwindow != None) {
-            WeeRaiseAndFocus(ev.xbutton.subwindow);
-            WeeHandleClick(ev.xbutton);
+            RaiseAndFocus(ev.xbutton.subwindow);
+            HandleClick(ev.xbutton);
         }
     }
     else if (ev.type == ButtonRelease) {
         XUngrabPointer(display, CurrentTime);
     }
     else if (ev.type == MotionNotify) {
-        WeeHandleMotion(ev);
+        HandleMotion(ev);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
-        WeeRunCmd("dmenu_run -l 5 -p '$(date +'%d %a %H:%M')'", "$WEEMA_LAUNCHER");
+        RunCmd("dmenu_run -l 5 -p '$(date +'%d %a %H:%M')'", "$WEEMA_LAUNCHER");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
-        WeeRunCmd("x-terminal-emulator", "$WEEMA_TERMINAL");
+        RunCmd("x-terminal-emulator", "$WEEMA_TERMINAL");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == b_key) {
-        WeeRunCmd("x-www-browser", "$WEEMA_BROWSER");
+        RunCmd("x-www-browser", "$WEEMA_BROWSER");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == l_key) {
-        WeeRunCmd("slock", "$WEEMA_LOCK");
+        RunCmd("slock", "$WEEMA_LOCK");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == vol_up_key) {
-        WeeRunCmd("amixer set Master 3+", "$WEEMA_VOLUMEUP");
+        RunCmd("amixer set Master 3+", "$WEEMA_VOLUMEUP");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == vol_down_key) {
-        WeeRunCmd("amixer set Master 3-", "$WEEMA_VOLUMEDOWN");
+        RunCmd("amixer set Master 3-", "$WEEMA_VOLUMEDOWN");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == print_key) {
-        WeeRunCmd("scrot", "$WEEMA_PRINTSCREEN");
+        RunCmd("scrot", "$WEEMA_PRINTSCREEN");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
         XCirculateSubwindowsDown(display, root_win);
@@ -385,13 +385,13 @@ void WeeInterceptEvents() {
         XCloseDisplay(display);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == f4_key) {
-        WeeCloseWindow(current_win);
+        CloseWindow(current_win);
     }
     else if (ev.type == KeyPress) {
-        WeeHandleWindowPosition(current_win, ev.xkey.keycode, ev.xkey.state);
+        HandleWindowPosition(current_win, ev.xkey.keycode, ev.xkey.state);
     }
     else if (ev.type == MapNotify) {
-        WeeHandleNewWindow(ev.xmap.window);
+        HandleNewWindow(ev.xmap.window);
     }
     else if (ev.type == DestroyNotify) {
         XSetInputFocus(display, current_win, RevertToPointerRoot, CurrentTime); 
@@ -401,13 +401,13 @@ void WeeInterceptEvents() {
 int main() {
     if (!(display = XOpenDisplay(0x0))) return 1;
 
-    WeeInitRootWindow();
-    WeeSetupGrab();
+    InitRootWindow();
+    SetupGrab();
 
-    WeeRunCmd("xsetroot -cursor_name arrow -solid \"#030609\"", NULL);
-    WeeRunCmd("feh --bg-scale ~/wallpaper.jpg", "$WEEMA_INIT");
+    RunCmd("xsetroot -cursor_name arrow -solid \"#030609\"", NULL);
+    RunCmd("feh --bg-scale ~/wallpaper.jpg", "$WEEMA_INIT");
         
     for(;;) {
-        WeeInterceptEvents();
+        InterceptEvents();
     }
 }
