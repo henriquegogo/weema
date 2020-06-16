@@ -306,13 +306,14 @@ void WeeHandleNewWindow(Window win) {
 Window WeeGetCurrentWindow() {
     unsigned int i, nwins;
     Window current_win, *wins;
+    XWindowAttributes current_attr;
 
     XQueryTree(display, root_win, &current_win, &current_win, &wins, &nwins);
 
     for (i = 0; i < nwins; i++) {
-        XGetWindowAttributes(display, wins[i], &win_attr);
+        XGetWindowAttributes(display, wins[i], &current_attr);
 
-        if (wins[i] != None && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
+        if (wins[i] != None && !current_attr.override_redirect && current_attr.map_state == IsViewable) {
             current_win = wins[i];
         }
     }
@@ -340,8 +341,10 @@ void WeeInterceptEvents() {
     Window current_win = WeeGetCurrentWindow();
 
     if (ev.type == ButtonPress) {
-        WeeRaiseAndFocus(ev.xbutton.subwindow);
-        WeeHandleClick(ev.xbutton);
+        if (ev.xbutton.subwindow != None) {
+            WeeRaiseAndFocus(ev.xbutton.subwindow);
+            WeeHandleClick(ev.xbutton);
+        }
     }
     else if (ev.type == ButtonRelease) {
         XUngrabPointer(display, CurrentTime);
