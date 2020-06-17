@@ -110,11 +110,6 @@ void CloseWindow(Window win) {
     XSendEvent(display, win, False, NoEventMask, &ev);
 }
 
-void DrawBorder(Window win) {
-    XSetWindowBorderWidth(display, win, 1);
-    XSetWindowBorder(display, win, 0);
-}
-
 void MoveUp(Window win, XWindowAttributes win_attr) {
     int center_position = (root.attr.height - win_attr.height) / 2;
     Bool at_top = win_attr.y == 0;
@@ -249,11 +244,6 @@ void ResizeRight(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void RaiseAndFocus(Window win) {
-    XRaiseWindow(display, win);
-    XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
-}
-
 void HandleClick(XButtonEvent button_event) {
     XGrabPointer(display, button_event.subwindow, True, PointerMotionMask|ButtonReleaseMask,
             GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
@@ -281,13 +271,15 @@ void HandleNewWindow(Window win) {
     XGetWindowAttributes(display, win, &win_attr);
 
     if (!win_attr.override_redirect && win_attr.map_state == IsViewable) {
-        DrawBorder(win);
-        RaiseAndFocus(win);
+        XSetWindowBorderWidth(display, win, 1);
+        XSetWindowBorder(display, win, 0);
+        XRaiseWindow(display, win);
+        XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
     }
 }
 
-Window GetCurrentWindow() {
-    unsigned int i, nwins;
+Window GetWindow(unsigned int win_i) {
+    unsigned int i, nwins, count = 1;
     Window win, *wins;
     XWindowAttributes win_attr;
 
@@ -298,6 +290,7 @@ Window GetCurrentWindow() {
 
         if (wins[i] != None && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
             win = wins[i];
+            if (win_i == count++) break;
         }
     }
 
@@ -335,18 +328,22 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifie
         MoveRight(win, win_attr);
     }
 
-    RaiseAndFocus(win);
+    XRaiseWindow(display, win);
+    XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
 }
 
 void InterceptEvents() {
     XEvent ev;
     XNextEvent(display, &ev);
 
-    if (ev.type == ButtonPress) {
-        if (ev.xbutton.subwindow != None) {
-            RaiseAndFocus(ev.xbutton.subwindow);
-            HandleClick(ev.xbutton);
-        }
+    if (ev.type == ButtonPress && ev.xbutton.button == 3 && ev.xbutton.subwindow != None) {
+        XLowerWindow(display, ev.xbutton.subwindow);
+        XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime); 
+    }
+    else if (ev.type == ButtonPress && ev.xbutton.subwindow != None) {
+        XRaiseWindow(display, ev.xbutton.subwindow);
+        XSetInputFocus(display, ev.xbutton.subwindow, RevertToPointerRoot, CurrentTime); 
+        HandleClick(ev.xbutton);
     }
     else if (ev.type == ButtonRelease) {
         XUngrabPointer(display, CurrentTime);
@@ -376,28 +373,28 @@ void InterceptEvents() {
         RunCmd("scrot", "$WEEMA_PRINTSCREEN");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
-        XCirculateSubwindowsDown(display, root.win);
+        XLowerWindow(display, GetWindow(0));
+        XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime); 
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
-        XCirculateSubwindowsUp(display, root.win);
-    }
-    else if (ev.type == CirculateNotify) {
-        XSetInputFocus(display, GetCurrentWindow(), RevertToPointerRoot, CurrentTime); 
+        Window win = GetWindow(1);
+        XRaiseWindow(display, win);
+        XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(display);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == f4_key) {
-        CloseWindow(GetCurrentWindow());
+        CloseWindow(GetWindow(0));
     }
     else if (ev.type == KeyPress) {
-        HandleWindowPosition(GetCurrentWindow(), ev.xkey.keycode, ev.xkey.state);
+        HandleWindowPosition(GetWindow(0), ev.xkey.keycode, ev.xkey.state);
     }
     else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
     }
     else if (ev.type == DestroyNotify) {
-        XSetInputFocus(display, GetCurrentWindow(), RevertToPointerRoot, CurrentTime); 
+        XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime); 
     }
 }
 
