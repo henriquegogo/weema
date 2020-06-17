@@ -11,7 +11,7 @@ Uninstall:
   
   $ sudo make uninstall
 
-Install third pary dependencies (optional):
+Install third party dependencies (optional):
 
   $ make dependencies
 
@@ -49,7 +49,7 @@ Third party optional dependencies:
   
   We use third party applications to manage some functions.
   You can configure this just settings these environment
-  variables in .xinitrc.  These change will override the
+  variables in .xinitrc.  These changes will override the
   default commands.
 
   export WEEMA_INIT="feh --bg-scale ~/wallpaper.jpg"
