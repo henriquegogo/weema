@@ -5,11 +5,6 @@ CFLAGS?=-Wpedantic -Wall -Wextra
 all:
 	$(CC) $(CFLAGS) weema.c -lX11 -o weema
 
-debug:
-	$(CC) $(CFLAGS) -g weema.c -lX11 -o weema-debug
-	gdb ./weema-debug
-	rm ./weema-debug
-
 install:
 	install -d ${BINDIR}
 	install -m 755 weema ${BINDIR}
@@ -21,3 +16,6 @@ uninstall:
 		
 clean:
 	rm weema
+
+dependencies:
+	sudo apt install feh dmenu scrot alsa-utils

@@ -11,6 +11,10 @@ Uninstall:
   
   $ sudo make uninstall
 
+Install third pary dependencies (optional):
+
+  $ make dependencies
+
 Usage:
 
   Edit .xinitrc file to 'exec weema' or select 'Weema'
