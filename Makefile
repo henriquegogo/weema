@@ -9,7 +9,7 @@ install:
 	install -d ${BINDIR}
 	install -m 755 weema ${BINDIR}
 	install -m 644 weema.desktop ${XSESSIONSDIR}
-	update-alternatives --install /usr/bin/x-window-manager x-window-manager /usr/bin/weema 10
+	update-alternatives --install /usr/bin/x-window-manager x-window-manager /usr/bin/weema 20
 
 uninstall:
 	update-alternatives --remove x-window-manager /usr/bin/weema
