@@ -270,7 +270,7 @@ void HandleNewWindow(Window win) {
     XWindowAttributes win_attr;
     XGetWindowAttributes(display, win, &win_attr);
 
-    if (!win_attr.override_redirect && win_attr.map_state == IsViewable) {
+    if (win != None && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
         XSetWindowBorderWidth(display, win, 1);
         XSetWindowBorder(display, win, 0);
         XRaiseWindow(display, win);
