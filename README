@@ -19,6 +19,8 @@ Usage:
 Binds:
 
   Alt+Button1: raise and move window
+  Alt+Button2: raise and resize window
+  Alt+Button3: lower window
   Alt+Tab: alternate windows
   Alt+Shift+Tab: reverse alternate windows
   Alt+F4: close window
