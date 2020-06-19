@@ -394,7 +394,9 @@ void InterceptEvents() {
         HandleNewWindow(ev.xmap.window);
     }
     else if (ev.type == UnmapNotify) {
-        XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime); 
+        // This line should work, but GetWindow(0) is expensive and
+        // run multiple times causes some breaks
+        // XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime); 
     }
 }
 
