@@ -393,7 +393,7 @@ void InterceptEvents() {
     else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
     }
-    else if (ev.type == DestroyNotify) {
+    else if (ev.type == UnmapNotify) {
         XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime); 
     }
 }
