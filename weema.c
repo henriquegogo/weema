@@ -32,7 +32,7 @@ KeyCode up_key, down_key, left_key, right_key,
 
 void InitRootWindow() {
     root.win = XDefaultRootWindow(display);
-    XSelectInput(display, root.win, SubstructureNotifyMask|FocusChangeMask);
+    XSelectInput(display, root.win, SubstructureNotifyMask);
     XGetWindowAttributes(display, root.win, &root.attr);
 
     root.half_w    = root.attr.width / 2;
