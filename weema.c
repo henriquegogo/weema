@@ -32,7 +32,7 @@ KeyCode up_key, down_key, left_key, right_key,
 
 void InitRootWindow() {
     root.win = XDefaultRootWindow(display);
-    XSelectInput(display, root.win, SubstructureNotifyMask);
+    XSelectInput(display, root.win, SubstructureNotifyMask|FocusChangeMask);
     XGetWindowAttributes(display, root.win, &root.attr);
 
     root.half_w    = root.attr.width / 2;
@@ -299,6 +299,14 @@ Window GetWindow(unsigned int win_i) {
     return win;
 }
 
+Bool ParentIsFocused() {
+    Window win;
+    int revert_to;
+    XGetInputFocus(display, &win, &revert_to);
+
+    return (int)win == revert_to;
+}
+
 void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
     XWindowAttributes win_attr;
     XGetWindowAttributes(display, win, &win_attr);
@@ -392,6 +400,9 @@ void InterceptEvents() {
     }
     else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
+    }
+    else if (ev.type == FocusIn && ParentIsFocused()) {
+        XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime); 
     }
 }
 
