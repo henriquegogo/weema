@@ -32,7 +32,7 @@ KeyCode up_key, down_key, left_key, right_key,
 
 void InitRootWindow() {
     root.win = XDefaultRootWindow(display);
-    XSelectInput(display, root.win, SubstructureNotifyMask);
+    XSelectInput(display, root.win, SubstructureNotifyMask|FocusChangeMask);
     XGetWindowAttributes(display, root.win, &root.attr);
 
     root.half_w    = root.attr.width / 2;
@@ -393,10 +393,8 @@ void InterceptEvents() {
     else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
     }
-    else if (ev.type == UnmapNotify) {
-        // This line should work, but GetWindow(0) is expensive and
-        // run multiple times causes some breaks
-        // XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime); 
+    else if (ev.type == FocusIn && ev.xfocus.window == root.win) {
+        XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime); 
     }
 }
 
