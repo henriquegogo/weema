@@ -393,9 +393,6 @@ void InterceptEvents() {
     else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
     }
-    else if (ev.type == FocusIn && ev.xfocus.window == root.win) {
-        XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime); 
-    }
 }
 
 int main() {
