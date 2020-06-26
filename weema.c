@@ -32,7 +32,7 @@ KeyCode up_key, down_key, left_key, right_key,
 
 void InitRootWindow() {
     root.win = XDefaultRootWindow(display);
-    XSelectInput(display, root.win, SubstructureNotifyMask|FocusChangeMask);
+    XSelectInput(display, root.win, SubstructureNotifyMask);
     XGetWindowAttributes(display, root.win, &root.attr);
 
     root.half_w    = root.attr.width / 2;
@@ -57,7 +57,6 @@ int GetKeycode(const char *key) {
 }
 
 void SetupGrab() {
-    // Intercept keys and mouse buttons. Mod2Mask=NumLock, Mod3Mask=ScrollLock, LockMask=CapsLock
     unsigned int modifiers[8] = { None, Mod2Mask, Mod3Mask, LockMask,
         Mod2Mask|Mod3Mask, Mod2Mask|LockMask, Mod3Mask|LockMask, Mod2Mask|Mod3Mask|LockMask };
 
