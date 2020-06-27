@@ -392,6 +392,13 @@ void InterceptEvents() {
     else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
     }
+    else if (ev.type == UnmapNotify) {
+        XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime);
+    }
+}
+
+int avoid() {
+    return 0;
 }
 
 int main() {
@@ -403,6 +410,8 @@ int main() {
     RunCmd("xsetroot -cursor_name arrow -solid \"#030609\"", NULL);
     RunCmd("feh --bg-scale ~/wallpaper.jpg", "$WEEMA_INIT");
         
+    XSetErrorHandler(avoid);
+
     for(;;) {
         InterceptEvents();
     }
