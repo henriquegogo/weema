@@ -397,20 +397,20 @@ void InterceptEvents() {
     }
 }
 
-int avoid() {
+int ErrorHandler() {
     return 0;
 }
 
 int main() {
     if (!(display = XOpenDisplay(0x0))) return 1;
 
+    XSetErrorHandler(ErrorHandler);
+
     InitRootWindow();
     SetupGrab();
 
     RunCmd("xsetroot -cursor_name arrow -solid \"#030609\"", NULL);
     RunCmd("feh --bg-scale ~/wallpaper.jpg", "$WEEMA_INIT");
-        
-    XSetErrorHandler(avoid);
 
     for(;;) {
         InterceptEvents();
