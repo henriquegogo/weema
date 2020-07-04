@@ -25,6 +25,8 @@ typedef struct {
 } Clicked;
 Clicked clicked;
 
+int top = 0;
+
 KeyCode up_key, down_key, left_key, right_key,
         r_key, t_key, l_key, b_key,
         vol_up_key, vol_down_key,
@@ -110,30 +112,30 @@ void CloseWindow(Window win) {
 }
 
 void MoveUp(Window win, XWindowAttributes win_attr) {
-    int center_position = (root.attr.height - win_attr.height) / 2;
-    Bool at_top = win_attr.y == 0;
+    int center_pos = (root.attr.height - win_attr.height) / 2;
+    Bool at_top = win_attr.y == top;
 
     if (at_top) {
-        XMoveResizeWindow(display, win, 0, 0, root.attr.width, root.attr.height);
+        XMoveResizeWindow(display, win, 0, top, root.attr.width, root.attr.height - top);
     }
-    else if (win_attr.y > center_position) {
-        XMoveWindow(display, win, win_attr.x, center_position);
+    else if (win_attr.y > center_pos) {
+        XMoveWindow(display, win, win_attr.x, center_pos);
     }
     else {
-        XMoveWindow(display, win, win_attr.x, 0);
+        XMoveWindow(display, win, win_attr.x, top);
     }
 }
 
 void MoveDown(Window win, XWindowAttributes win_attr) {
-    int center_position = (root.attr.height - win_attr.height) / 2;
-    Bool is_fullscreen = win_attr.width == root.attr.width && win_attr.height == root.attr.height;
+    int center_pos = (root.attr.height - win_attr.height) / 2;
+    Bool is_full = win_attr.width == root.attr.width && win_attr.height == root.attr.height - top;
 
-    if (is_fullscreen) {
+    if (is_full) {
         XMoveResizeWindow(display, win, root.third_w / 2 + 1, root.third_h / 2,
                 root.third_w * 2, root.third_h * 2);
     }
-    else if (win_attr.y < center_position) {
-        XMoveWindow(display, win, win_attr.x, center_position);
+    else if (win_attr.y < center_pos) {
+        XMoveWindow(display, win, win_attr.x, center_pos);
     }
     else {
         XMoveWindow(display, win, win_attr.x, root.attr.height - win_attr.height);
@@ -141,14 +143,14 @@ void MoveDown(Window win, XWindowAttributes win_attr) {
 }
 
 void MoveLeft(Window win, XWindowAttributes win_attr) {
-    int center_position = (root.attr.width - win_attr.width) / 2;
+    int center_pos = (root.attr.width - win_attr.width) / 2;
     Bool at_left = win_attr.x == 0;
 
     if (at_left) {
-        XMoveResizeWindow(display, win, 0, 0, win_attr.width, root.attr.height);
+        XMoveResizeWindow(display, win, 0, top, win_attr.width, root.attr.height - top);
     }
-    else if (win_attr.x > center_position) {
-        XMoveWindow(display, win, center_position, win_attr.y);
+    else if (win_attr.x > center_pos) {
+        XMoveWindow(display, win, center_pos, win_attr.y);
     }
     else {
         XMoveWindow(display, win, 0, win_attr.y);
@@ -156,15 +158,15 @@ void MoveLeft(Window win, XWindowAttributes win_attr) {
 }
 
 void MoveRight(Window win, XWindowAttributes win_attr) {
-    int center_position = (root.attr.width - win_attr.width) / 2;
-    int right_position = root.attr.width - win_attr.width;
+    int center_pos = (root.attr.width - win_attr.width) / 2;
+    int right_pos = root.attr.width - win_attr.width;
     Bool at_right = win_attr.x == root.attr.width - win_attr.width;
 
     if (at_right) {
-        XMoveResizeWindow(display, win, right_position, 0, win_attr.width, root.attr.height);
+        XMoveResizeWindow(display, win, right_pos, top, win_attr.width, root.attr.height - top);
     }
-    else if (win_attr.x < center_position) {
-        XMoveWindow(display, win, center_position, win_attr.y);
+    else if (win_attr.x < center_pos) {
+        XMoveWindow(display, win, center_pos, win_attr.y);
     }
     else {
         XMoveWindow(display, win, root.attr.width - win_attr.width, win_attr.y);
@@ -172,38 +174,38 @@ void MoveRight(Window win, XWindowAttributes win_attr) {
 }
 
 void ResizeUp(Window win, XWindowAttributes win_attr) {
-    if (win_attr.height <= root.third_h) {
-        XResizeWindow(display, win, win_attr.width, root.quarter_h);
+    if (win_attr.height <= root.third_h - top) {
+        XResizeWindow(display, win, win_attr.width, root.quarter_h - top);
     }
-    else if (win_attr.height <= root.half_h) {
-        XResizeWindow(display, win, win_attr.width, root.third_h);
+    else if (win_attr.height <= root.half_h - top) {
+        XResizeWindow(display, win, win_attr.width, root.third_h - top);
     }
-    else if (win_attr.height <= 2 * root.third_h) {
-        XResizeWindow(display, win, win_attr.width, root.half_h);
+    else if (win_attr.height <= 2 * root.third_h - top) {
+        XResizeWindow(display, win, win_attr.width, root.half_h - top);
     }
-    else if (win_attr.height <= 3 * root.quarter_h) {
-        XResizeWindow(display, win, win_attr.width, 2 * root.third_h);
+    else if (win_attr.height <= 3 * root.quarter_h - top) {
+        XResizeWindow(display, win, win_attr.width, 2 * root.third_h - top);
     }
-    else if (win_attr.height <= root.attr.height) {
-        XResizeWindow(display, win, win_attr.width, 3 * root.quarter_h);
+    else if (win_attr.height <= root.attr.height - top) {
+        XResizeWindow(display, win, win_attr.width, 3 * root.quarter_h - top);
     }
 }
 
 void ResizeDown(Window win, XWindowAttributes win_attr) {
-    if (win_attr.height < root.third_h) {
-        XResizeWindow(display, win, win_attr.width, root.third_h);
+    if (win_attr.height < root.third_h - top) {
+        XResizeWindow(display, win, win_attr.width, root.third_h - top);
     }
-    else if (win_attr.height < root.half_h) {
-        XResizeWindow(display, win, win_attr.width, root.half_h);
+    else if (win_attr.height < root.half_h - top) {
+        XResizeWindow(display, win, win_attr.width, root.half_h - top);
     }
-    else if (win_attr.height < 2 * root.third_h) {
-        XResizeWindow(display, win, win_attr.width, 2 * root.third_h);
+    else if (win_attr.height < 2 * root.third_h - top) {
+        XResizeWindow(display, win, win_attr.width, 2 * root.third_h - top);
     }
-    else if (win_attr.height < 3 * root.quarter_h) {
-        XResizeWindow(display, win, win_attr.width, 3 * root.quarter_h);
+    else if (win_attr.height < 3 * root.quarter_h - top) {
+        XResizeWindow(display, win, win_attr.width, 3 * root.quarter_h - top);
     }
     else {
-        XMoveResizeWindow(display, win, win_attr.x, 0, win_attr.width, root.attr.height);
+        XMoveResizeWindow(display, win, win_attr.x, top, win_attr.width, root.attr.height - top);
     }
 }
 
@@ -281,19 +283,31 @@ Window GetWindow(unsigned int win_i) {
     unsigned int i, nwins, count = 1;
     Window win, *wins;
     XWindowAttributes win_attr;
+    Bool has_panel;
 
     XQueryTree(display, root.win, &win, &win, &wins, &nwins);
 
     for (i = 0; i < nwins; i++) {
         XGetWindowAttributes(display, wins[i], &win_attr);
+        Bool is_panel = win_attr.y == 0 && win_attr.height > 0 && win_attr.height <= 64
+            && win_attr.width == root.attr.width;
 
-        if (wins[i] != None && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
+        if (wins[i] != None && !is_panel
+                && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
             win = wins[i];
             if (win_i == count++) break;
+        }
+        else if (is_panel) {
+            has_panel = True;
+            top = win_attr.height;
         }
     }
 
     XFree(wins);
+
+    if (!has_panel) {
+        top = 0;
+    }
 
     return win;
 }

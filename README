@@ -66,6 +66,10 @@ Third party optional dependencies:
   - alsa-utils: volume control
   - scrot: print screen
 
+Tips:
+
+  Any small full width window at the top will be consider a dock panel.
+
 License:
 
   MIT
