@@ -279,9 +279,10 @@ void HandleNewWindow(Window win) {
     }
 }
 
-Window GetWindow(unsigned int win_i) {
-    unsigned int i, nwins, count = 1;
-    Window win, *wins;
+Window GetWindow(int win_i) {
+    unsigned int i, nwins;
+    int count = 1;
+    Window win, last_but_one, *wins;
     XWindowAttributes win_attr;
     Bool has_panel;
 
@@ -295,7 +296,8 @@ Window GetWindow(unsigned int win_i) {
         if (wins[i] != None && !is_panel
                 && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
             win = wins[i];
-            if (win_i == count++) break;
+            if (win_i == count++ || i == nwins - 1) break;
+            last_but_one = win;
         }
         else if (is_panel) {
             has_panel = True;
@@ -309,7 +311,7 @@ Window GetWindow(unsigned int win_i) {
         top = 0;
     }
 
-    return win;
+    return win_i == -1 ? last_but_one : win;
 }
 
 void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
@@ -386,11 +388,12 @@ void InterceptEvents() {
         RunCmd("scrot", "$WEEMA_PRINTSCREEN");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
-        XLowerWindow(display, GetWindow(0));
-        XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime); 
+        Window win = GetWindow(1);
+        XRaiseWindow(display, win);
+        XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
-        Window win = GetWindow(1);
+        Window win = GetWindow(-1);
         XRaiseWindow(display, win);
         XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
     }
