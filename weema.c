@@ -276,6 +276,7 @@ void HandleNewWindow(Window win) {
         XSetWindowBorder(display, win, 0);
         XRaiseWindow(display, win);
         XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
+        XMoveWindow(display, win, 0, top);
     }
 }
 
@@ -284,7 +285,7 @@ Window GetWindow(int win_i) {
     int count = 1;
     Window win, last_but_one, *wins;
     XWindowAttributes win_attr;
-    Bool has_panel;
+    Bool has_panel = False;
 
     XQueryTree(display, root.win, &win, &win, &wins, &nwins);
 
@@ -293,15 +294,15 @@ Window GetWindow(int win_i) {
         Bool is_panel = win_attr.y == 0 && win_attr.height > 0 && win_attr.height <= 64
             && win_attr.width == root.attr.width;
 
-        if (wins[i] != None && !is_panel
+        if (is_panel) {
+            has_panel = True;
+            top = win_attr.height;
+        }
+        else if (wins[i] != None && !is_panel
                 && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
             win = wins[i];
             if (win_i == count++ || i == nwins - 1) break;
             last_but_one = win;
-        }
-        else if (is_panel) {
-            has_panel = True;
-            top = win_attr.height;
         }
     }
 
