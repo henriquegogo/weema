@@ -276,7 +276,10 @@ void HandleNewWindow(Window win) {
         XSetWindowBorder(display, win, 0);
         XRaiseWindow(display, win);
         XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
-        XMoveWindow(display, win, 0, top);
+
+        if (win_attr.x == 0 && win_attr.y == 0) {
+            XMoveWindow(display, win, 0, top);
+        }
     }
 }
 
