@@ -371,7 +371,7 @@ void InterceptEvents() {
         HandleMotion(ev);
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
-        RunCmd("dmenu_run -l 5 -p '$(date +'%d %a %H:%M')'", "$WEEMA_LAUNCHER");
+        RunCmd("dmenu_run", "$WEEMA_LAUNCHER");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
         RunCmd("x-terminal-emulator", "$WEEMA_TERMINAL");
