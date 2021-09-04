@@ -33,10 +33,13 @@ KeyCode up_key, down_key, left_key, right_key,
         vol_up_key, vol_down_key,
         f4_key, del_key, tab_key, print_key;
 
-void InitRootWindow() {
-    root.win = XDefaultRootWindow(display);
+void SetupRootWindow() {
+    Screen *screen = XDefaultScreenOfDisplay(display);
+    root.win = XRootWindowOfScreen(screen);
     XSelectInput(display, root.win, SubstructureNotifyMask);
-    XGetWindowAttributes(display, root.win, &root.attr);
+
+    root.attr.width = XWidthOfScreen(screen);
+    root.attr.height = XHeightOfScreen(screen);
 
     root.half_w    = root.attr.width / 2;
     root.third_w   = root.attr.width / 3;
@@ -292,6 +295,7 @@ Window GetWindow(int win_i) {
     XWindowAttributes win_attr;
     Bool has_panel = False;
 
+    SetupRootWindow();
     XQueryTree(display, root.win, &win, &win, &wins, &nwins);
 
     for (i = 0; i < nwins; i++) {
@@ -426,11 +430,11 @@ int ErrorHandler() {
 }
 
 int main() {
-    if (!(display = XOpenDisplay(0x0))) return 1;
+    if (!(display = XOpenDisplay(NULL))) return 1;
 
     XSetErrorHandler(ErrorHandler);
 
-    InitRootWindow();
+    SetupRootWindow();
     SetupGrab();
 
     RunCmd("xsetroot -cursor_name arrow -solid \"#030609\"", NULL);
