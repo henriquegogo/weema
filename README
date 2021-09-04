@@ -28,6 +28,7 @@ Binds:
   Alt+Tab: rise last window
   Alt+Shift+Tab: circle windows
   Alt+F4: close window
+  Ctrl+Shift+W: close window
   Ctrl+Alt+Delete: close window manager
   PrntScr: print screen
   Volume up: increase volume
