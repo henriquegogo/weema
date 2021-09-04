@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <X11/X.h>
 #include <X11/Xlib.h>
 
 Display *display = NULL;
@@ -149,7 +148,7 @@ void CloseWindow(Window win) {
     XSendEvent(display, win, False, NoEventMask, &ev);
 }
 
-void MoveUp(Window win, XWindowAttributes win_attr) {
+void PositionUp(Window win, XWindowAttributes win_attr) {
     int center_pos = (current_screen.height - win_attr.height) / 2;
     Bool at_top = win_attr.y == top;
 
@@ -164,7 +163,7 @@ void MoveUp(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void MoveDown(Window win, XWindowAttributes win_attr) {
+void PositionDown(Window win, XWindowAttributes win_attr) {
     int center_pos = (current_screen.height - win_attr.height) / 2;
     Bool is_full = win_attr.width == current_screen.width && win_attr.height == current_screen.height - top;
 
@@ -180,7 +179,7 @@ void MoveDown(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void MoveLeft(Window win, XWindowAttributes win_attr) {
+void PositionLeft(Window win, XWindowAttributes win_attr) {
     int center_pos = (current_screen.width - win_attr.width) / 2;
     Bool at_left = win_attr.x == left;
 
@@ -195,7 +194,7 @@ void MoveLeft(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void MoveRight(Window win, XWindowAttributes win_attr) {
+void PositionRight(Window win, XWindowAttributes win_attr) {
     int center_pos = (current_screen.width - win_attr.width) / 2;
     int right_pos = current_screen.width - win_attr.width + left;
     Bool at_right = win_attr.x == right_pos;
@@ -211,19 +210,19 @@ void MoveRight(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void DragUp(Window win, XWindowAttributes win_attr) {
+void MoveUp(Window win, XWindowAttributes win_attr) {
     XMoveWindow(display, win, win_attr.x, win_attr.y - 100);
 }
 
-void DragDown(Window win, XWindowAttributes win_attr) {
+void MoveDown(Window win, XWindowAttributes win_attr) {
     XMoveWindow(display, win, win_attr.x, win_attr.y + 100);
 }
 
-void DragLeft(Window win, XWindowAttributes win_attr) {
+void MoveLeft(Window win, XWindowAttributes win_attr) {
     XMoveWindow(display, win, win_attr.x - 100, win_attr.y);
 }
 
-void DragRight(Window win, XWindowAttributes win_attr) {
+void MoveRight(Window win, XWindowAttributes win_attr) {
     XMoveWindow(display, win, win_attr.x + 100, win_attr.y);
 }
 
@@ -391,28 +390,28 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifie
         ResizeRight(win, win_attr);
     }
     else if (keycode == up_key && modifiers & Mod1Mask) {
-        DragUp(win, win_attr);
-    }
-    else if (keycode == down_key && modifiers & Mod1Mask) {
-        DragDown(win, win_attr);
-    }
-    else if (keycode == left_key && modifiers & Mod1Mask) {
-        DragLeft(win, win_attr);
-    }
-    else if (keycode == right_key && modifiers & Mod1Mask) {
-        DragRight(win, win_attr);
-    }
-    else if (keycode == up_key) {
         MoveUp(win, win_attr);
     }
-    else if (keycode == down_key) {
+    else if (keycode == down_key && modifiers & Mod1Mask) {
         MoveDown(win, win_attr);
     }
-    else if (keycode == left_key) {
+    else if (keycode == left_key && modifiers & Mod1Mask) {
         MoveLeft(win, win_attr);
     }
-    else if (keycode == right_key) {
+    else if (keycode == right_key && modifiers & Mod1Mask) {
         MoveRight(win, win_attr);
+    }
+    else if (keycode == up_key) {
+        PositionUp(win, win_attr);
+    }
+    else if (keycode == down_key) {
+        PositionDown(win, win_attr);
+    }
+    else if (keycode == left_key) {
+        PositionLeft(win, win_attr);
+    }
+    else if (keycode == right_key) {
+        PositionRight(win, win_attr);
     }
 
     XRaiseWindow(display, win);
