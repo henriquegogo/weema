@@ -112,6 +112,10 @@ void SetupGrab() {
         GrabKey(down_key  = GetKeycode("Down"),  ShiftMask|Mod4Mask|modifiers[i]);
         GrabKey(left_key  = GetKeycode("Left"),  ShiftMask|Mod4Mask|modifiers[i]);
         GrabKey(right_key = GetKeycode("Right"), ShiftMask|Mod4Mask|modifiers[i]);
+        GrabKey(up_key    = GetKeycode("Up"),    Mod1Mask|Mod4Mask|modifiers[i]);
+        GrabKey(down_key  = GetKeycode("Down"),  Mod1Mask|Mod4Mask|modifiers[i]);
+        GrabKey(left_key  = GetKeycode("Left"),  Mod1Mask|Mod4Mask|modifiers[i]);
+        GrabKey(right_key = GetKeycode("Right"), Mod1Mask|Mod4Mask|modifiers[i]);
         GrabButton(AnyButton, Mod1Mask|modifiers[i]);
     }
 }
@@ -201,6 +205,22 @@ void MoveRight(Window win, XWindowAttributes win_attr) {
     else {
         XMoveWindow(display, win, root.screen_width - win_attr.width + left, win_attr.y);
     }
+}
+
+void DragUp(Window win, XWindowAttributes win_attr) {
+    XMoveWindow(display, win, win_attr.x, win_attr.y - 100);
+}
+
+void DragDown(Window win, XWindowAttributes win_attr) {
+    XMoveWindow(display, win, win_attr.x, win_attr.y + 100);
+}
+
+void DragLeft(Window win, XWindowAttributes win_attr) {
+    XMoveWindow(display, win, win_attr.x - 100, win_attr.y);
+}
+
+void DragRight(Window win, XWindowAttributes win_attr) {
+    XMoveWindow(display, win, win_attr.x + 100, win_attr.y);
 }
 
 void ResizeUp(Window win, XWindowAttributes win_attr) {
@@ -365,6 +385,18 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifie
     }
     else if (keycode == right_key && modifiers & ShiftMask) {
         ResizeRight(win, win_attr);
+    }
+    else if (keycode == up_key && modifiers & Mod1Mask) {
+        DragUp(win, win_attr);
+    }
+    else if (keycode == down_key && modifiers & Mod1Mask) {
+        DragDown(win, win_attr);
+    }
+    else if (keycode == left_key && modifiers & Mod1Mask) {
+        DragLeft(win, win_attr);
+    }
+    else if (keycode == right_key && modifiers & Mod1Mask) {
+        DragRight(win, win_attr);
     }
     else if (keycode == up_key) {
         MoveUp(win, win_attr);

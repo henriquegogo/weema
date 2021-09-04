@@ -41,6 +41,10 @@ Binds:
   Super+Shift+Down: increase height
   Super+Shift+Left: decrease width
   Super+Shift+Right: increase width
+  Super+Alt+Up: move up some steps
+  Super+Alt+Down: move down some steps
+  Super+Alt+Left: move left some steps
+  Super+Alt+Right: move right some steps
   Super+Up: move window to top or maximize if already on top
   Super+Down: move window to bottom or centralize if maximized
   Super+Left: move window to left or fit height if already on left
