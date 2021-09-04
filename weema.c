@@ -1,6 +1,7 @@
 /* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2020.
  * MIT License */
 
+#include <X11/X.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <X11/Xlib.h>
@@ -28,7 +29,7 @@ Clicked clicked;
 int top = 0;
 
 KeyCode up_key, down_key, left_key, right_key,
-        r_key, t_key, l_key, b_key,
+        r_key, t_key, l_key, b_key, w_key,
         vol_up_key, vol_down_key,
         f4_key, del_key, tab_key, print_key;
 
@@ -73,6 +74,7 @@ void SetupGrab() {
         GrabKey(tab_key   = GetKeycode("Tab"),   Mod1Mask|modifiers[i]);
         GrabKey(tab_key   = GetKeycode("Tab"),   ShiftMask|Mod1Mask|modifiers[i]);
         GrabKey(f4_key    = GetKeycode("F4"),    Mod1Mask|modifiers[i]);
+        GrabKey(w_key     = GetKeycode("w"),     ControlMask|ShiftMask|modifiers[i]);
         GrabKey(del_key   = GetKeycode("Delete"),ControlMask|Mod1Mask|modifiers[i]);
         GrabKey(up_key    = GetKeycode("Up"),    Mod4Mask|modifiers[i]);
         GrabKey(down_key  = GetKeycode("Down"),  Mod4Mask|modifiers[i]);
@@ -403,8 +405,9 @@ void InterceptEvents() {
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(display);
+        exit(0);
     }
-    else if (ev.type == KeyPress && ev.xkey.keycode == f4_key) {
+    else if (ev.type == KeyPress && (ev.xkey.keycode == f4_key || ev.xkey.keycode == w_key)) {
         CloseWindow(GetWindow(0));
     }
     else if (ev.type == KeyPress) {
