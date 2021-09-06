@@ -434,12 +434,6 @@ void InterceptEvents() {
         XLowerWindow(display, ev.xbutton.subwindow);
         XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime); 
     }
-    else if (ev.type == ButtonPress && (ev.xbutton.button == 4 || ev.xbutton.button == 5)
-            && ev.xbutton.subwindow != None) {
-        Window win = GetWindow(ev.xbutton.button == 4 ? -1 : 1);
-        XRaiseWindow(display, win);
-        XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
-    }
     else if (ev.type == ButtonRelease) {
         XUngrabPointer(display, CurrentTime);
     }
@@ -494,6 +488,7 @@ void InterceptEvents() {
         XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime);
     }
     else if (ev.type == EnterNotify) {
+        XRaiseWindow(display, ev.xcrossing.window);
         XSetInputFocus(display, ev.xcrossing.window, RevertToPointerRoot, CurrentTime);
     }
 }
