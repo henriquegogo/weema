@@ -15,18 +15,6 @@ typedef struct {
 Root root;
 
 typedef struct {
-    int width;
-    int height;
-    int half_w;
-    int third_w;
-    int quarter_w;
-    int half_h;
-    int third_h;
-    int quarter_h;
-} CurrentScreen;
-CurrentScreen current_screen;
-
-typedef struct {
     XButtonEvent ev;
     XWindowAttributes attr;
 } Clicked;
@@ -34,6 +22,8 @@ Clicked clicked;
 
 int default_screen_width;
 int default_screen_height;
+int current_screen_width;
+int current_screen_height;
 int top = 0;
 int left = 0;
 
@@ -55,27 +45,20 @@ void SetupRootWindow() {
 void SetupScreen(XWindowAttributes win_attr) {
     if (win_attr.x >= default_screen_width) {
         left = default_screen_width;
-        current_screen.width = root.attr.width - default_screen_width;
+        current_screen_width = root.attr.width - default_screen_width;
 
         if (root.attr.height > default_screen_height) {
-            current_screen.height = root.attr.height;
+            current_screen_height = root.attr.height;
         }
         else {
-            current_screen.height = default_screen_height;
+            current_screen_height = default_screen_height;
         }
     }
     else {
         left = 0;
-        current_screen.width = default_screen_width;
-        current_screen.height = default_screen_height;
+        current_screen_width = default_screen_width;
+        current_screen_height = default_screen_height;
     }
-
-    current_screen.half_w    = current_screen.width / 2;
-    current_screen.third_w   = current_screen.width / 3;
-    current_screen.quarter_w = current_screen.width / 4;
-    current_screen.half_h    = current_screen.height / 2;
-    current_screen.third_h   = current_screen.height / 3;
-    current_screen.quarter_h = current_screen.height / 4;
 }
 
 void GrabKey(int keycode, unsigned int modifiers) {
@@ -150,11 +133,11 @@ void CloseWindow(Window win) {
 }
 
 void PositionUp(Window win, XWindowAttributes win_attr) {
-    int center_pos = (current_screen.height - win_attr.height) / 2;
+    int center_pos = (current_screen_height - win_attr.height) / 2;
     Bool at_top = win_attr.y == top;
 
     if (at_top) {
-        XMoveResizeWindow(display, win, left, top, current_screen.width, current_screen.height - top);
+        XMoveResizeWindow(display, win, left, top, current_screen_width, current_screen_height - top);
     }
     else if (win_attr.y > center_pos) {
         XMoveWindow(display, win, win_attr.x, center_pos);
@@ -165,27 +148,27 @@ void PositionUp(Window win, XWindowAttributes win_attr) {
 }
 
 void PositionDown(Window win, XWindowAttributes win_attr) {
-    int center_pos = (current_screen.height - win_attr.height) / 2;
-    Bool is_full = win_attr.width == current_screen.width && win_attr.height == current_screen.height - top;
+    int center_pos = (current_screen_height - win_attr.height) / 2;
+    Bool is_full = win_attr.width == current_screen_width && win_attr.height == current_screen_height - top;
 
     if (is_full) {
-        XMoveResizeWindow(display, win, current_screen.third_w / 2 + left, current_screen.third_h / 2,
-                current_screen.third_w * 2, current_screen.third_h * 2);
+        XMoveResizeWindow(display, win, current_screen_width / 3 / 2 + left, current_screen_height / 3 / 2,
+                current_screen_width / 3 * 2, current_screen_height / 3 * 2);
     }
     else if (win_attr.y < center_pos) {
         XMoveWindow(display, win, win_attr.x, center_pos);
     }
     else {
-        XMoveWindow(display, win, win_attr.x, current_screen.height - win_attr.height);
+        XMoveWindow(display, win, win_attr.x, current_screen_height - win_attr.height);
     }
 }
 
 void PositionLeft(Window win, XWindowAttributes win_attr) {
-    int center_pos = (current_screen.width - win_attr.width) / 2;
+    int center_pos = (current_screen_width - win_attr.width) / 2;
     Bool at_left = win_attr.x == left;
 
     if (at_left) {
-        XMoveResizeWindow(display, win, left, top, win_attr.width, current_screen.height - top);
+        XMoveResizeWindow(display, win, left, top, win_attr.width, current_screen_height - top);
     }
     else if (win_attr.x > (center_pos + left)) {
         XMoveWindow(display, win, center_pos + left, win_attr.y);
@@ -196,18 +179,18 @@ void PositionLeft(Window win, XWindowAttributes win_attr) {
 }
 
 void PositionRight(Window win, XWindowAttributes win_attr) {
-    int center_pos = (current_screen.width - win_attr.width) / 2;
-    int right_pos = current_screen.width - win_attr.width + left;
+    int center_pos = (current_screen_width - win_attr.width) / 2;
+    int right_pos = current_screen_width - win_attr.width + left;
     Bool at_right = win_attr.x == right_pos;
 
     if (at_right) {
-        XMoveResizeWindow(display, win, right_pos, top, win_attr.width, current_screen.height - top);
+        XMoveResizeWindow(display, win, right_pos, top, win_attr.width, current_screen_height - top);
     }
     else if (win_attr.x < (center_pos + left)) {
         XMoveWindow(display, win, center_pos + left, win_attr.y);
     }
     else {
-        XMoveWindow(display, win, current_screen.width - win_attr.width + left, win_attr.y);
+        XMoveWindow(display, win, current_screen_width - win_attr.width + left, win_attr.y);
     }
 }
 
@@ -228,74 +211,74 @@ void MoveRight(Window win, XWindowAttributes win_attr) {
 }
 
 void ResizeUp(Window win, XWindowAttributes win_attr) {
-    if (win_attr.height <= current_screen.third_h - top) {
-        XResizeWindow(display, win, win_attr.width, current_screen.quarter_h - top);
+    if (win_attr.height <= current_screen_height / 3 - top) {
+        XResizeWindow(display, win, win_attr.width, current_screen_height / 4 - top);
     }
-    else if (win_attr.height <= current_screen.half_h - top) {
-        XResizeWindow(display, win, win_attr.width, current_screen.third_h - top);
+    else if (win_attr.height <= current_screen_height / 2 - top) {
+        XResizeWindow(display, win, win_attr.width, current_screen_height / 3 - top);
     }
-    else if (win_attr.height <= 2 * current_screen.third_h - top) {
-        XResizeWindow(display, win, win_attr.width, current_screen.half_h - top);
+    else if (win_attr.height <= 2 * current_screen_height / 3 - top) {
+        XResizeWindow(display, win, win_attr.width, current_screen_height / 2 - top);
     }
-    else if (win_attr.height <= 3 * current_screen.quarter_h - top) {
-        XResizeWindow(display, win, win_attr.width, 2 * current_screen.third_h - top);
+    else if (win_attr.height <= 3 * current_screen_height / 4 - top) {
+        XResizeWindow(display, win, win_attr.width, 2 * current_screen_height / 3 - top);
     }
-    else if (win_attr.height <= current_screen.height - top) {
-        XResizeWindow(display, win, win_attr.width, 3 * current_screen.quarter_h - top);
+    else if (win_attr.height <= current_screen_height - top) {
+        XResizeWindow(display, win, win_attr.width, 3 * current_screen_height / 4 - top);
     }
 }
 
 void ResizeDown(Window win, XWindowAttributes win_attr) {
-    if (win_attr.height < current_screen.third_h - top) {
-        XResizeWindow(display, win, win_attr.width, current_screen.third_h - top);
+    if (win_attr.height < current_screen_height / 3 - top) {
+        XResizeWindow(display, win, win_attr.width, current_screen_height / 3 - top);
     }
-    else if (win_attr.height < current_screen.half_h - top) {
-        XResizeWindow(display, win, win_attr.width, current_screen.half_h - top);
+    else if (win_attr.height < current_screen_height / 2 - top) {
+        XResizeWindow(display, win, win_attr.width, current_screen_height / 2 - top);
     }
-    else if (win_attr.height < 2 * current_screen.third_h - top) {
-        XResizeWindow(display, win, win_attr.width, 2 * current_screen.third_h - top);
+    else if (win_attr.height < 2 * current_screen_height / 3 - top) {
+        XResizeWindow(display, win, win_attr.width, 2 * current_screen_height / 3 - top);
     }
-    else if (win_attr.height < 3 * current_screen.quarter_h - top) {
-        XResizeWindow(display, win, win_attr.width, 3 * current_screen.quarter_h - top);
+    else if (win_attr.height < 3 * current_screen_height / 4 - top) {
+        XResizeWindow(display, win, win_attr.width, 3 * current_screen_height / 4 - top);
     }
     else {
-        XMoveResizeWindow(display, win, win_attr.x, top, win_attr.width, current_screen.height - top);
+        XMoveResizeWindow(display, win, win_attr.x, top, win_attr.width, current_screen_height - top);
     }
 }
 
 void ResizeLeft(Window win, XWindowAttributes win_attr) {
-    if (win_attr.width <= current_screen.third_w) {
-        XResizeWindow(display, win, current_screen.quarter_w, win_attr.height);
+    if (win_attr.width <= current_screen_width / 3) {
+        XResizeWindow(display, win, current_screen_width / 4, win_attr.height);
     }
-    else if (win_attr.width <= current_screen.half_w) {
-        XResizeWindow(display, win, current_screen.third_w, win_attr.height);
+    else if (win_attr.width <= current_screen_width / 2) {
+        XResizeWindow(display, win, current_screen_width / 3, win_attr.height);
     }
-    else if (win_attr.width <= 2 * current_screen.third_w) {
-        XResizeWindow(display, win, current_screen.half_w, win_attr.height);
+    else if (win_attr.width <= 2 * current_screen_width / 3) {
+        XResizeWindow(display, win, current_screen_width / 2, win_attr.height);
     }
-    else if (win_attr.width <= 3 * current_screen.quarter_w) {
-        XResizeWindow(display, win, 2 * current_screen.third_w, win_attr.height);
+    else if (win_attr.width <= 3 * current_screen_width / 4) {
+        XResizeWindow(display, win, 2 * current_screen_width / 3, win_attr.height);
     }
-    else if (win_attr.width <= current_screen.width) {
-        XResizeWindow(display, win, 3 * current_screen.quarter_w, win_attr.height);
+    else if (win_attr.width <= current_screen_width) {
+        XResizeWindow(display, win, 3 * current_screen_width / 4, win_attr.height);
     }
 }
 
 void ResizeRight(Window win, XWindowAttributes win_attr) {
-    if (win_attr.width < current_screen.third_w) {
-        XResizeWindow(display, win, current_screen.third_w, win_attr.height);
+    if (win_attr.width < current_screen_width / 3) {
+        XResizeWindow(display, win, current_screen_width / 3, win_attr.height);
     }
-    else if (win_attr.width < current_screen.half_w) {
-        XResizeWindow(display, win, current_screen.half_w, win_attr.height);
+    else if (win_attr.width < current_screen_width / 2) {
+        XResizeWindow(display, win, current_screen_width / 2, win_attr.height);
     }
-    else if (win_attr.width < 2 * current_screen.third_w) {
-        XResizeWindow(display, win, 2 * current_screen.third_w, win_attr.height);
+    else if (win_attr.width < 2 * current_screen_width / 3) {
+        XResizeWindow(display, win, 2 * current_screen_width / 3, win_attr.height);
     }
-    else if (win_attr.width < 3 * current_screen.quarter_w) {
-        XResizeWindow(display, win, 3 * current_screen.quarter_w, win_attr.height);
+    else if (win_attr.width < 3 * current_screen_width / 4) {
+        XResizeWindow(display, win, 3 * current_screen_width / 4, win_attr.height);
     }
     else {
-        XMoveResizeWindow(display, win, left, win_attr.y, current_screen.width, win_attr.height);
+        XMoveResizeWindow(display, win, left, win_attr.y, current_screen_width, win_attr.height);
     }
 }
 
@@ -321,6 +304,11 @@ void HandleMotion(XEvent ev) {
     }
 }
 
+void RaiseAndFocus(Window win) {
+    XRaiseWindow(display, win);
+    XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
+}
+
 void HandleNewWindow(Window win) {
     XWindowAttributes win_attr;
     XGetWindowAttributes(display, win, &win_attr);
@@ -328,8 +316,7 @@ void HandleNewWindow(Window win) {
     if (win != None && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
         XSetWindowBorderWidth(display, win, 1);
         XSetWindowBorder(display, win, 0);
-        XRaiseWindow(display, win);
-        XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
+        RaiseAndFocus(win);
         XSelectInput(display, win, EnterWindowMask);
 
         if (win_attr.x == 0 && win_attr.y == 0) {
@@ -350,7 +337,7 @@ Window GetWindow(int win_i) {
     for (i = 0; i < nwins; i++) {
         XGetWindowAttributes(display, wins[i], &win_attr);
         Bool is_panel = win_attr.y == 0 && win_attr.height > 0 && win_attr.height <= 64
-            && win_attr.width == current_screen.width;
+            && win_attr.width == current_screen_width;
 
         if (is_panel) {
             has_panel = True;
@@ -416,8 +403,7 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifie
         PositionRight(win, win_attr);
     }
 
-    XRaiseWindow(display, win);
-    XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
+    RaiseAndFocus(win);
 }
 
 void InterceptEvents() {
@@ -426,8 +412,7 @@ void InterceptEvents() {
 
     if (ev.type == ButtonPress && (ev.xbutton.button == 1 || ev.xbutton.button == 2)
             && ev.xbutton.subwindow != None) {
-        XRaiseWindow(display, ev.xbutton.subwindow);
-        XSetInputFocus(display, ev.xbutton.subwindow, RevertToPointerRoot, CurrentTime); 
+        RaiseAndFocus(ev.xbutton.subwindow);
         HandleClick(ev.xbutton);
     }
     else if (ev.type == ButtonPress && ev.xbutton.button == 3 && ev.xbutton.subwindow != None) {
@@ -462,14 +447,10 @@ void InterceptEvents() {
         RunCmd("scrot", "$WEEMA_PRINTSCREEN");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
-        Window win = GetWindow(1);
-        XRaiseWindow(display, win);
-        XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
+        RaiseAndFocus(GetWindow(1));
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
-        Window win = GetWindow(-1);
-        XRaiseWindow(display, win);
-        XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
+        RaiseAndFocus(GetWindow(-1));
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(display);
@@ -488,8 +469,7 @@ void InterceptEvents() {
         XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime);
     }
     else if (ev.type == EnterNotify) {
-        XRaiseWindow(display, ev.xcrossing.window);
-        XSetInputFocus(display, ev.xcrossing.window, RevertToPointerRoot, CurrentTime);
+        RaiseAndFocus(ev.xcrossing.window);
     }
 }
 
