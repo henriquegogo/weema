@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <X11/X.h>
 #include <X11/Xlib.h>
 
 Display *display = NULL;
@@ -329,6 +330,7 @@ void HandleNewWindow(Window win) {
         XSetWindowBorder(display, win, 0);
         XRaiseWindow(display, win);
         XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
+        XSelectInput(display, win, EnterWindowMask);
 
         if (win_attr.x == 0 && win_attr.y == 0) {
             XMoveWindow(display, win, 0, top);
@@ -490,6 +492,9 @@ void InterceptEvents() {
     }
     else if (ev.type == UnmapNotify) {
         XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime);
+    }
+    else if (ev.type == EnterNotify) {
+        XSetInputFocus(display, ev.xcrossing.window, RevertToPointerRoot, CurrentTime);
     }
 }
 
