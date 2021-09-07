@@ -440,7 +440,7 @@ void InterceptEvents() {
         HandleNewWindow(ev.xmap.window);
     }
     else if (ev.type == UnmapNotify) {
-        XSetInputFocus(display, FocusedWindow(), RevertToPointerRoot, CurrentTime);
+        XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime);
     }
     else if (ev.type == EnterNotify) {
         XSetInputFocus(display, ev.xcrossing.window, RevertToPointerRoot, CurrentTime); 
