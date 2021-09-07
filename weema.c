@@ -1,12 +1,10 @@
 /* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2021.
  * MIT License */
 
+#include <X11/X.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <X11/X.h>
 #include <X11/Xlib.h>
-
-Display *display = NULL;
 
 typedef struct {
     Window win;
@@ -20,12 +18,13 @@ typedef struct {
 } Clicked;
 Clicked clicked;
 
+Display *display = NULL;
+
 int default_screen_width;
 int default_screen_height;
 int current_screen_width;
 int current_screen_height;
-int top = 0;
-int left = 0;
+int top = 0, left = 0;
 
 KeyCode up_key, down_key, left_key, right_key,
         r_key, t_key, l_key, b_key, w_key,
@@ -194,22 +193,6 @@ void PositionRight(Window win, XWindowAttributes win_attr) {
     }
 }
 
-void MoveUp(Window win, XWindowAttributes win_attr) {
-    XMoveWindow(display, win, win_attr.x, win_attr.y - 100);
-}
-
-void MoveDown(Window win, XWindowAttributes win_attr) {
-    XMoveWindow(display, win, win_attr.x, win_attr.y + 100);
-}
-
-void MoveLeft(Window win, XWindowAttributes win_attr) {
-    XMoveWindow(display, win, win_attr.x - 100, win_attr.y);
-}
-
-void MoveRight(Window win, XWindowAttributes win_attr) {
-    XMoveWindow(display, win, win_attr.x + 100, win_attr.y);
-}
-
 void ResizeUp(Window win, XWindowAttributes win_attr) {
     if (win_attr.height <= current_screen_height / 3 - top) {
         XResizeWindow(display, win, win_attr.width, current_screen_height / 4 - top);
@@ -304,11 +287,6 @@ void HandleMotion(XEvent ev) {
     }
 }
 
-void RaiseAndFocus(Window win) {
-    XRaiseWindow(display, win);
-    XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
-}
-
 void HandleNewWindow(Window win) {
     XWindowAttributes win_attr;
     XGetWindowAttributes(display, win, &win_attr);
@@ -316,7 +294,8 @@ void HandleNewWindow(Window win) {
     if (win != None && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
         XSetWindowBorderWidth(display, win, 1);
         XSetWindowBorder(display, win, 0);
-        RaiseAndFocus(win);
+        XRaiseWindow(display, win);
+        XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
         XSelectInput(display, win, EnterWindowMask);
     }
 }
@@ -371,16 +350,16 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifie
         ResizeRight(win, win_attr);
     }
     else if (keycode == up_key && modifiers & Mod1Mask) {
-        MoveUp(win, win_attr);
+        XMoveWindow(display, win, win_attr.x, win_attr.y - 100);
     }
     else if (keycode == down_key && modifiers & Mod1Mask) {
-        MoveDown(win, win_attr);
+        XMoveWindow(display, win, win_attr.x, win_attr.y + 100);
     }
     else if (keycode == left_key && modifiers & Mod1Mask) {
-        MoveLeft(win, win_attr);
+        XMoveWindow(display, win, win_attr.x - 100, win_attr.y);
     }
     else if (keycode == right_key && modifiers & Mod1Mask) {
-        MoveRight(win, win_attr);
+        XMoveWindow(display, win, win_attr.x + 100, win_attr.y);
     }
     else if (keycode == up_key) {
         PositionUp(win, win_attr);
@@ -395,7 +374,8 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifie
         PositionRight(win, win_attr);
     }
 
-    RaiseAndFocus(win);
+    XRaiseWindow(display, win);
+    XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
 }
 
 void InterceptEvents() {
@@ -404,7 +384,8 @@ void InterceptEvents() {
 
     if (ev.type == ButtonPress && (ev.xbutton.button == 1 || ev.xbutton.button == 2)
             && ev.xbutton.subwindow != None) {
-        RaiseAndFocus(ev.xbutton.subwindow);
+        XRaiseWindow(display, ev.xbutton.subwindow);
+        XSetInputFocus(display, ev.xbutton.subwindow, RevertToPointerRoot, CurrentTime); 
         HandleClick(ev.xbutton);
     }
     else if (ev.type == ButtonPress && ev.xbutton.button == 3 && ev.xbutton.subwindow != None) {
@@ -438,12 +419,16 @@ void InterceptEvents() {
         RunCmd("scrot", "$WEEMA_PRINTSCREEN");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
+        Window win = GetWindow(1);
         XRaiseWindow(display, FocusedWindow());
-        RaiseAndFocus(GetWindow(1));
+        XRaiseWindow(display, win);
+        XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
+        Window win = GetWindow(-1);
         XRaiseWindow(display, FocusedWindow());
-        RaiseAndFocus(GetWindow(-1));
+        XRaiseWindow(display, win);
+        XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(display);
