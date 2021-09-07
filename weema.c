@@ -318,10 +318,6 @@ void HandleNewWindow(Window win) {
         XSetWindowBorder(display, win, 0);
         RaiseAndFocus(win);
         XSelectInput(display, win, EnterWindowMask);
-
-        if (win_attr.x == 0 && win_attr.y == 0) {
-            XMoveWindow(display, win, 0, top);
-        }
     }
 }
 
@@ -338,21 +334,13 @@ Window GetWindow(int win_i) {
     int count = 1;
     Window win, last_but_one, *wins;
     XWindowAttributes win_attr;
-    Bool has_panel = False;
 
     XQueryTree(display, root.win, &win, &win, &wins, &nwins);
 
     for (i = 0; i < nwins; i++) {
         XGetWindowAttributes(display, wins[i], &win_attr);
-        Bool is_panel = win_attr.y == 0 && win_attr.height > 0 && win_attr.height <= 64
-            && win_attr.width == current_screen_width;
 
-        if (is_panel) {
-            has_panel = True;
-            top = win_attr.height;
-        }
-        else if (wins[i] != None && !is_panel
-                && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
+        if (wins[i] != None && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
             win = wins[i];
             if (win_i == count++ || i == nwins - 1) break;
             last_but_one = win;
@@ -360,10 +348,6 @@ Window GetWindow(int win_i) {
     }
 
     XFree(wins);
-
-    if (!has_panel) {
-        top = 0;
-    }
 
     return win_i == -1 ? last_but_one : win;
 }
@@ -425,7 +409,6 @@ void InterceptEvents() {
     }
     else if (ev.type == ButtonPress && ev.xbutton.button == 3 && ev.xbutton.subwindow != None) {
         XLowerWindow(display, ev.xbutton.subwindow);
-        XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime); 
     }
     else if (ev.type == ButtonRelease) {
         XUngrabPointer(display, CurrentTime);
