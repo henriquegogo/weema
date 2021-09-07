@@ -325,6 +325,14 @@ void HandleNewWindow(Window win) {
     }
 }
 
+Window FocusedWindow() {
+    Window focused_win;
+    int revert;
+    XGetInputFocus(display, &focused_win, &revert);
+
+    return focused_win;
+}
+
 Window GetWindow(int win_i) {
     unsigned int i, nwins;
     int count = 1;
@@ -447,9 +455,11 @@ void InterceptEvents() {
         RunCmd("scrot", "$WEEMA_PRINTSCREEN");
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
+        XRaiseWindow(display, FocusedWindow());
         RaiseAndFocus(GetWindow(1));
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
+        XRaiseWindow(display, FocusedWindow());
         RaiseAndFocus(GetWindow(-1));
     }
     else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
@@ -457,19 +467,19 @@ void InterceptEvents() {
         exit(0);
     }
     else if (ev.type == KeyPress && (ev.xkey.keycode == f4_key || ev.xkey.keycode == w_key)) {
-        CloseWindow(GetWindow(0));
+        CloseWindow(FocusedWindow());
     }
     else if (ev.type == KeyPress) {
-        HandleWindowPosition(GetWindow(0), ev.xkey.keycode, ev.xkey.state);
+        HandleWindowPosition(FocusedWindow(), ev.xkey.keycode, ev.xkey.state);
     }
     else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
     }
     else if (ev.type == UnmapNotify) {
-        XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime);
+        XSetInputFocus(display, FocusedWindow(), RevertToPointerRoot, CurrentTime);
     }
     else if (ev.type == EnterNotify) {
-        RaiseAndFocus(ev.xcrossing.window);
+        XSetInputFocus(display, ev.xcrossing.window, RevertToPointerRoot, CurrentTime); 
     }
 }
 
