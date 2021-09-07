@@ -64,11 +64,6 @@ void GrabKey(int keycode, unsigned int modifiers) {
     XGrabKey(display, keycode, modifiers, root.win, True, GrabModeAsync, GrabModeAsync);
 }
 
-void GrabButton(int buttoncode, unsigned int modifiers) {
-    XGrabButton(display, buttoncode, modifiers, root.win, True, ButtonPressMask,
-            GrabModeAsync, GrabModeAsync, None, None);
-}
-
 int GetKeycode(const char *key) {
     return XKeysymToKeycode(display, XStringToKeysym(key));
 }
@@ -80,29 +75,30 @@ void SetupGrab() {
     for (int i = 0; i < 8; i++) {
         GrabKey(vol_up_key   = GetKeycode("XF86AudioRaiseVolume"), modifiers[i]);
         GrabKey(vol_down_key = GetKeycode("XF86AudioLowerVolume"), modifiers[i]);
-        GrabKey(r_key     = GetKeycode("r"),     Mod4Mask|modifiers[i]);
-        GrabKey(t_key     = GetKeycode("t"),     Mod4Mask|modifiers[i]);
-        GrabKey(l_key     = GetKeycode("l"),     Mod4Mask|modifiers[i]);
-        GrabKey(b_key     = GetKeycode("b"),     Mod4Mask|modifiers[i]);
-        GrabKey(print_key = GetKeycode("Print"), modifiers[i]);
-        GrabKey(tab_key   = GetKeycode("Tab"),   Mod1Mask|modifiers[i]);
-        GrabKey(tab_key   = GetKeycode("Tab"),   ShiftMask|Mod1Mask|modifiers[i]);
-        GrabKey(f4_key    = GetKeycode("F4"),    Mod1Mask|modifiers[i]);
-        GrabKey(w_key     = GetKeycode("w"),     ControlMask|ShiftMask|modifiers[i]);
-        GrabKey(del_key   = GetKeycode("Delete"),ControlMask|Mod1Mask|modifiers[i]);
-        GrabKey(up_key    = GetKeycode("Up"),    Mod4Mask|modifiers[i]);
-        GrabKey(down_key  = GetKeycode("Down"),  Mod4Mask|modifiers[i]);
-        GrabKey(left_key  = GetKeycode("Left"),  Mod4Mask|modifiers[i]);
-        GrabKey(right_key = GetKeycode("Right"), Mod4Mask|modifiers[i]);
-        GrabKey(up_key    = GetKeycode("Up"),    ShiftMask|Mod4Mask|modifiers[i]);
-        GrabKey(down_key  = GetKeycode("Down"),  ShiftMask|Mod4Mask|modifiers[i]);
-        GrabKey(left_key  = GetKeycode("Left"),  ShiftMask|Mod4Mask|modifiers[i]);
-        GrabKey(right_key = GetKeycode("Right"), ShiftMask|Mod4Mask|modifiers[i]);
-        GrabKey(up_key    = GetKeycode("Up"),    Mod1Mask|Mod4Mask|modifiers[i]);
-        GrabKey(down_key  = GetKeycode("Down"),  Mod1Mask|Mod4Mask|modifiers[i]);
-        GrabKey(left_key  = GetKeycode("Left"),  Mod1Mask|Mod4Mask|modifiers[i]);
-        GrabKey(right_key = GetKeycode("Right"), Mod1Mask|Mod4Mask|modifiers[i]);
-        GrabButton(AnyButton, Mod1Mask|modifiers[i]);
+        GrabKey(r_key     = GetKeycode("r"),      Mod4Mask|modifiers[i]);
+        GrabKey(t_key     = GetKeycode("t"),      Mod4Mask|modifiers[i]);
+        GrabKey(l_key     = GetKeycode("l"),      Mod4Mask|modifiers[i]);
+        GrabKey(b_key     = GetKeycode("b"),      Mod4Mask|modifiers[i]);
+        GrabKey(print_key = GetKeycode("Print"),  modifiers[i]);
+        GrabKey(tab_key   = GetKeycode("Tab"),    Mod1Mask|modifiers[i]);
+        GrabKey(tab_key   = GetKeycode("Tab"),    ShiftMask|Mod1Mask|modifiers[i]);
+        GrabKey(f4_key    = GetKeycode("F4"),     Mod1Mask|modifiers[i]);
+        GrabKey(w_key     = GetKeycode("w"),      ControlMask|ShiftMask|modifiers[i]);
+        GrabKey(del_key   = GetKeycode("Delete"), ControlMask|Mod1Mask|modifiers[i]);
+        GrabKey(up_key    = GetKeycode("Up"),     Mod4Mask|modifiers[i]);
+        GrabKey(down_key  = GetKeycode("Down"),   Mod4Mask|modifiers[i]);
+        GrabKey(left_key  = GetKeycode("Left"),   Mod4Mask|modifiers[i]);
+        GrabKey(right_key = GetKeycode("Right"),  Mod4Mask|modifiers[i]);
+        GrabKey(up_key    = GetKeycode("Up"),     ShiftMask|Mod4Mask|modifiers[i]);
+        GrabKey(down_key  = GetKeycode("Down"),   ShiftMask|Mod4Mask|modifiers[i]);
+        GrabKey(left_key  = GetKeycode("Left"),   ShiftMask|Mod4Mask|modifiers[i]);
+        GrabKey(right_key = GetKeycode("Right"),  ShiftMask|Mod4Mask|modifiers[i]);
+        GrabKey(up_key    = GetKeycode("Up"),     Mod1Mask|Mod4Mask|modifiers[i]);
+        GrabKey(down_key  = GetKeycode("Down"),   Mod1Mask|Mod4Mask|modifiers[i]);
+        GrabKey(left_key  = GetKeycode("Left"),   Mod1Mask|Mod4Mask|modifiers[i]);
+        GrabKey(right_key = GetKeycode("Right"),  Mod1Mask|Mod4Mask|modifiers[i]);
+        XGrabButton(display, AnyButton, Mod1Mask|modifiers[i], root.win, True, ButtonPressMask,
+                GrabModeAsync, GrabModeAsync, None, None);
     }
 }
 
