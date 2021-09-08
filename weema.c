@@ -13,9 +13,6 @@ typedef struct {
 Clicked clicked;
 
 Display *display = NULL;
-
-int default_screen_width;
-int default_screen_height;
 int current_screen_width;
 int current_screen_height;
 int top = 0, left = 0;
@@ -25,14 +22,11 @@ KeyCode up_key, down_key, left_key, right_key,
         vol_up_key, vol_down_key,
         f4_key, del_key, tab_key, print_key;
 
-void SetupRootWindow() {
-    XSelectInput(display, XDefaultRootWindow(display), SubstructureNotifyMask);
-    Screen *screen = XDefaultScreenOfDisplay(display);
-    default_screen_width = XWidthOfScreen(screen);
-    default_screen_height = XHeightOfScreen(screen);
-}
-
 void SetupScreen(XWindowAttributes win_attr) {
+    Screen *screen = XDefaultScreenOfDisplay(display);
+    int default_screen_width = XWidthOfScreen(screen);
+    int default_screen_height = XHeightOfScreen(screen);
+
     if (win_attr.x >= default_screen_width) {
         XWindowAttributes root_attr;
         XGetWindowAttributes(display, XDefaultRootWindow(display), &root_attr);
@@ -324,7 +318,6 @@ Window GetWindow(int win_i) {
 void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
     XWindowAttributes win_attr;
     XGetWindowAttributes(display, win, &win_attr);
-    SetupRootWindow();
     SetupScreen(win_attr);
 
     if (keycode == up_key && modifiers & ShiftMask) {
@@ -450,7 +443,7 @@ int main() {
 
     XSetErrorHandler(ErrorHandler);
 
-    SetupRootWindow();
+    XSelectInput(display, XDefaultRootWindow(display), SubstructureNotifyMask);
     SetupGrab();
 
     RunCmd("xsetroot -cursor_name arrow -solid \"#030609\"", NULL);
