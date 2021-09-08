@@ -7,12 +7,6 @@
 #include <X11/Xlib.h>
 
 typedef struct {
-    Window win;
-    XWindowAttributes attr;
-} Root;
-Root root;
-
-typedef struct {
     XButtonEvent ev;
     XWindowAttributes attr;
 } Clicked;
@@ -32,10 +26,7 @@ KeyCode up_key, down_key, left_key, right_key,
         f4_key, del_key, tab_key, print_key;
 
 void SetupRootWindow() {
-    root.win = XDefaultRootWindow(display);
-    XSelectInput(display, root.win, SubstructureNotifyMask);
-    XGetWindowAttributes(display, root.win, &root.attr);
-
+    XSelectInput(display, XDefaultRootWindow(display), SubstructureNotifyMask);
     Screen *screen = XDefaultScreenOfDisplay(display);
     default_screen_width = XWidthOfScreen(screen);
     default_screen_height = XHeightOfScreen(screen);
@@ -43,11 +34,14 @@ void SetupRootWindow() {
 
 void SetupScreen(XWindowAttributes win_attr) {
     if (win_attr.x >= default_screen_width) {
-        left = default_screen_width;
-        current_screen_width = root.attr.width - default_screen_width;
+        XWindowAttributes root_attr;
+        XGetWindowAttributes(display, XDefaultRootWindow(display), &root_attr);
 
-        if (root.attr.height > default_screen_height) {
-            current_screen_height = root.attr.height;
+        left = default_screen_width;
+        current_screen_width = root_attr.width - default_screen_width;
+
+        if (root_attr.height > default_screen_height) {
+            current_screen_height = root_attr.height;
         }
         else {
             current_screen_height = default_screen_height;
@@ -61,7 +55,7 @@ void SetupScreen(XWindowAttributes win_attr) {
 }
 
 void GrabKey(int keycode, unsigned int modifiers) {
-    XGrabKey(display, keycode, modifiers, root.win, True, GrabModeAsync, GrabModeAsync);
+    XGrabKey(display, keycode, modifiers, XDefaultRootWindow(display), True, GrabModeAsync, GrabModeAsync);
 }
 
 int GetKeycode(const char *key) {
@@ -97,7 +91,7 @@ void SetupGrab() {
         GrabKey(down_key  = GetKeycode("Down"),   Mod1Mask|Mod4Mask|modifiers[i]);
         GrabKey(left_key  = GetKeycode("Left"),   Mod1Mask|Mod4Mask|modifiers[i]);
         GrabKey(right_key = GetKeycode("Right"),  Mod1Mask|Mod4Mask|modifiers[i]);
-        XGrabButton(display, AnyButton, Mod1Mask|modifiers[i], root.win, True, ButtonPressMask,
+        XGrabButton(display, AnyButton, Mod1Mask|modifiers[i], XDefaultRootWindow(display), True, ButtonPressMask,
                 GrabModeAsync, GrabModeAsync, None, None);
     }
 }
@@ -310,7 +304,7 @@ Window GetWindow(int win_i) {
     Window win, last_but_one, *wins;
     XWindowAttributes win_attr;
 
-    XQueryTree(display, root.win, &win, &win, &wins, &nwins);
+    XQueryTree(display, XDefaultRootWindow(display), &win, &win, &wins, &nwins);
 
     for (i = 0; i < nwins; i++) {
         XGetWindowAttributes(display, wins[i], &win_attr);
