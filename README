@@ -37,18 +37,9 @@ Binds:
   Super+T: open terminal
   Super+B: open browser
   Super+L: lock screen
-  Super+Shift+Up: decrease height
-  Super+Shift+Down: increase height
-  Super+Shift+Left: decrease width
-  Super+Shift+Right: increase width
-  Super+Alt+Up: move up some steps
-  Super+Alt+Down: move down some steps
-  Super+Alt+Left: move left some steps
-  Super+Alt+Right: move right some steps
-  Super+Up: move window to top or maximize if already on top
-  Super+Down: move window to bottom or centralize if maximized
-  Super+Left: move window to left or fit height if already on left
-  Super+Right: move window to right or fit height if already on right
+  Super+Shift+Arrows: resize window
+  Super+Alt+Arrows: move window
+  Super+Arrows: position window
 
 Third party optional dependencies:
   
@@ -70,10 +61,6 @@ Third party optional dependencies:
   - dmenu: applications launcher
   - alsa-utils: volume control
   - scrot: print screen
-
-Tips:
-
-  Any small full width window at the top will be consider a dock panel.
 
 License:
 
