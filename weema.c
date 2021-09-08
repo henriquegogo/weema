@@ -1,9 +1,9 @@
 /* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2021.
  * MIT License */
 
-#include <X11/X.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <X11/X.h>
 #include <X11/Xlib.h>
 
 typedef struct {
