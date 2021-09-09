@@ -436,10 +436,11 @@ void InterceptEvents() {
     }
     else if (ev.type == FocusIn) {
         XUngrabButton(display, AnyButton, AnyModifier, ev.xfocus.window);
+        XAllowEvents(display, ReplayPointer, CurrentTime);
     }
     else if (ev.type == FocusOut) {
         XGrabButton(display, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
-                GrabModeAsync, GrabModeAsync, None, None);
+                GrabModeSync, GrabModeSync, None, None);
     }
 }
 
