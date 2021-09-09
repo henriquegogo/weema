@@ -1,6 +1,8 @@
 BINDIR?=/usr/bin
 XSESSIONSDIR?=/usr/share/xsessions
 CFLAGS?=-Wpedantic -Wall -Wextra
+DEPENDENCIES?=feh dmenu scrot alsa-utils
+HIDEERRORS?=2> /dev/null || true
 
 all:
 	$(CC) $(CFLAGS) weema.c -lX11 -o weema
@@ -9,10 +11,8 @@ install:
 	install -d ${BINDIR}
 	install -m 755 weema ${BINDIR}
 	install -m 644 weema.desktop ${XSESSIONSDIR}
-	update-alternatives --install /usr/bin/x-window-manager x-window-manager /usr/bin/weema 20
 
 uninstall:
-	update-alternatives --remove x-window-manager /usr/bin/weema
 	rm ${BINDIR}/weema
 	rm ${XSESSIONSDIR}/weema.desktop
 		
@@ -20,4 +20,6 @@ clean:
 	rm weema
 
 dependencies:
-	sudo apt install feh dmenu scrot alsa-utils
+	-@sudo apt install ${DEPENDENCIES} ${HIDEERRORS}
+	-@sudo yum install ${DEPENDENCIES} ${HIDEERRORS}
+	-@sudo pacman -S install ${DEPENDENCIES} ${HIDEERRORS}
