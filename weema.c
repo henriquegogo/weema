@@ -365,7 +365,7 @@ void InterceptEvents() {
     XEvent ev;
     XNextEvent(display, &ev);
 
-    if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(display) && ev.xbutton.button == Button1) {
+    if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(display)) {
         XRaiseWindow(display, ev.xbutton.window);
         XSetInputFocus(display, ev.xbutton.window, RevertToPointerRoot, CurrentTime); 
     }
@@ -439,7 +439,7 @@ void InterceptEvents() {
         XAllowEvents(display, ReplayPointer, CurrentTime);
     }
     else if (ev.type == FocusOut) {
-        XGrabButton(display, Button1, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
+        XGrabButton(display, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
                 GrabModeSync, GrabModeSync, None, None);
     }
 }
