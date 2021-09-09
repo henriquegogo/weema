@@ -5,13 +5,9 @@
 #include <stdio.h>
 #include <X11/Xlib.h>
 
-typedef struct {
-    XButtonEvent ev;
-    XWindowAttributes attr;
-} Clicked;
-Clicked clicked;
-
 Display *display = NULL;
+XButtonEvent clicked_event;
+XWindowAttributes clicked_win_attr;
 int current_screen_width;
 int current_screen_height;
 int top = 0, left = 0;
@@ -299,22 +295,22 @@ void HandleNewWindow(Window win) {
 void HandleClick(XButtonEvent button_event) {
     XGrabPointer(display, button_event.subwindow, True, PointerMotionMask|ButtonReleaseMask,
             GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-    XGetWindowAttributes(display, button_event.subwindow, &clicked.attr);
-    clicked.ev = button_event;
+    XGetWindowAttributes(display, button_event.subwindow, &clicked_win_attr);
+    clicked_event = button_event;
 }
 
 void HandleMotion(XEvent ev) {
     while (XCheckTypedEvent(display, MotionNotify, &ev));
 
-    int xdiff = ev.xbutton.x_root - clicked.ev.x_root;
-    int ydiff = ev.xbutton.y_root - clicked.ev.y_root;
+    int xdiff = ev.xbutton.x_root - clicked_event.x_root;
+    int ydiff = ev.xbutton.y_root - clicked_event.y_root;
 
-    if (clicked.ev.button == Button1) {
-        XMoveWindow(display, ev.xmotion.window, clicked.attr.x + xdiff, clicked.attr.y + ydiff);
+    if (clicked_event.button == Button1) {
+        XMoveWindow(display, ev.xmotion.window, clicked_win_attr.x + xdiff, clicked_win_attr.y + ydiff);
     }
-    else if (clicked.ev.button == Button3) {
+    else if (clicked_event.button == Button3) {
         XResizeWindow(display, ev.xmotion.window,
-                abs(clicked.attr.width + xdiff) + 1, abs(clicked.attr.height + ydiff) + 1);
+                abs(clicked_win_attr.width + xdiff) + 1, abs(clicked_win_attr.height + ydiff) + 1);
     }
 }
 
