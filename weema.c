@@ -293,7 +293,7 @@ void HandleNewWindow(Window win) {
         XSetWindowBorder(display, win, 0);
         XRaiseWindow(display, win);
         XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
-        XSelectInput(display, win, EnterWindowMask);
+        XSelectInput(display, win, FocusChangeMask);
     }
 }
 
@@ -365,8 +365,12 @@ void InterceptEvents() {
     XEvent ev;
     XNextEvent(display, &ev);
 
-    if (ev.type == ButtonPress && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)
-            && ev.xbutton.subwindow != None) {
+    if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(display) && ev.xbutton.button == Button1) {
+        XRaiseWindow(display, ev.xbutton.window);
+        XSetInputFocus(display, ev.xbutton.window, RevertToPointerRoot, CurrentTime); 
+    }
+    else if (ev.type == ButtonPress && ev.xbutton.subwindow != None
+            && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)) {
         XRaiseWindow(display, ev.xbutton.subwindow);
         XSetInputFocus(display, ev.xbutton.subwindow, RevertToPointerRoot, CurrentTime); 
         HandleClick(ev.xbutton);
@@ -429,8 +433,12 @@ void InterceptEvents() {
     else if (ev.type == UnmapNotify) {
         XSetInputFocus(display, GetWindow(0), RevertToPointerRoot, CurrentTime);
     }
-    else if (ev.type == EnterNotify) {
-        XSetInputFocus(display, ev.xcrossing.window, RevertToPointerRoot, CurrentTime); 
+    else if (ev.type == FocusIn) {
+        XUngrabButton(display, AnyButton, AnyModifier, ev.xfocus.window);
+    }
+    else if (ev.type == FocusOut) {
+        XGrabButton(display, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
+                GrabModeAsync, GrabModeAsync, None, None);
     }
 }
 
