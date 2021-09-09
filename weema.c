@@ -369,14 +369,14 @@ void InterceptEvents() {
         XRaiseWindow(display, ev.xbutton.window);
         XSetInputFocus(display, ev.xbutton.window, RevertToPointerRoot, CurrentTime); 
     }
-    else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(display) && ev.xbutton.subwindow != None
-            && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)) {
+    else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(display)
+            && ev.xbutton.subwindow != None && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)) {
         XRaiseWindow(display, ev.xbutton.subwindow);
         XSetInputFocus(display, ev.xbutton.subwindow, RevertToPointerRoot, CurrentTime); 
         HandleClick(ev.xbutton);
     }
-    else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(display) && ev.xbutton.subwindow != None
-            && ev.xbutton.button == Button2) {
+    else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(display)
+            && ev.xbutton.subwindow != None && ev.xbutton.button == Button2) {
         XLowerWindow(display, ev.xbutton.subwindow);
     }
     else if (ev.type == ButtonRelease) {
