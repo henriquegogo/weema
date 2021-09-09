@@ -23,8 +23,8 @@ Usage:
 Binds:
 
   Alt+Button1: raise and move window
-  Alt+Button2: raise and resize window
-  Alt+Button3: lower window
+  Alt+Button2: lower window
+  Alt+Button3: raise and resize window
   Alt+Tab: rise last window
   Alt+Shift+Tab: circle windows
   Alt+F4: close window

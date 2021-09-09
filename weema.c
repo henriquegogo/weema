@@ -313,7 +313,7 @@ void HandleMotion(XEvent ev) {
     if (clicked.ev.button == Button1) {
         XMoveWindow(display, ev.xmotion.window, clicked.attr.x + xdiff, clicked.attr.y + ydiff);
     }
-    else if (clicked.ev.button == Button2) {
+    else if (clicked.ev.button == Button3) {
         XResizeWindow(display, ev.xmotion.window,
                 abs(clicked.attr.width + xdiff) + 1, abs(clicked.attr.height + ydiff) + 1);
     }
@@ -365,13 +365,13 @@ void InterceptEvents() {
     XEvent ev;
     XNextEvent(display, &ev);
 
-    if (ev.type == ButtonPress && (ev.xbutton.button == Button1 || ev.xbutton.button == Button2)
+    if (ev.type == ButtonPress && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)
             && ev.xbutton.subwindow != None) {
         XRaiseWindow(display, ev.xbutton.subwindow);
         XSetInputFocus(display, ev.xbutton.subwindow, RevertToPointerRoot, CurrentTime); 
         HandleClick(ev.xbutton);
     }
-    else if (ev.type == ButtonPress && ev.xbutton.button == Button3 && ev.xbutton.subwindow != None) {
+    else if (ev.type == ButtonPress && ev.xbutton.button == Button2 && ev.xbutton.subwindow != None) {
         XLowerWindow(display, ev.xbutton.subwindow);
     }
     else if (ev.type == ButtonRelease) {
