@@ -439,7 +439,7 @@ void InterceptEvents() {
         XAllowEvents(display, ReplayPointer, CurrentTime);
     }
     else if (ev.type == FocusOut) {
-        XGrabButton(display, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
+        XGrabButton(display, Button1, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
                 GrabModeSync, GrabModeSync, None, None);
     }
 }
