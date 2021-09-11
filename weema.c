@@ -218,7 +218,6 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifie
     }
 
     XRaiseWindow(display, win);
-    XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
 }
 
 void HandleNewWindow(Window win) {
@@ -301,11 +300,9 @@ void InterceptEvents() {
 
     if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(display)) {
         XRaiseWindow(display, ev.xbutton.window);
-        XSetInputFocus(display, ev.xbutton.window, RevertToPointerRoot, CurrentTime); 
     } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(display)
             && ev.xbutton.subwindow != None && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)) {
         XRaiseWindow(display, ev.xbutton.subwindow);
-        XSetInputFocus(display, ev.xbutton.subwindow, RevertToPointerRoot, CurrentTime); 
         HandleClick(ev.xbutton);
     } else if (ev.type == ButtonRelease) {
         XUngrabPointer(display, CurrentTime);
@@ -326,13 +323,9 @@ void InterceptEvents() {
     } else if (ev.type == KeyPress && ev.xkey.keycode == print_key) {
         RunCmd("scrot", "$WEEMA_PRINTSCREEN");
     } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
-        Window win = GetWindow(999999999);
-        XRaiseWindow(display, win);
-        XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
+        XRaiseWindow(display, GetWindow(999999999));
     } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
-        Window win = GetWindow(2);
-        XRaiseWindow(display, win);
-        XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
+        XRaiseWindow(display, GetWindow(2));
     } else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(display);
         exit(0);
@@ -350,6 +343,8 @@ void InterceptEvents() {
     } else if (ev.type == FocusOut) {
         XGrabButton(display, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
                 GrabModeSync, GrabModeSync, None, None);
+    } else if (ev.type == ConfigureNotify) {
+        XSetInputFocus(display, ev.xconfigure.window, RevertToPointerRoot, CurrentTime); 
     }
 }
 
