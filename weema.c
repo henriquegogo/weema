@@ -289,8 +289,6 @@ void HandleClick(XButtonEvent button_event) {
 }
 
 void HandleMotion(XEvent ev) {
-    while (XCheckTypedEvent(display, MotionNotify, &ev));
-
     int xdiff = ev.xbutton.x_root - clicked_event.x_root;
     int ydiff = ev.xbutton.y_root - clicked_event.y_root;
 
