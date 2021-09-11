@@ -30,9 +30,8 @@ Window GetWindow(unsigned int win_i) {
         XWindowAttributes win_attr;
         XGetWindowAttributes(display, wins[i], &win_attr);
 
-        if (wins[i] != None && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
+        if (wins[i] != None && !win_attr.override_redirect && win_attr.map_state == IsViewable && win_i >= count++) {
             win = wins[i];
-            if (win_i == count++) break;
         }
     }
 
@@ -308,9 +307,6 @@ void InterceptEvents() {
         XRaiseWindow(display, ev.xbutton.subwindow);
         XSetInputFocus(display, ev.xbutton.subwindow, RevertToPointerRoot, CurrentTime); 
         HandleClick(ev.xbutton);
-    } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(display)
-            && ev.xbutton.subwindow != None && ev.xbutton.button == Button2) {
-        XLowerWindow(display, ev.xbutton.subwindow);
     } else if (ev.type == ButtonRelease) {
         XUngrabPointer(display, CurrentTime);
     } else if (ev.type == MotionNotify) {
@@ -330,7 +326,7 @@ void InterceptEvents() {
     } else if (ev.type == KeyPress && ev.xkey.keycode == print_key) {
         RunCmd("scrot", "$WEEMA_PRINTSCREEN");
     } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
-        Window win = GetWindow(-1);
+        Window win = GetWindow(999999999);
         XRaiseWindow(display, FocusedWindow());
         XRaiseWindow(display, win);
         XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
