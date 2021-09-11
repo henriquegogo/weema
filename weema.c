@@ -14,13 +14,6 @@ int top = 0, left = 0;
 KeyCode up_key, down_key, left_key, right_key, r_key, t_key, l_key, b_key, w_key,
         vol_up_key, vol_down_key, f4_key, del_key, tab_key, print_key;
 
-Window FocusedWindow() {
-    Window focused_win;
-    int revert;
-    XGetInputFocus(display, &focused_win, &revert);
-    return focused_win;
-}
-
 Window GetWindow(unsigned int win_i) {
     unsigned int nwins, count = 1;
     Window win, *wins;
@@ -330,9 +323,9 @@ void InterceptEvents() {
         XCloseDisplay(display);
         exit(0);
     } else if (ev.type == KeyPress && (ev.xkey.keycode == f4_key || ev.xkey.keycode == w_key)) {
-        CloseWindow(FocusedWindow());
+        CloseWindow(GetWindow(1));
     } else if (ev.type == KeyPress) {
-        HandleWindowPosition(FocusedWindow(), ev.xkey.keycode, ev.xkey.state);
+        HandleWindowPosition(GetWindow(1), ev.xkey.keycode, ev.xkey.state);
     } else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
     } else if (ev.type == UnmapNotify) {
