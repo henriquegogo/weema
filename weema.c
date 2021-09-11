@@ -173,9 +173,8 @@ void ResizeRight(Window win, XWindowAttributes win_attr) {
 
 void PositionUp(Window win, XWindowAttributes win_attr) {
     int center_pos = (current_screen_height - win_attr.height) / 2;
-    Bool at_top = win_attr.y == top;
 
-    if (at_top) {
+    if (win_attr.y == top) {
         XMoveResizeWindow(display, win, left, top, current_screen_width, current_screen_height - top);
     }
     else if (win_attr.y > center_pos) {
@@ -188,9 +187,8 @@ void PositionUp(Window win, XWindowAttributes win_attr) {
 
 void PositionDown(Window win, XWindowAttributes win_attr) {
     int center_pos = (current_screen_height - win_attr.height) / 2;
-    Bool is_full = win_attr.width == current_screen_width && win_attr.height == current_screen_height - top;
 
-    if (is_full) {
+    if (win_attr.width == current_screen_width && win_attr.height == current_screen_height - top) {
         XMoveResizeWindow(display, win, current_screen_width / 3 / 2 + left, current_screen_height / 3 / 2,
                 current_screen_width / 3 * 2, current_screen_height / 3 * 2);
     }
@@ -204,9 +202,8 @@ void PositionDown(Window win, XWindowAttributes win_attr) {
 
 void PositionLeft(Window win, XWindowAttributes win_attr) {
     int center_pos = (current_screen_width - win_attr.width) / 2;
-    Bool at_left = win_attr.x == left;
 
-    if (at_left) {
+    if (win_attr.x == left) {
         XMoveResizeWindow(display, win, left, top, win_attr.width, current_screen_height - top);
     }
     else if (win_attr.x > (center_pos + left)) {
@@ -220,9 +217,8 @@ void PositionLeft(Window win, XWindowAttributes win_attr) {
 void PositionRight(Window win, XWindowAttributes win_attr) {
     int center_pos = (current_screen_width - win_attr.width) / 2;
     int right_pos = current_screen_width - win_attr.width + left;
-    Bool at_right = win_attr.x == right_pos;
 
-    if (at_right) {
+    if (win_attr.x == right_pos) {
         XMoveResizeWindow(display, win, right_pos, top, win_attr.width, current_screen_height - top);
     }
     else if (win_attr.x < (center_pos + left)) {
