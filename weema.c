@@ -75,27 +75,20 @@ void RunCmd(char *cmd, char *env_var) {
 
 void SetupScreen(XWindowAttributes win_attr) {
     Screen *screen = XDefaultScreenOfDisplay(display);
-    int default_screen_width = XWidthOfScreen(screen);
-    int default_screen_height = XHeightOfScreen(screen);
+    current_screen_width = XWidthOfScreen(screen);
+    current_screen_height = XHeightOfScreen(screen);
+    left = 0;
 
-    if (win_attr.x >= default_screen_width) {
+    if (win_attr.x >= current_screen_width) {
         XWindowAttributes root_attr;
         XGetWindowAttributes(display, XDefaultRootWindow(display), &root_attr);
 
-        left = default_screen_width;
-        current_screen_width = root_attr.width - default_screen_width;
+        left = current_screen_width;
+        current_screen_width = root_attr.width - current_screen_width;
 
-        if (root_attr.height > default_screen_height) {
+        if (root_attr.height > current_screen_height) {
             current_screen_height = root_attr.height;
         }
-        else {
-            current_screen_height = default_screen_height;
-        }
-    }
-    else {
-        left = 0;
-        current_screen_width = default_screen_width;
-        current_screen_height = default_screen_height;
     }
 }
 
