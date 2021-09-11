@@ -18,12 +18,15 @@ Window GetWindow(unsigned int win_i) {
     unsigned int nwins, count = 1;
     Window win, *wins;
     XQueryTree(display, XDefaultRootWindow(display), &win, &win, &wins, &nwins);
+    top = 0;
 
     for (int i = nwins - 1; i > 0; i--) {
         XWindowAttributes win_attr;
         XGetWindowAttributes(display, wins[i], &win_attr);
 
-        if (wins[i] != None && !win_attr.override_redirect && win_attr.map_state == IsViewable && win_i >= count++) {
+        if (win_attr.height <= 64 && win_attr.y == 0 && win_attr.map_state == IsViewable) {
+            top = win_attr.height;
+        } else if (wins[i] != None && !win_attr.override_redirect && win_attr.map_state == IsViewable && win_i >= count++) {
             win = wins[i];
         }
     }
@@ -223,6 +226,7 @@ void HandleNewWindow(Window win) {
         XRaiseWindow(display, win);
         XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
         XSelectInput(display, win, FocusChangeMask);
+        XMoveWindow(display, GetWindow(1), win_attr.x, top);
     }
 }
 
