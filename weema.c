@@ -327,12 +327,10 @@ void InterceptEvents() {
         RunCmd("scrot", "$WEEMA_PRINTSCREEN");
     } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
         Window win = GetWindow(999999999);
-        XRaiseWindow(display, FocusedWindow());
         XRaiseWindow(display, win);
         XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
     } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
         Window win = GetWindow(2);
-        XRaiseWindow(display, FocusedWindow());
         XRaiseWindow(display, win);
         XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
     } else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
