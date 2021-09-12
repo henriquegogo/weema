@@ -1,9 +1,8 @@
 /* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2021.
  * MIT License */
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <X11/Xlib.h>
+#include <stdlib.h>
 #include "config.h"
 
 Display *display = NULL;
@@ -343,7 +342,8 @@ int main() {
 
     XSetErrorHandler(ErrorHandler);
     XSelectInput(display, XDefaultRootWindow(display), SubstructureNotifyMask);
-    SetupGrab();
+    SetupGrab(); 
+    system("xsetroot -cursor_name arrow -solid \"#030609\"");
     system(CMD_INIT);
 
     for(;;) InterceptEvents();
