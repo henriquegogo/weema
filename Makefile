@@ -5,6 +5,7 @@ DEPENDENCIES?=feh dmenu scrot alsa-utils
 HIDEERRORS?=2> /dev/null || true
 
 all:
+	cp -n config.def.h config.h
 	$(CC) $(CFLAGS) weema.c -lX11 -o weema
 
 install:

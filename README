@@ -43,21 +43,11 @@ Binds:
 Third party optional dependencies:
   
   We use third party applications to manage some functions.
-  You can configure this just settings these environment
-  variables in .xinitrc.  These changes will override the
-  default commands.
-
-  export WEEMA_INIT="feh --bg-scale ~/wallpaper.jpg"
-  export WEEMA_LAUNCHER="dmenu_run"
-  export WEEMA_TERMINAL="x-terminal-emulator"
-  export WEEMA_BROWSER="x-www-browser"
-  export WEEMA_LOCK="slock"
-  export WEEMA_VOLUMEUP="amixer set Master 3+"
-  export WEEMA_VOLUMEDOWN="amixer set Master 3-"
-  export WEEMA_PRINTSCREEN="scrot"
+  You can configure this editing the config.h file.
 
   - feh: set background image
   - dmenu: applications launcher
+  - slock: screen locker
   - alsa-utils: volume control
   - scrot: print screen
 

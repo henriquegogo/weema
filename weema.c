@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <X11/Xlib.h>
+#include "config.h"
 
 Display *display = NULL;
 XButtonEvent clicked_event;
@@ -44,18 +45,6 @@ void CloseWindow(Window win) {
     ev.xclient.data.l[0] = XInternAtom(display, "WM_DELETE_WINDOW", False);
     ev.xclient.data.l[1] = CurrentTime;
     XSendEvent(display, win, False, NoEventMask, &ev);
-}
-
-void RunCmd(char *cmd, char *env_var) {
-    char system_cmd[512];
-
-    if (env_var != NULL) {
-        sprintf(system_cmd, "if [ \"%s\" ]; then sh -c \"%s &\"; else sh -c \"%s &\"; fi", env_var, env_var, cmd);
-    } else {
-        sprintf(system_cmd, "%s", cmd);
-    }
-
-    (void)(system(system_cmd)+1);
 }
 
 void SetupScreen(XWindowAttributes win_attr) {
@@ -306,19 +295,19 @@ void InterceptEvents() {
     } else if (ev.type == MotionNotify) {
         HandleMotion(ev);
     } else if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
-        RunCmd("dmenu_run", "$WEEMA_LAUNCHER");
+        system(CMD_LAUNCHER);
     } else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
-        RunCmd("x-terminal-emulator", "$WEEMA_TERMINAL");
+        system(CMD_TERMINAL);
     } else if (ev.type == KeyPress && ev.xkey.keycode == b_key) {
-        RunCmd("x-www-browser", "$WEEMA_BROWSER");
+        system(CMD_BROWSER);
     } else if (ev.type == KeyPress && ev.xkey.keycode == l_key) {
-        RunCmd("slock", "$WEEMA_LOCK");
+        system(CMD_LOCK);
     } else if (ev.type == KeyPress && ev.xkey.keycode == vol_up_key) {
-        RunCmd("amixer set Master 3+", "$WEEMA_VOLUMEUP");
+        system(CMD_VOLUMEUP);
     } else if (ev.type == KeyPress && ev.xkey.keycode == vol_down_key) {
-        RunCmd("amixer set Master 3-", "$WEEMA_VOLUMEDOWN");
+        system(CMD_VOLUMEDOWN);
     } else if (ev.type == KeyPress && ev.xkey.keycode == print_key) {
-        RunCmd("scrot", "$WEEMA_PRINTSCREEN");
+        system(CMD_PRINTSCREEN);
     } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
         XRaiseWindow(display, GetWindow(999999999));
     } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
@@ -355,8 +344,7 @@ int main() {
     XSetErrorHandler(ErrorHandler);
     XSelectInput(display, XDefaultRootWindow(display), SubstructureNotifyMask);
     SetupGrab();
-    RunCmd("xsetroot -cursor_name arrow -solid \"#030609\"", NULL);
-    RunCmd("feh --bg-scale ~/wallpaper.jpg", "$WEEMA_INIT");
+    system(CMD_INIT);
 
     for(;;) InterceptEvents();
 }

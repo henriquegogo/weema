@@ -54,3 +54,4 @@ dkms.conf
 # Binary
 weema
 weema-debug
+config.h
