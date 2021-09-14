@@ -1,7 +1,7 @@
 BINDIR?=/usr/bin
 XSESSIONSDIR?=/usr/share/xsessions
 CFLAGS?=-Wpedantic -Wall -Wextra
-DEPENDENCIES?=feh dmenu scrot alsa-utils
+DEPENDENCIES?=dmenu slock scrot alsa-utils
 HIDEERRORS?=2> /dev/null || true
 
 all:

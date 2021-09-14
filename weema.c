@@ -205,7 +205,7 @@ void GrabKey(int keycode, unsigned int modifiers) {
     XGrabKey(dpy, keycode, modifiers, XDefaultRootWindow(dpy), True, GrabModeAsync, GrabModeAsync);
 }
 
-int GetKeycode(const char *key) {
+KeyCode GetKeycode(const char *key) {
     return XKeysymToKeycode(dpy, XStringToKeysym(key));
 }
 
@@ -214,13 +214,11 @@ void SetupGrab() {
         Mod2Mask|Mod3Mask, Mod2Mask|LockMask, Mod3Mask|LockMask, Mod2Mask|Mod3Mask|LockMask };
 
     for (int i = 0; i < 8; i++) {
+        for (unsigned int ikey = 0; ikey < sizeof(CMD_KEYS) / sizeof(CMD_KEYS[0]); ikey++) {
+            GrabKey(GetKeycode(CMD_KEYS[ikey][0]), Mod4Mask|modifiers[i]);
+        }
         GrabKey(vol_up_key   = GetKeycode("XF86AudioRaiseVolume"), modifiers[i]);
         GrabKey(vol_down_key = GetKeycode("XF86AudioLowerVolume"), modifiers[i]);
-        GrabKey(r_key     = GetKeycode("r"),      Mod4Mask|modifiers[i]);
-        GrabKey(t_key     = GetKeycode("t"),      Mod4Mask|modifiers[i]);
-        GrabKey(l_key     = GetKeycode("l"),      Mod4Mask|modifiers[i]);
-        GrabKey(b_key     = GetKeycode("b"),      Mod4Mask|modifiers[i]);
-        GrabKey(print_key = GetKeycode("Print"),  modifiers[i]);
         GrabKey(tab_key   = GetKeycode("Tab"),    Mod1Mask|modifiers[i]);
         GrabKey(tab_key   = GetKeycode("Tab"),    ShiftMask|Mod1Mask|modifiers[i]);
         GrabKey(f4_key    = GetKeycode("F4"),     Mod1Mask|modifiers[i]);
@@ -247,20 +245,15 @@ void InterceptEvents() {
     XEvent ev;
     XNextEvent(dpy, &ev);
 
-    if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
-        system(CMD_LAUNCHER);
-    } else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
-        system(CMD_TERMINAL);
-    } else if (ev.type == KeyPress && ev.xkey.keycode == b_key) {
-        system(CMD_BROWSER);
-    } else if (ev.type == KeyPress && ev.xkey.keycode == l_key) {
-        system(CMD_LOCK);
-    } else if (ev.type == KeyPress && ev.xkey.keycode == vol_up_key) {
+    for (unsigned int i = 0; i < sizeof(CMD_KEYS) / sizeof(CMD_KEYS[0]); i++) {
+        if (ev.type == KeyPress && ev.xkey.keycode == GetKeycode(CMD_KEYS[i][0])) {
+            system(CMD_KEYS[i][1]);
+        }
+    }
+    if (ev.type == KeyPress && ev.xkey.keycode == vol_up_key) {
         system(CMD_VOLUMEUP);
     } else if (ev.type == KeyPress && ev.xkey.keycode == vol_down_key) {
         system(CMD_VOLUMEDOWN);
-    } else if (ev.type == KeyPress && ev.xkey.keycode == print_key) {
-        system(CMD_PRINTSCREEN);
     } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
         XRaiseWindow(dpy, ev.xkey.state & ShiftMask ? VisibleWindow(999999999) : VisibleWindow(2));
     } else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
