@@ -1,4 +1,3 @@
-const char CMD_INIT[]        = "";
 const char CMD_VOLUMEUP[]    = "amixer set Master 3+";
 const char CMD_VOLUMEDOWN[]  = "amixer set Master 3-";
 const char CMD_KEYS[][8][64] = {

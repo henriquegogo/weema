@@ -298,7 +298,7 @@ int main() {
     XSelectInput(dpy, XDefaultRootWindow(dpy), SubstructureNotifyMask);
     SetupGrab(); 
     system("xsetroot -cursor_name arrow -solid \"#030609\"");
-    system(CMD_INIT);
+    system("sh ~/.weemarc");
 
     for(;;) InterceptEvents();
 }
