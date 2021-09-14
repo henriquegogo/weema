@@ -5,14 +5,16 @@
 #include <stdlib.h>
 #include "config.h"
 
+#define MAX(A, B) ((A) > (B) ? (A) : (B))
+#define MIN(A, B) ((A) < (B) ? (A) : (B))
+
 Display *dpy = NULL;
 XButtonEvent click_ev;
 XWindowAttributes click_attr;
 int scr_width, scr_height;
 int top = 0, left = 0;
 
-KeyCode up_key, down_key, left_key, right_key, r_key, t_key, l_key, b_key, w_key,
-        vol_up_key, vol_down_key, f4_key, del_key, tab_key, print_key;
+KeyCode up_key, down_key, left_key, right_key, w_key, vol_up_key, vol_down_key, f4_key, del_key, tab_key;
 
 Window VisibleWindow(unsigned int iwin) {
     unsigned int nwins, count = 1;
@@ -60,46 +62,6 @@ void SetupScreen(XWindowAttributes wattr) {
     }
 }
 
-void ResizeUp(Window win, XWindowAttributes wattr) {
-    if (wattr.height <= 2 * scr_height / 4 - top) {
-        XResizeWindow(dpy, win, wattr.width, scr_height / 4 - top);
-    } else if (wattr.height <= 3 * scr_height / 4 - top) {
-        XResizeWindow(dpy, win, wattr.width, 2 * scr_height / 4 - top);
-    } else if (wattr.height <= scr_height - top) {
-        XResizeWindow(dpy, win, wattr.width, 3 * scr_height / 4 - top);
-    }
-}
-
-void ResizeDown(Window win, XWindowAttributes wattr) {
-    if (wattr.height < 2 * scr_height / 4 - top) {
-        XResizeWindow(dpy, win, wattr.width, 2 * scr_height / 4 - top);
-    } else if (wattr.height < 3 * scr_height / 4 - top) {
-        XResizeWindow(dpy, win, wattr.width, 3 * scr_height / 4 - top);
-    } else {
-        XMoveResizeWindow(dpy, win, wattr.x, top, wattr.width, scr_height - top);
-    }
-}
-
-void ResizeLeft(Window win, XWindowAttributes wattr) {
-    if (wattr.width <= 2 * scr_width / 4) {
-        XResizeWindow(dpy, win, scr_width / 4, wattr.height);
-    } else if (wattr.width <= 3 * scr_width / 4) {
-        XResizeWindow(dpy, win, 2 * scr_width / 4, wattr.height);
-    } else if (wattr.width <= scr_width) {
-        XResizeWindow(dpy, win, 3 * scr_width / 4, wattr.height);
-    }
-}
-
-void ResizeRight(Window win, XWindowAttributes wattr) {
-    if (wattr.width < 2 * scr_width / 4) {
-        XResizeWindow(dpy, win, 2 * scr_width / 4, wattr.height);
-    } else if (wattr.width < 3 * scr_width / 4) {
-        XResizeWindow(dpy, win, 3 * scr_width / 4, wattr.height);
-    } else {
-        XMoveResizeWindow(dpy, win, left, wattr.y, scr_width, wattr.height);
-    }
-}
-
 void PositionUp(Window win, XWindowAttributes wattr) {
     if (wattr.y == top) {
         XMoveResizeWindow(dpy, win, left, top, scr_width, scr_height - top);
@@ -141,13 +103,13 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifie
     SetupScreen(wattr);
 
     if (keycode == up_key && modifiers & ShiftMask) {
-        ResizeUp(win, wattr);
+        XResizeWindow(dpy, win, wattr.width, MAX(wattr.height - scr_height / 4, scr_height / 4));
     } else if (keycode == down_key && modifiers & ShiftMask) {
-        ResizeDown(win, wattr);
+        XResizeWindow(dpy, win, wattr.width, MIN(wattr.height + scr_height / 4, scr_height - top));
     } else if (keycode == left_key && modifiers & ShiftMask) {
-        ResizeLeft(win, wattr);
+        XResizeWindow(dpy, win, MAX(wattr.width - scr_width / 4, scr_width / 4), wattr.height);
     } else if (keycode == right_key && modifiers & ShiftMask) {
-        ResizeRight(win, wattr);
+        XResizeWindow(dpy, win, MIN(wattr.width + scr_width / 4, scr_width), wattr.height);
     } else if (keycode == up_key && modifiers & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x, wattr.y - scr_height / 4);
     } else if (keycode == down_key && modifiers & Mod1Mask) {
