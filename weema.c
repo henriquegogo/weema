@@ -47,11 +47,11 @@ void CloseWindow(Window win) {
 }
 
 void SetupScreen(XWindowAttributes wattr) {
-    if (wattr.x < wattr.screen->width) {
-        left = 0;
-        scr_width = wattr.screen->width;
-        scr_height = wattr.screen->height;
-    } else {
+    left = 0;
+    scr_width = wattr.screen->width;
+    scr_height = wattr.screen->height;
+
+    if (wattr.x >= wattr.screen->width) {
         XWindowAttributes rattr;
         XGetWindowAttributes(dpy, XDefaultRootWindow(dpy), &rattr);
         left = scr_width;
