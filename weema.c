@@ -47,11 +47,11 @@ void CloseWindow(Window win) {
 }
 
 void SetupScreen(XWindowAttributes wattr) {
-    scr_width = wattr.screen->width;
-    scr_height = wattr.screen->height;
-    left = 0;
-
-    if (wattr.x >= wattr.screen->width) {
+    if (wattr.x < wattr.screen->width) {
+        left = 0;
+        scr_width = wattr.screen->width;
+        scr_height = wattr.screen->height;
+    } else {
         XWindowAttributes rattr;
         XGetWindowAttributes(dpy, XDefaultRootWindow(dpy), &rattr);
         left = scr_width;
@@ -247,17 +247,7 @@ void InterceptEvents() {
     XEvent ev;
     XNextEvent(dpy, &ev);
 
-    if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(dpy)) {
-        XRaiseWindow(dpy, ev.xbutton.window);
-    } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(dpy)
-            && ev.xbutton.subwindow != None && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)) {
-        XRaiseWindow(dpy, ev.xbutton.subwindow);
-        HandleClick(ev.xbutton);
-    } else if (ev.type == ButtonRelease) {
-        XUngrabPointer(dpy, CurrentTime);
-    } else if (ev.type == MotionNotify) {
-        HandleMotion(ev);
-    } else if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
+    if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
         system(CMD_LAUNCHER);
     } else if (ev.type == KeyPress && ev.xkey.keycode == t_key) {
         system(CMD_TERMINAL);
@@ -271,17 +261,24 @@ void InterceptEvents() {
         system(CMD_VOLUMEDOWN);
     } else if (ev.type == KeyPress && ev.xkey.keycode == print_key) {
         system(CMD_PRINTSCREEN);
-    } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
-        XRaiseWindow(dpy, VisibleWindow(999999999));
     } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
-        XRaiseWindow(dpy, VisibleWindow(2));
+        XRaiseWindow(dpy, ev.xkey.state & ShiftMask ? VisibleWindow(999999999) : VisibleWindow(2));
     } else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(dpy);
-        exit(0);
     } else if (ev.type == KeyPress && (ev.xkey.keycode == f4_key || ev.xkey.keycode == w_key)) {
         CloseWindow(VisibleWindow(1));
     } else if (ev.type == KeyPress) {
         HandleWindowPosition(VisibleWindow(1), ev.xkey.keycode, ev.xkey.state);
+    } else if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(dpy)) {
+        XRaiseWindow(dpy, ev.xbutton.window);
+    } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(dpy)
+            && ev.xbutton.subwindow != None && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)) {
+        XRaiseWindow(dpy, ev.xbutton.subwindow);
+        HandleClick(ev.xbutton);
+    } else if (ev.type == ButtonRelease) {
+        XUngrabPointer(dpy, CurrentTime);
+    } else if (ev.type == MotionNotify) {
+        HandleMotion(ev);
     } else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
     } else if (ev.type == UnmapNotify) {
