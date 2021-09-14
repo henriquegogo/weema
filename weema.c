@@ -5,28 +5,28 @@
 #include <stdlib.h>
 #include "config.h"
 
-Display *display = NULL;
-XButtonEvent clicked_event;
-XWindowAttributes clicked_win_attr;
-int current_screen_width, current_screen_height;
+Display *dpy = NULL;
+XButtonEvent click_ev;
+XWindowAttributes click_attr;
+int scr_width, scr_height;
 int top = 0, left = 0;
 
 KeyCode up_key, down_key, left_key, right_key, r_key, t_key, l_key, b_key, w_key,
         vol_up_key, vol_down_key, f4_key, del_key, tab_key, print_key;
 
-Window GetWindow(unsigned int win_i) {
+Window VisibleWindow(unsigned int iwin) {
     unsigned int nwins, count = 1;
     Window win, *wins;
-    XQueryTree(display, XDefaultRootWindow(display), &win, &win, &wins, &nwins);
+    XQueryTree(dpy, XDefaultRootWindow(dpy), &win, &win, &wins, &nwins);
     top = 0;
 
     for (int i = nwins - 1; i > 0; i--) {
-        XWindowAttributes win_attr;
-        XGetWindowAttributes(display, wins[i], &win_attr);
+        XWindowAttributes wattr;
+        XGetWindowAttributes(dpy, wins[i], &wattr);
 
-        if (win_attr.height <= 64 && win_attr.y == 0 && win_attr.map_state == IsViewable) {
-            top = win_attr.height;
-        } else if (wins[i] != None && !win_attr.override_redirect && win_attr.map_state == IsViewable && win_i >= count++) {
+        if (wattr.height <= 64 && wattr.y == 0 && wattr.map_state == IsViewable) {
+            top = wattr.height;
+        } else if (wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable && iwin >= count++) {
             win = wins[i];
         }
     }
@@ -39,175 +39,174 @@ void CloseWindow(Window win) {
     XEvent ev;
     ev.xclient.type = ClientMessage;
     ev.xclient.window = win;
-    ev.xclient.message_type = XInternAtom(display, "WM_PROTOCOLS", True);
+    ev.xclient.message_type = XInternAtom(dpy, "WM_PROTOCOLS", True);
     ev.xclient.format = 32;
-    ev.xclient.data.l[0] = XInternAtom(display, "WM_DELETE_WINDOW", False);
+    ev.xclient.data.l[0] = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
     ev.xclient.data.l[1] = CurrentTime;
-    XSendEvent(display, win, False, NoEventMask, &ev);
+    XSendEvent(dpy, win, False, NoEventMask, &ev);
 }
 
-void SetupScreen(XWindowAttributes win_attr) {
-    current_screen_width = win_attr.screen->width;
-    current_screen_height = win_attr.screen->height;
+void SetupScreen(XWindowAttributes wattr) {
+    scr_width = wattr.screen->width;
+    scr_height = wattr.screen->height;
     left = 0;
 
-    if (win_attr.x >= win_attr.screen->width) {
-        XWindowAttributes root_attr;
-        XGetWindowAttributes(display, XDefaultRootWindow(display), &root_attr);
-        left = current_screen_width;
-        current_screen_width = root_attr.width - win_attr.screen->width;
-        current_screen_height = root_attr.height;
+    if (wattr.x >= wattr.screen->width) {
+        XWindowAttributes rattr;
+        XGetWindowAttributes(dpy, XDefaultRootWindow(dpy), &rattr);
+        left = scr_width;
+        scr_width = rattr.width - wattr.screen->width;
+        scr_height = rattr.height;
     }
 }
 
-void ResizeUp(Window win, XWindowAttributes win_attr) {
-    if (win_attr.height <= 2 * current_screen_height / 4 - top) {
-        XResizeWindow(display, win, win_attr.width, current_screen_height / 4 - top);
-    } else if (win_attr.height <= 3 * current_screen_height / 4 - top) {
-        XResizeWindow(display, win, win_attr.width, 2 * current_screen_height / 4 - top);
-    } else if (win_attr.height <= current_screen_height - top) {
-        XResizeWindow(display, win, win_attr.width, 3 * current_screen_height / 4 - top);
+void ResizeUp(Window win, XWindowAttributes wattr) {
+    if (wattr.height <= 2 * scr_height / 4 - top) {
+        XResizeWindow(dpy, win, wattr.width, scr_height / 4 - top);
+    } else if (wattr.height <= 3 * scr_height / 4 - top) {
+        XResizeWindow(dpy, win, wattr.width, 2 * scr_height / 4 - top);
+    } else if (wattr.height <= scr_height - top) {
+        XResizeWindow(dpy, win, wattr.width, 3 * scr_height / 4 - top);
     }
 }
 
-void ResizeDown(Window win, XWindowAttributes win_attr) {
-    if (win_attr.height < 2 * current_screen_height / 4 - top) {
-        XResizeWindow(display, win, win_attr.width, 2 * current_screen_height / 4 - top);
-    } else if (win_attr.height < 3 * current_screen_height / 4 - top) {
-        XResizeWindow(display, win, win_attr.width, 3 * current_screen_height / 4 - top);
+void ResizeDown(Window win, XWindowAttributes wattr) {
+    if (wattr.height < 2 * scr_height / 4 - top) {
+        XResizeWindow(dpy, win, wattr.width, 2 * scr_height / 4 - top);
+    } else if (wattr.height < 3 * scr_height / 4 - top) {
+        XResizeWindow(dpy, win, wattr.width, 3 * scr_height / 4 - top);
     } else {
-        XMoveResizeWindow(display, win, win_attr.x, top, win_attr.width, current_screen_height - top);
+        XMoveResizeWindow(dpy, win, wattr.x, top, wattr.width, scr_height - top);
     }
 }
 
-void ResizeLeft(Window win, XWindowAttributes win_attr) {
-    if (win_attr.width <= 2 * current_screen_width / 4) {
-        XResizeWindow(display, win, current_screen_width / 4, win_attr.height);
-    } else if (win_attr.width <= 3 * current_screen_width / 4) {
-        XResizeWindow(display, win, 2 * current_screen_width / 4, win_attr.height);
-    } else if (win_attr.width <= current_screen_width) {
-        XResizeWindow(display, win, 3 * current_screen_width / 4, win_attr.height);
+void ResizeLeft(Window win, XWindowAttributes wattr) {
+    if (wattr.width <= 2 * scr_width / 4) {
+        XResizeWindow(dpy, win, scr_width / 4, wattr.height);
+    } else if (wattr.width <= 3 * scr_width / 4) {
+        XResizeWindow(dpy, win, 2 * scr_width / 4, wattr.height);
+    } else if (wattr.width <= scr_width) {
+        XResizeWindow(dpy, win, 3 * scr_width / 4, wattr.height);
     }
 }
 
-void ResizeRight(Window win, XWindowAttributes win_attr) {
-    if (win_attr.width < 2 * current_screen_width / 4) {
-        XResizeWindow(display, win, 2 * current_screen_width / 4, win_attr.height);
-    } else if (win_attr.width < 3 * current_screen_width / 4) {
-        XResizeWindow(display, win, 3 * current_screen_width / 4, win_attr.height);
+void ResizeRight(Window win, XWindowAttributes wattr) {
+    if (wattr.width < 2 * scr_width / 4) {
+        XResizeWindow(dpy, win, 2 * scr_width / 4, wattr.height);
+    } else if (wattr.width < 3 * scr_width / 4) {
+        XResizeWindow(dpy, win, 3 * scr_width / 4, wattr.height);
     } else {
-        XMoveResizeWindow(display, win, left, win_attr.y, current_screen_width, win_attr.height);
+        XMoveResizeWindow(dpy, win, left, wattr.y, scr_width, wattr.height);
     }
 }
 
-void PositionUp(Window win, XWindowAttributes win_attr) {
-    if (win_attr.y == top) {
-        XMoveResizeWindow(display, win, left, top, current_screen_width, current_screen_height - top);
+void PositionUp(Window win, XWindowAttributes wattr) {
+    if (wattr.y == top) {
+        XMoveResizeWindow(dpy, win, left, top, scr_width, scr_height - top);
     } else {
-        XMoveWindow(display, win, win_attr.x, top);
+        XMoveWindow(dpy, win, wattr.x, top);
     }
 }
 
-void PositionDown(Window win, XWindowAttributes win_attr) {
-    if (win_attr.width == current_screen_width && win_attr.height == current_screen_height - top) {
-        XMoveResizeWindow(display, win, current_screen_width / 3 / 2 + left, current_screen_height / 3 / 2,
-                current_screen_width / 3 * 2, current_screen_height / 3 * 2);
+void PositionDown(Window win, XWindowAttributes wattr) {
+    if (wattr.width == scr_width && wattr.height == scr_height - top) {
+        XMoveResizeWindow(dpy, win, scr_width / 3 / 2 + left, scr_height / 3 / 2,
+                scr_width / 3 * 2, scr_height / 3 * 2);
     } else {
-        XMoveWindow(display, win, win_attr.x, current_screen_height - win_attr.height);
+        XMoveWindow(dpy, win, wattr.x, scr_height - wattr.height);
     }
 }
 
-void PositionLeft(Window win, XWindowAttributes win_attr) {
-    if (win_attr.x == left) {
-        XMoveResizeWindow(display, win, left, top, win_attr.width, current_screen_height - top);
+void PositionLeft(Window win, XWindowAttributes wattr) {
+    if (wattr.x == left) {
+        XMoveResizeWindow(dpy, win, left, top, wattr.width, scr_height - top);
     } else {
-        XMoveWindow(display, win, left, win_attr.y);
+        XMoveWindow(dpy, win, left, wattr.y);
     }
 }
 
-void PositionRight(Window win, XWindowAttributes win_attr) {
-    int right_pos = current_screen_width - win_attr.width + left;
+void PositionRight(Window win, XWindowAttributes wattr) {
+    int right_pos = scr_width - wattr.width + left;
 
-    if (win_attr.x == right_pos) {
-        XMoveResizeWindow(display, win, right_pos, top, win_attr.width, current_screen_height - top);
+    if (wattr.x == right_pos) {
+        XMoveResizeWindow(dpy, win, right_pos, top, wattr.width, scr_height - top);
     } else {
-        XMoveWindow(display, win, current_screen_width - win_attr.width + left, win_attr.y);
+        XMoveWindow(dpy, win, scr_width - wattr.width + left, wattr.y);
     }
 }
 
 void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
-    XWindowAttributes win_attr;
-    XGetWindowAttributes(display, win, &win_attr);
-    SetupScreen(win_attr);
+    XWindowAttributes wattr;
+    XGetWindowAttributes(dpy, win, &wattr);
+    SetupScreen(wattr);
 
     if (keycode == up_key && modifiers & ShiftMask) {
-        ResizeUp(win, win_attr);
+        ResizeUp(win, wattr);
     } else if (keycode == down_key && modifiers & ShiftMask) {
-        ResizeDown(win, win_attr);
+        ResizeDown(win, wattr);
     } else if (keycode == left_key && modifiers & ShiftMask) {
-        ResizeLeft(win, win_attr);
+        ResizeLeft(win, wattr);
     } else if (keycode == right_key && modifiers & ShiftMask) {
-        ResizeRight(win, win_attr);
+        ResizeRight(win, wattr);
     } else if (keycode == up_key && modifiers & Mod1Mask) {
-        XMoveWindow(display, win, win_attr.x, win_attr.y - current_screen_height / 4);
+        XMoveWindow(dpy, win, wattr.x, wattr.y - scr_height / 4);
     } else if (keycode == down_key && modifiers & Mod1Mask) {
-        XMoveWindow(display, win, win_attr.x, win_attr.y + current_screen_height / 4);
+        XMoveWindow(dpy, win, wattr.x, wattr.y + scr_height / 4);
     } else if (keycode == left_key && modifiers & Mod1Mask) {
-        XMoveWindow(display, win, win_attr.x - current_screen_width / 4, win_attr.y);
+        XMoveWindow(dpy, win, wattr.x - scr_width / 4, wattr.y);
     } else if (keycode == right_key && modifiers & Mod1Mask) {
-        XMoveWindow(display, win, win_attr.x + current_screen_width / 4, win_attr.y);
+        XMoveWindow(dpy, win, wattr.x + scr_width / 4, wattr.y);
     } else if (keycode == up_key) {
-        PositionUp(win, win_attr);
+        PositionUp(win, wattr);
     } else if (keycode == down_key) {
-        PositionDown(win, win_attr);
+        PositionDown(win, wattr);
     } else if (keycode == left_key) {
-        PositionLeft(win, win_attr);
+        PositionLeft(win, wattr);
     } else if (keycode == right_key) {
-        PositionRight(win, win_attr);
+        PositionRight(win, wattr);
     }
 
-    XRaiseWindow(display, win);
+    XRaiseWindow(dpy, win);
 }
 
 void HandleNewWindow(Window win) {
-    XWindowAttributes win_attr;
-    XGetWindowAttributes(display, win, &win_attr);
+    XWindowAttributes wattr;
+    XGetWindowAttributes(dpy, win, &wattr);
 
-    if (win != None && !win_attr.override_redirect && win_attr.map_state == IsViewable) {
-        XSetWindowBorderWidth(display, win, 1);
-        XSetWindowBorder(display, win, 0);
-        XRaiseWindow(display, win);
-        XSetInputFocus(display, win, RevertToPointerRoot, CurrentTime); 
-        XSelectInput(display, win, FocusChangeMask);
-        XMoveWindow(display, GetWindow(1), win_attr.x, top);
+    if (win != None && !wattr.override_redirect && wattr.map_state == IsViewable) {
+        XSetWindowBorderWidth(dpy, win, 1);
+        XSetWindowBorder(dpy, win, 0);
+        XRaiseWindow(dpy, win);
+        XSetInputFocus(dpy, win, RevertToPointerRoot, CurrentTime); 
+        XSelectInput(dpy, win, FocusChangeMask);
+        XMoveWindow(dpy, VisibleWindow(1), wattr.x, top);
     }
 }
 
-void HandleClick(XButtonEvent button_event) {
-    XGrabPointer(display, button_event.subwindow, True, PointerMotionMask|ButtonReleaseMask,
+void HandleClick(XButtonEvent ev) {
+    XGrabPointer(dpy, ev.subwindow, True, PointerMotionMask|ButtonReleaseMask,
             GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-    XGetWindowAttributes(display, button_event.subwindow, &clicked_win_attr);
-    clicked_event = button_event;
+    XGetWindowAttributes(dpy, ev.subwindow, &click_attr);
+    click_ev = ev;
 }
 
 void HandleMotion(XEvent ev) {
-    int xdiff = ev.xbutton.x_root - clicked_event.x_root;
-    int ydiff = ev.xbutton.y_root - clicked_event.y_root;
+    int xdiff = ev.xbutton.x_root - click_ev.x_root;
+    int ydiff = ev.xbutton.y_root - click_ev.y_root;
 
-    if (clicked_event.button == Button1) {
-        XMoveWindow(display, ev.xmotion.window, clicked_win_attr.x + xdiff, clicked_win_attr.y + ydiff);
-    } else if (clicked_event.button == Button3) {
-        XResizeWindow(display, ev.xmotion.window,
-                abs(clicked_win_attr.width + xdiff) + 1, abs(clicked_win_attr.height + ydiff) + 1);
+    if (click_ev.button == Button1) {
+        XMoveWindow(dpy, ev.xmotion.window, click_attr.x + xdiff, click_attr.y + ydiff);
+    } else if (click_ev.button == Button3) {
+        XResizeWindow(dpy, ev.xmotion.window, abs(click_attr.width + xdiff) + 1, abs(click_attr.height + ydiff) + 1);
     }
 }
 
 void GrabKey(int keycode, unsigned int modifiers) {
-    XGrabKey(display, keycode, modifiers, XDefaultRootWindow(display), True, GrabModeAsync, GrabModeAsync);
+    XGrabKey(dpy, keycode, modifiers, XDefaultRootWindow(dpy), True, GrabModeAsync, GrabModeAsync);
 }
 
 int GetKeycode(const char *key) {
-    return XKeysymToKeycode(display, XStringToKeysym(key));
+    return XKeysymToKeycode(dpy, XStringToKeysym(key));
 }
 
 void SetupGrab() {
@@ -239,23 +238,23 @@ void SetupGrab() {
         GrabKey(down_key  = GetKeycode("Down"),   Mod1Mask|Mod4Mask|modifiers[i]);
         GrabKey(left_key  = GetKeycode("Left"),   Mod1Mask|Mod4Mask|modifiers[i]);
         GrabKey(right_key = GetKeycode("Right"),  Mod1Mask|Mod4Mask|modifiers[i]);
-        XGrabButton(display, AnyButton, Mod1Mask|modifiers[i], XDefaultRootWindow(display), True, ButtonPressMask,
+        XGrabButton(dpy, AnyButton, Mod1Mask|modifiers[i], XDefaultRootWindow(dpy), True, ButtonPressMask,
                 GrabModeAsync, GrabModeAsync, None, None);
     }
 }
 
 void InterceptEvents() {
     XEvent ev;
-    XNextEvent(display, &ev);
+    XNextEvent(dpy, &ev);
 
-    if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(display)) {
-        XRaiseWindow(display, ev.xbutton.window);
-    } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(display)
+    if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(dpy)) {
+        XRaiseWindow(dpy, ev.xbutton.window);
+    } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(dpy)
             && ev.xbutton.subwindow != None && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)) {
-        XRaiseWindow(display, ev.xbutton.subwindow);
+        XRaiseWindow(dpy, ev.xbutton.subwindow);
         HandleClick(ev.xbutton);
     } else if (ev.type == ButtonRelease) {
-        XUngrabPointer(display, CurrentTime);
+        XUngrabPointer(dpy, CurrentTime);
     } else if (ev.type == MotionNotify) {
         HandleMotion(ev);
     } else if (ev.type == KeyPress && ev.xkey.keycode == r_key) {
@@ -273,28 +272,28 @@ void InterceptEvents() {
     } else if (ev.type == KeyPress && ev.xkey.keycode == print_key) {
         system(CMD_PRINTSCREEN);
     } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & ShiftMask) {
-        XRaiseWindow(display, GetWindow(999999999));
+        XRaiseWindow(dpy, VisibleWindow(999999999));
     } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
-        XRaiseWindow(display, GetWindow(2));
+        XRaiseWindow(dpy, VisibleWindow(2));
     } else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
-        XCloseDisplay(display);
+        XCloseDisplay(dpy);
         exit(0);
     } else if (ev.type == KeyPress && (ev.xkey.keycode == f4_key || ev.xkey.keycode == w_key)) {
-        CloseWindow(GetWindow(1));
+        CloseWindow(VisibleWindow(1));
     } else if (ev.type == KeyPress) {
-        HandleWindowPosition(GetWindow(1), ev.xkey.keycode, ev.xkey.state);
+        HandleWindowPosition(VisibleWindow(1), ev.xkey.keycode, ev.xkey.state);
     } else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
     } else if (ev.type == UnmapNotify) {
-        XSetInputFocus(display, GetWindow(1), RevertToPointerRoot, CurrentTime);
+        XSetInputFocus(dpy, VisibleWindow(1), RevertToPointerRoot, CurrentTime);
     } else if (ev.type == FocusIn) {
-        XUngrabButton(display, AnyButton, AnyModifier, ev.xfocus.window);
-        XAllowEvents(display, ReplayPointer, CurrentTime);
+        XUngrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window);
+        XAllowEvents(dpy, ReplayPointer, CurrentTime);
     } else if (ev.type == FocusOut) {
-        XGrabButton(display, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
+        XGrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
                 GrabModeSync, GrabModeSync, None, None);
     } else if (ev.type == ConfigureNotify) {
-        XSetInputFocus(display, ev.xconfigure.window, RevertToPointerRoot, CurrentTime); 
+        XSetInputFocus(dpy, ev.xconfigure.window, RevertToPointerRoot, CurrentTime); 
     }
 }
 
@@ -303,10 +302,10 @@ int ErrorHandler() {
 }
 
 int main() {
-    if (!(display = XOpenDisplay(NULL))) return 1;
+    if (!(dpy = XOpenDisplay(NULL))) return 1;
 
     XSetErrorHandler(ErrorHandler);
-    XSelectInput(display, XDefaultRootWindow(display), SubstructureNotifyMask);
+    XSelectInput(dpy, XDefaultRootWindow(dpy), SubstructureNotifyMask);
     SetupGrab(); 
     system("xsetroot -cursor_name arrow -solid \"#030609\"");
     system(CMD_INIT);
