@@ -22,30 +22,29 @@ Usage:
 
 Binds:
 
-  Alt+Button1: raise and move window
-  Alt+Button3: raise and resize window
-  Alt+Tab: rise last window
+  Alt+Button1: move window
+  Alt+Button3: resize window
+  Alt+Tab: alternate windows
   Alt+Shift+Tab: circle windows
   Alt+F4: close window
   Ctrl+Shift+W: close window
-  Ctrl+Alt+Delete: close window manager
-  PrntScr: print screen
+  Ctrl+Alt+Delete: exit
+  Super+Shift+Arrows: resize window
+  Super+Alt+Arrows: move window
+  Super+Arrows: position window
   Volume up: increase volume
   Volume down: decrease volume
   Super+R: open application launcher
   Super+T: open terminal
   Super+B: open browser
   Super+L: lock screen
-  Super+Shift+Arrows: resize window
-  Super+Alt+Arrows: move window
-  Super+Arrows: position window
+  Super+PrntScr: print screen
 
 Third party optional dependencies:
   
   We use third party applications to manage some functions.
   You can configure this editing the config.h file.
 
-  - feh: set background image
   - dmenu: applications launcher
   - slock: screen locker
   - alsa-utils: volume control
@@ -54,6 +53,7 @@ Third party optional dependencies:
 Tips:
 
   Any small window at the top will be consider a dock panel.
+  Some key binds are customizable editing the config.h file.
 
 License:
 
