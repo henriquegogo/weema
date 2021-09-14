@@ -47,20 +47,16 @@ void CloseWindow(Window win) {
 }
 
 void SetupScreen(XWindowAttributes win_attr) {
-    Screen *screen = XDefaultScreenOfDisplay(display);
-    current_screen_width = XWidthOfScreen(screen);
-    current_screen_height = XHeightOfScreen(screen);
+    current_screen_width = win_attr.screen->width;
+    current_screen_height = win_attr.screen->height;
     left = 0;
 
-    if (win_attr.x >= current_screen_width) {
+    if (win_attr.x >= win_attr.screen->width) {
         XWindowAttributes root_attr;
         XGetWindowAttributes(display, XDefaultRootWindow(display), &root_attr);
         left = current_screen_width;
-        current_screen_width = root_attr.width - current_screen_width;
-
-        if (root_attr.height > current_screen_height) {
-            current_screen_height = root_attr.height;
-        }
+        current_screen_width = root_attr.width - win_attr.screen->width;
+        current_screen_height = root_attr.height;
     }
 }
 
