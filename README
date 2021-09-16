@@ -20,7 +20,7 @@ Usage:
   Edit .xinitrc file to 'exec weema' or select 'Weema'
   in your display manager.
 
-Binds:
+Built-in binds:
 
   Alt+Button1: move window
   Alt+Button3: resize window
@@ -32,13 +32,15 @@ Binds:
   Super+Shift+Arrows: resize window
   Super+Alt+Arrows: move window
   Super+Arrows: position window
+
+Configurable binds:
   Volume up: increase volume
   Volume down: decrease volume
+  PrntScr: print screen
   Super+R: open application launcher
   Super+T: open terminal
   Super+B: open browser
   Super+L: lock screen
-  Super+PrntScr: print screen
 
 Third party optional dependencies:
   
@@ -52,9 +54,10 @@ Third party optional dependencies:
 
 Tips:
 
+  File ~/.weemarc will be executed every time the WM starts.
   Any small window at the top will be consider a dock panel.
   Some key binds are customizable editing the config.h file.
-  File ~/.weemarc will be executed every time the WM starts.
+  Custom one-letter shortcuts will be binded 'Super-Letter'.
 
 License:
 
