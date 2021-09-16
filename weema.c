@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include "config.h"
 
-#define MAX(A, B) ((A) > (B) ? (A) : (B))
-#define MIN(A, B) ((A) < (B) ? (A) : (B))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 Display *dpy = NULL;
 XButtonEvent click_ev;
@@ -97,26 +97,26 @@ void PositionRight(Window win, XWindowAttributes wattr) {
     }
 }
 
-void HandleWindowPosition(Window win, unsigned int keycode, unsigned int modifiers) {
+void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
     XWindowAttributes wattr;
     XGetWindowAttributes(dpy, win, &wattr);
     SetupScreen(wattr);
 
-    if (keycode == up_key && modifiers & ShiftMask) {
+    if (keycode == up_key && mods & ShiftMask) {
         XResizeWindow(dpy, win, wattr.width, MAX(wattr.height - scr_height / 4, scr_height / 4));
-    } else if (keycode == down_key && modifiers & ShiftMask) {
+    } else if (keycode == down_key && mods & ShiftMask) {
         XResizeWindow(dpy, win, wattr.width, MIN(wattr.height + scr_height / 4, scr_height - top));
-    } else if (keycode == left_key && modifiers & ShiftMask) {
+    } else if (keycode == left_key && mods & ShiftMask) {
         XResizeWindow(dpy, win, MAX(wattr.width - scr_width / 4, scr_width / 4), wattr.height);
-    } else if (keycode == right_key && modifiers & ShiftMask) {
+    } else if (keycode == right_key && mods & ShiftMask) {
         XResizeWindow(dpy, win, MIN(wattr.width + scr_width / 4, scr_width), wattr.height);
-    } else if (keycode == up_key && modifiers & Mod1Mask) {
+    } else if (keycode == up_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x, wattr.y - scr_height / 4);
-    } else if (keycode == down_key && modifiers & Mod1Mask) {
+    } else if (keycode == down_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x, wattr.y + scr_height / 4);
-    } else if (keycode == left_key && modifiers & Mod1Mask) {
+    } else if (keycode == left_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x - scr_width / 4, wattr.y);
-    } else if (keycode == right_key && modifiers & Mod1Mask) {
+    } else if (keycode == right_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x + scr_width / 4, wattr.y);
     } else if (keycode == up_key) {
         PositionUp(win, wattr);
@@ -163,8 +163,8 @@ void HandleMotion(XEvent ev) {
     }
 }
 
-void GrabKey(int keycode, unsigned int modifiers) {
-    XGrabKey(dpy, keycode, modifiers, XDefaultRootWindow(dpy), True, GrabModeAsync, GrabModeAsync);
+void GrabKey(int keycode, unsigned int mods) {
+    XGrabKey(dpy, keycode, mods, XDefaultRootWindow(dpy), True, GrabModeAsync, GrabModeAsync);
 }
 
 KeyCode GetKeycode(const char *key) {
@@ -172,33 +172,33 @@ KeyCode GetKeycode(const char *key) {
 }
 
 void SetupGrab() {
-    unsigned int modifiers[8] = { None, Mod2Mask, Mod3Mask, LockMask,
+    unsigned int mods[8] = { None, Mod2Mask, Mod3Mask, LockMask,
         Mod2Mask|Mod3Mask, Mod2Mask|LockMask, Mod3Mask|LockMask, Mod2Mask|Mod3Mask|LockMask };
 
     for (int i = 0; i < 8; i++) {
         for (unsigned int ikey = 0; ikey < sizeof(CMD_KEYS) / sizeof(CMD_KEYS[0]); ikey++) {
-            GrabKey(GetKeycode(CMD_KEYS[ikey][0]), Mod4Mask|modifiers[i]);
+            GrabKey(GetKeycode(CMD_KEYS[ikey][0]), Mod4Mask|mods[i]);
         }
-        GrabKey(vol_up_key   = GetKeycode("XF86AudioRaiseVolume"), modifiers[i]);
-        GrabKey(vol_down_key = GetKeycode("XF86AudioLowerVolume"), modifiers[i]);
-        GrabKey(tab_key   = GetKeycode("Tab"),    Mod1Mask|modifiers[i]);
-        GrabKey(tab_key   = GetKeycode("Tab"),    ShiftMask|Mod1Mask|modifiers[i]);
-        GrabKey(f4_key    = GetKeycode("F4"),     Mod1Mask|modifiers[i]);
-        GrabKey(w_key     = GetKeycode("w"),      ControlMask|ShiftMask|modifiers[i]);
-        GrabKey(del_key   = GetKeycode("Delete"), ControlMask|Mod1Mask|modifiers[i]);
-        GrabKey(up_key    = GetKeycode("Up"),     Mod4Mask|modifiers[i]);
-        GrabKey(down_key  = GetKeycode("Down"),   Mod4Mask|modifiers[i]);
-        GrabKey(left_key  = GetKeycode("Left"),   Mod4Mask|modifiers[i]);
-        GrabKey(right_key = GetKeycode("Right"),  Mod4Mask|modifiers[i]);
-        GrabKey(up_key    = GetKeycode("Up"),     ShiftMask|Mod4Mask|modifiers[i]);
-        GrabKey(down_key  = GetKeycode("Down"),   ShiftMask|Mod4Mask|modifiers[i]);
-        GrabKey(left_key  = GetKeycode("Left"),   ShiftMask|Mod4Mask|modifiers[i]);
-        GrabKey(right_key = GetKeycode("Right"),  ShiftMask|Mod4Mask|modifiers[i]);
-        GrabKey(up_key    = GetKeycode("Up"),     Mod1Mask|Mod4Mask|modifiers[i]);
-        GrabKey(down_key  = GetKeycode("Down"),   Mod1Mask|Mod4Mask|modifiers[i]);
-        GrabKey(left_key  = GetKeycode("Left"),   Mod1Mask|Mod4Mask|modifiers[i]);
-        GrabKey(right_key = GetKeycode("Right"),  Mod1Mask|Mod4Mask|modifiers[i]);
-        XGrabButton(dpy, AnyButton, Mod1Mask|modifiers[i], XDefaultRootWindow(dpy), True, ButtonPressMask,
+        GrabKey(vol_up_key   = GetKeycode("XF86AudioRaiseVolume"), mods[i]);
+        GrabKey(vol_down_key = GetKeycode("XF86AudioLowerVolume"), mods[i]);
+        GrabKey(tab_key   = GetKeycode("Tab"),    Mod1Mask|mods[i]);
+        GrabKey(tab_key   = GetKeycode("Tab"),    ShiftMask|Mod1Mask|mods[i]);
+        GrabKey(f4_key    = GetKeycode("F4"),     Mod1Mask|mods[i]);
+        GrabKey(w_key     = GetKeycode("w"),      ControlMask|ShiftMask|mods[i]);
+        GrabKey(del_key   = GetKeycode("Delete"), ControlMask|Mod1Mask|mods[i]);
+        GrabKey(up_key    = GetKeycode("Up"),     Mod4Mask|mods[i]);
+        GrabKey(down_key  = GetKeycode("Down"),   Mod4Mask|mods[i]);
+        GrabKey(left_key  = GetKeycode("Left"),   Mod4Mask|mods[i]);
+        GrabKey(right_key = GetKeycode("Right"),  Mod4Mask|mods[i]);
+        GrabKey(up_key    = GetKeycode("Up"),     ShiftMask|Mod4Mask|mods[i]);
+        GrabKey(down_key  = GetKeycode("Down"),   ShiftMask|Mod4Mask|mods[i]);
+        GrabKey(left_key  = GetKeycode("Left"),   ShiftMask|Mod4Mask|mods[i]);
+        GrabKey(right_key = GetKeycode("Right"),  ShiftMask|Mod4Mask|mods[i]);
+        GrabKey(up_key    = GetKeycode("Up"),     Mod1Mask|Mod4Mask|mods[i]);
+        GrabKey(down_key  = GetKeycode("Down"),   Mod1Mask|Mod4Mask|mods[i]);
+        GrabKey(left_key  = GetKeycode("Left"),   Mod1Mask|Mod4Mask|mods[i]);
+        GrabKey(right_key = GetKeycode("Right"),  Mod1Mask|Mod4Mask|mods[i]);
+        XGrabButton(dpy, AnyButton, Mod1Mask|mods[i], XDefaultRootWindow(dpy), True, ButtonPressMask,
                 GrabModeAsync, GrabModeAsync, None, None);
     }
 }
