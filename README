@@ -54,6 +54,7 @@ Tips:
 
   Any small window at the top will be consider a dock panel.
   Some key binds are customizable editing the config.h file.
+  File ~/.weemarc will be executed every time the WM starts.
 
 License:
 
