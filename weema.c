@@ -102,11 +102,10 @@ void HandleNewWindow(Window win) {
     XGetWindowAttributes(dpy, win, &wattr);
 
     if (win != None && !wattr.override_redirect && wattr.map_state == IsViewable) {
+        XSelectInput(dpy, win, FocusChangeMask);
         XSetWindowBorderWidth(dpy, win, 1);
         XSetWindowBorder(dpy, win, 0);
         XRaiseWindow(dpy, win);
-        XSetInputFocus(dpy, win, RevertToPointerRoot, CurrentTime); 
-        XSelectInput(dpy, win, FocusChangeMask);
         XMoveWindow(dpy, VisibleWindow(1), wattr.x, top);
     }
 }
