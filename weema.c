@@ -14,7 +14,7 @@ XWindowAttributes click_attr;
 int scr_width, scr_height;
 int top = 0, left = 0;
 
-KeyCode up_key, down_key, left_key, right_key, w_key, vol_up_key, vol_down_key, f4_key, del_key, tab_key;
+KeyCode up_key, down_key, left_key, right_key, w_key, f4_key, del_key, tab_key;
 
 Window VisibleWindow(unsigned int iwin) {
     unsigned int nwins, count = 1;
@@ -177,10 +177,8 @@ void SetupGrab() {
 
     for (int i = 0; i < 8; i++) {
         for (unsigned int ikey = 0; ikey < sizeof(CMD_KEYS) / sizeof(CMD_KEYS[0]); ikey++) {
-            GrabKey(GetKeycode(CMD_KEYS[ikey][0]), Mod4Mask|mods[i]);
+            GrabKey(GetKeycode(CMD_KEYS[ikey][0]), CMD_KEYS[ikey][0][1] ? mods[i] : Mod4Mask|mods[i]);
         }
-        GrabKey(vol_up_key   = GetKeycode("XF86AudioRaiseVolume"), mods[i]);
-        GrabKey(vol_down_key = GetKeycode("XF86AudioLowerVolume"), mods[i]);
         GrabKey(tab_key   = GetKeycode("Tab"),    Mod1Mask|mods[i]);
         GrabKey(tab_key   = GetKeycode("Tab"),    ShiftMask|Mod1Mask|mods[i]);
         GrabKey(f4_key    = GetKeycode("F4"),     Mod1Mask|mods[i]);
@@ -212,11 +210,7 @@ void InterceptEvents() {
             system(CMD_KEYS[i][1]);
         }
     }
-    if (ev.type == KeyPress && ev.xkey.keycode == vol_up_key) {
-        system(CMD_VOLUMEUP);
-    } else if (ev.type == KeyPress && ev.xkey.keycode == vol_down_key) {
-        system(CMD_VOLUMEDOWN);
-    } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
+    if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
         XRaiseWindow(dpy, ev.xkey.state & ShiftMask ? VisibleWindow(999999999) : VisibleWindow(2));
     } else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(dpy);
