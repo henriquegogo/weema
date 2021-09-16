@@ -11,10 +11,8 @@
 Display *dpy = NULL;
 XButtonEvent click_ev;
 XWindowAttributes click_attr;
-int scr_width, scr_height;
-int top = 0, left = 0;
-
 KeyCode up_key, down_key, left_key, right_key, w_key, f4_key, del_key, tab_key;
+int top = 0;
 
 Window VisibleWindow(unsigned int iwin) {
     unsigned int nwins, count = 1;
@@ -48,24 +46,19 @@ void CloseWindow(Window win) {
     XSendEvent(dpy, win, False, NoEventMask, &ev);
 }
 
-void SetupScreen(XWindowAttributes wattr) {
-    left = 0;
-    scr_width = wattr.screen->width;
-    scr_height = wattr.screen->height;
+void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
+    XWindowAttributes wattr, rattr;
+    XGetWindowAttributes(dpy, win, &wattr);
+    int left = 0;
+    int scr_width = wattr.screen->width;
+    int scr_height = wattr.screen->height;
 
     if (wattr.x >= wattr.screen->width) {
-        XWindowAttributes rattr;
         XGetWindowAttributes(dpy, XDefaultRootWindow(dpy), &rattr);
         left = scr_width;
         scr_width = rattr.width - wattr.screen->width;
         scr_height = rattr.height;
     }
-}
-
-void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
-    XWindowAttributes wattr;
-    XGetWindowAttributes(dpy, win, &wattr);
-    SetupScreen(wattr);
 
     if (keycode == up_key && mods & ShiftMask) {
         XResizeWindow(dpy, win, wattr.width, MAX(wattr.height - scr_height / 4, scr_height / 4));
