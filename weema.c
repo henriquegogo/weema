@@ -217,8 +217,8 @@ int main() {
 
     XSetErrorHandler(ErrorHandler);
     XSelectInput(dpy, XDefaultRootWindow(dpy), SubstructureNotifyMask);
+    XDefineCursor(dpy, XDefaultRootWindow(dpy), XCreateFontCursor(dpy, 2));
     SetupGrab(); 
-    system("xsetroot -cursor_name arrow -solid \"#030609\"");
     system("sh ~/.weemarc");
 
     for(;;) InterceptEvents();
