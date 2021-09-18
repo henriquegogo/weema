@@ -59,6 +59,7 @@ Tips:
   Any small window at the top will be consider a dock panel.
   Some key binds are customizable editing the config.h file.
   Custom one-letter shortcuts will be binded 'Super-Letter'.
+  This window manager is not ICCM/EWMH compliant.
 
 License:
 
