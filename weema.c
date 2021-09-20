@@ -200,7 +200,7 @@ void InterceptEvents() {
     } else if (ev.type == FocusIn) {
         XUngrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window);
         XAllowEvents(dpy, ReplayPointer, CurrentTime);
-    } else if (ev.type == FocusOut) {
+    } else if (ev.type == FocusOut && ev.xfocus.window != VisibleWindow(1)) {
         XGrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
                 GrabModeSync, GrabModeSync, None, None);
     } else if (ev.type == ConfigureNotify) {
