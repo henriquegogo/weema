@@ -1,4 +1,4 @@
-/* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2021.
+/* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2022.
  * MIT License */
 
 #include <X11/Xlib.h>
@@ -14,15 +14,24 @@ XWindowAttributes click_attr;
 KeyCode up_key, down_key, left_key, right_key, w_key, f4_key, del_key, tab_key;
 int top = 0;
 
-Window VisibleWindow(unsigned int iwin) {
+Window WindowStack(unsigned int iwin, Bool refreshClientsList) {
     unsigned int nwins, count = 1;
     Window win, *wins;
     XQueryTree(dpy, XDefaultRootWindow(dpy), &win, &win, &wins, &nwins);
     top = 0;
 
+    if (refreshClientsList) {
+        XDeleteProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False));
+    }
+
     for (int i = nwins - 1; i > 0; i--) {
         XWindowAttributes wattr;
         XGetWindowAttributes(dpy, wins[i], &wattr);
+
+        if (refreshClientsList && !wattr.override_redirect && wattr.map_state == IsViewable) {
+            XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False), 33, 32,
+                    PropModeAppend, (unsigned char *) &(wins[i]), 1);
+        }
 
         if (wattr.height <= 64 && wattr.y == 0 && wattr.map_state == IsViewable) {
             top = wattr.height;
@@ -106,7 +115,7 @@ void HandleNewWindow(Window win) {
         XSetWindowBorderWidth(dpy, win, 1);
         XSetWindowBorder(dpy, win, 0);
         XRaiseWindow(dpy, win);
-        XMoveWindow(dpy, VisibleWindow(1), wattr.x, top);
+        XMoveWindow(dpy, WindowStack(1, True), wattr.x, top);
     }
 }
 
@@ -176,13 +185,13 @@ void InterceptEvents() {
         }
     }
     if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
-        XRaiseWindow(dpy, ev.xkey.state & ShiftMask ? VisibleWindow(999999999) : VisibleWindow(2));
+        XRaiseWindow(dpy, ev.xkey.state & ShiftMask ? WindowStack(999999999, False) : WindowStack(2, False));
     } else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(dpy);
     } else if (ev.type == KeyPress && (ev.xkey.keycode == f4_key || ev.xkey.keycode == w_key)) {
-        CloseWindow(VisibleWindow(1));
+        CloseWindow(WindowStack(1, False));
     } else if (ev.type == KeyPress) {
-        HandleWindowPosition(VisibleWindow(1), ev.xkey.keycode, ev.xkey.state);
+        HandleWindowPosition(WindowStack(1, False), ev.xkey.keycode, ev.xkey.state);
     } else if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(dpy)) {
         XRaiseWindow(dpy, ev.xbutton.window);
     } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(dpy)
@@ -196,15 +205,19 @@ void InterceptEvents() {
     } else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
     } else if (ev.type == UnmapNotify) {
-        XSetInputFocus(dpy, VisibleWindow(1), RevertToPointerRoot, CurrentTime);
+        XSetInputFocus(dpy, WindowStack(1, True), RevertToPointerRoot, CurrentTime);
     } else if (ev.type == FocusIn) {
         XUngrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window);
         XAllowEvents(dpy, ReplayPointer, CurrentTime);
-    } else if (ev.type == FocusOut && ev.xfocus.window != VisibleWindow(1)) {
+        XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False), 33, 32,
+                PropModeReplace, (unsigned char *) &(ev.xfocus.window), 1);
+    } else if (ev.type == FocusOut && ev.xfocus.window != WindowStack(1, False)) {
         XGrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
                 GrabModeSync, GrabModeSync, None, None);
     } else if (ev.type == ConfigureNotify) {
         XSetInputFocus(dpy, ev.xconfigure.window, RevertToPointerRoot, CurrentTime); 
+    } else if (ev.xclient.message_type == XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False)) {
+        XSetInputFocus(dpy, ev.xclient.window, RevertToPointerRoot, CurrentTime);
     }
 }
 
