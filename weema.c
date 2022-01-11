@@ -26,12 +26,12 @@ Window WindowStack(unsigned int iwin, Bool refreshClientsList) {
         XWindowAttributes wattr;
         XGetWindowAttributes(dpy, wins[i], &wattr);
 
-        if (refreshClientsList && !wattr.override_redirect && wattr.map_state == IsViewable) {
+        if (refreshClientsList && wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable) {
             XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False), 33, 32,
                     PropModeAppend, (unsigned char *) &(wins[i]), 1);
         }
 
-        if (wattr.height > 64 && !wattr.override_redirect && wattr.map_state == IsViewable && iwin >= count++) {
+        if (wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable && iwin >= count++) {
             win = wins[i];
         }
     }
