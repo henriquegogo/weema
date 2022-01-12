@@ -13,20 +13,20 @@ XButtonEvent click_ev;
 XWindowAttributes click_attr;
 KeyCode up_key, down_key, left_key, right_key, w_key, f4_key, del_key, tab_key;
 
-Window WindowStack(unsigned int iwin, Bool refreshClientsList) {
+Window Clients(unsigned int iwin, Bool refresh) {
     unsigned int nwins, count = 1;
+    XWindowAttributes wattr;
     Window win, *wins;
     XQueryTree(dpy, XDefaultRootWindow(dpy), &win, &win, &wins, &nwins);
 
-    if (refreshClientsList) {
+    if (refresh) {
         XDeleteProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False));
     }
 
     for (int i = nwins - 1; i > 0; i--) {
-        XWindowAttributes wattr;
         XGetWindowAttributes(dpy, wins[i], &wattr);
 
-        if (refreshClientsList && wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable) {
+        if (refresh && wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable) {
             XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False), 33, 32,
                     PropModeAppend, (unsigned char *) &(wins[i]), 1);
         }
@@ -40,13 +40,13 @@ Window WindowStack(unsigned int iwin, Bool refreshClientsList) {
     return win;
 }
 
-void CloseWindow(Window win) {
+void SendEvent(Window win, const char *atom_name) {
     XEvent ev;
     ev.xclient.type = ClientMessage;
     ev.xclient.window = win;
     ev.xclient.message_type = XInternAtom(dpy, "WM_PROTOCOLS", True);
     ev.xclient.format = 32;
-    ev.xclient.data.l[0] = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
+    ev.xclient.data.l[0] = XInternAtom(dpy, atom_name, False);
     ev.xclient.data.l[1] = CurrentTime;
     XSendEvent(dpy, win, False, NoEventMask, &ev);
 }
@@ -111,7 +111,7 @@ void HandleNewWindow(Window win) {
         XSetWindowBorderWidth(dpy, win, 1);
         XSetWindowBorder(dpy, win, 0);
         XRaiseWindow(dpy, win);
-        XMoveWindow(dpy, WindowStack(1, True), wattr.x, 0);
+        XMoveWindow(dpy, Clients(1, True), wattr.x, 0);
     }
 }
 
@@ -181,13 +181,13 @@ void InterceptEvents() {
         }
     }
     if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
-        XRaiseWindow(dpy, ev.xkey.state & ShiftMask ? WindowStack(999999999, False) : WindowStack(2, False));
+        XRaiseWindow(dpy, ev.xkey.state & ShiftMask ? Clients(999999999, False) : Clients(2, False));
     } else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(dpy);
     } else if (ev.type == KeyPress && (ev.xkey.keycode == f4_key || ev.xkey.keycode == w_key)) {
-        CloseWindow(WindowStack(1, False));
+        SendEvent(Clients(1, False), "WM_DELETE_WINDOW");
     } else if (ev.type == KeyPress) {
-        HandleWindowPosition(WindowStack(1, False), ev.xkey.keycode, ev.xkey.state);
+        HandleWindowPosition(Clients(1, False), ev.xkey.keycode, ev.xkey.state);
     } else if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(dpy)) {
         XRaiseWindow(dpy, ev.xbutton.window);
     } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(dpy)
@@ -201,13 +201,13 @@ void InterceptEvents() {
     } else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
     } else if (ev.type == UnmapNotify) {
-        XSetInputFocus(dpy, WindowStack(1, True), RevertToPointerRoot, CurrentTime);
+        XSetInputFocus(dpy, Clients(1, True), RevertToPointerRoot, CurrentTime);
     } else if (ev.type == FocusIn) {
         XUngrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window);
         XAllowEvents(dpy, ReplayPointer, CurrentTime);
         XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False), 33, 32,
                 PropModeReplace, (unsigned char *) &(ev.xfocus.window), 1);
-    } else if (ev.type == FocusOut && ev.xfocus.window != WindowStack(1, False)) {
+    } else if (ev.type == FocusOut && ev.xfocus.window != Clients(1, False)) {
         XGrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
                 GrabModeSync, GrabModeSync, None, None);
     } else if (ev.type == ConfigureNotify) {
