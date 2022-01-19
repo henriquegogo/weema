@@ -147,7 +147,7 @@ void SetupGrab() {
 
     for (int i = 0; i < 8; i++) {
         for (unsigned int ikey = 0; ikey < sizeof(CMD_KEYS) / sizeof(CMD_KEYS[0]); ikey++) {
-            GrabKey(GetKeycode(CMD_KEYS[ikey][0]), CMD_KEYS[ikey][0][1] ? mods[i] : Mod4Mask|mods[i]);
+            GrabKey(GetKeycode(CMD_KEYS[ikey][0]), CMD_KEYS[ikey][0][3] ? mods[i] : Mod4Mask|mods[i]);
         }
         GrabKey(tab_key   = GetKeycode("Tab"),    Mod1Mask|mods[i]);
         GrabKey(tab_key   = GetKeycode("Tab"),    ShiftMask|Mod1Mask|mods[i]);

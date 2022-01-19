@@ -57,7 +57,7 @@ Tips:
 
   File ~/.weemarc will be executed every time the WM starts.
   Some key binds are customizable editing the config.h file.
-  Custom one-letter shortcuts will be binded 'Super-Letter'.
+  Custom less than 3 letters shortcuts will be binded 'Super-Shortcut'.
   This window manager partialy ICCM/EWMH compliant.
 
 License:
