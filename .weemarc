@@ -1,0 +1,2 @@
+xrandr --output HDMI-1-1 --primary --auto --right-of LVDS-1
+xsetroot -solid '#223'
