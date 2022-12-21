@@ -54,15 +54,26 @@ void SendEvent(Window win, const char *atom_name) {
 void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
     XWindowAttributes wattr, rattr;
     XGetWindowAttributes(dpy, win, &wattr);
+    XGetWindowAttributes(dpy, XDefaultRootWindow(dpy), &rattr);
+    int top = 0;
     int left = 0;
     int scr_width = wattr.screen->width;
     int scr_height = wattr.screen->height;
+    int scnd_scr_width = rattr.width - scr_width;
+    int scnd_scr_height = rattr.height - scr_height;
 
-    if (wattr.x >= wattr.screen->width) {
-        XGetWindowAttributes(dpy, XDefaultRootWindow(dpy), &rattr);
+    // Monitor at right
+    if (scnd_scr_width > scr_width && wattr.x >= scr_width) {
         left = scr_width;
-        scr_width = rattr.width - wattr.screen->width;
+        scr_width = rattr.width - scr_width;
         scr_height = rattr.height;
+    // Monitor below
+    } else if (scnd_scr_height > scr_height && wattr.y >= scnd_scr_height) {
+        top = scnd_scr_height;
+    // Monitor above
+    } else if (scnd_scr_height > scr_height && wattr.y < scnd_scr_height) {
+        scr_width = rattr.width;
+        scr_height = scnd_scr_height;
     }
 
     if (keycode == up_key && mods & ShiftMask) {
@@ -81,20 +92,20 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
         XMoveWindow(dpy, win, wattr.x - scr_width / 8, wattr.y);
     } else if (keycode == right_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x + scr_width / 8, wattr.y);
-    } else if (keycode == up_key && wattr.y == 0) {
-        XMoveResizeWindow(dpy, win, left, 0, scr_width, scr_height);
+    } else if (keycode == up_key && wattr.y == top) {
+        XMoveResizeWindow(dpy, win, left, top, scr_width, scr_height);
     } else if (keycode == up_key) {
-        XMoveWindow(dpy, win, wattr.x, 0);
+        XMoveWindow(dpy, win, wattr.x, top);
     } else if (keycode == down_key && wattr.width == scr_width && wattr.height == scr_height) {
-        XMoveResizeWindow(dpy, win, scr_width / 20 + left, scr_height / 20, scr_width * 0.9, scr_height * 0.9);
+        XMoveResizeWindow(dpy, win, scr_width / 20 + left, scr_height / 20 + top, scr_width * 0.9, scr_height * 0.9);
     } else if (keycode == down_key) {
-        XMoveWindow(dpy, win, wattr.x, scr_height - wattr.height);
+        XMoveWindow(dpy, win, wattr.x, scr_height - wattr.height + top);
     } else if (keycode == left_key && wattr.x == left) {
-        XMoveResizeWindow(dpy, win, left, 0, wattr.width, scr_height);
+        XMoveResizeWindow(dpy, win, left, top, wattr.width, scr_height);
     } else if (keycode == left_key) {
         XMoveWindow(dpy, win, left, wattr.y);
     } else if (keycode == right_key && wattr.x == scr_width - wattr.width + left) {
-        XMoveResizeWindow(dpy, win, wattr.x, 0, wattr.width, scr_height);
+        XMoveResizeWindow(dpy, win, wattr.x, top, wattr.width, scr_height);
     } else if (keycode == right_key) {
         XMoveWindow(dpy, win, scr_width - wattr.width + left, wattr.y);
     }
