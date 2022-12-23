@@ -1,2 +1,3 @@
-xrandr --output HDMI-1-1 --auto --right-of LVDS-1
+xrandr --output HDMI-1-1 --auto --above LVDS-1
 xsetroot -solid '#223'
+alias wintitle='while true; do echo -ne "\033[2K\r\033[7m $(date +%a\ %d\ %b\ %R) \033[0m\033[1m $(xdotool getwindowfocus getwindowname) \033[0m"; sleep 0.2; done'
