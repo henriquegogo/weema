@@ -86,10 +86,14 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
         XResizeWindow(dpy, win, MIN(wattr.width + scr_width / 4, scr_width), wattr.height);
     } else if (keycode == up_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x, wattr.y - scr_height / 8);
+    } else if (keycode == down_key && mods & Mod1Mask && wattr.width == scr_width && wattr.height == scr_height) {
+        XMoveWindow(dpy, win, wattr.x, wattr.height);
     } else if (keycode == down_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x, wattr.y + scr_height / 8);
     } else if (keycode == left_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x - scr_width / 8, wattr.y);
+    } else if (keycode == right_key && mods & Mod1Mask && wattr.width == scr_width && wattr.height == scr_height) {
+        XMoveWindow(dpy, win, wattr.width, wattr.y);
     } else if (keycode == right_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x + scr_width / 8, wattr.y);
     } else if (keycode == up_key && wattr.y == top) {
