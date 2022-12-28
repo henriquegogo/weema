@@ -165,6 +165,7 @@ void SetupGrab() {
             GrabKey(GetKeycode(CMD_KEYS[ikey][0]), CMD_KEYS[ikey][0][3] ? mods[i] : Mod4Mask|mods[i]);
         }
         GrabKey(tab_key   = GetKeycode("Tab"),    Mod1Mask|mods[i]);
+        GrabKey(tab_key   = GetKeycode("Tab"),    Mod4Mask|mods[i]);
         GrabKey(tab_key   = GetKeycode("Tab"),    ShiftMask|Mod1Mask|mods[i]);
         GrabKey(f4_key    = GetKeycode("F4"),     Mod1Mask|mods[i]);
         GrabKey(w_key     = GetKeycode("w"),      ControlMask|ShiftMask|mods[i]);
@@ -196,7 +197,7 @@ void InterceptEvents() {
         }
     }
     if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
-        XRaiseWindow(dpy, ev.xkey.state & ShiftMask ? Clients(999999999, False) : Clients(2, False));
+        XRaiseWindow(dpy, ev.xkey.state & (Mod4Mask|ShiftMask) ? Clients(999999999, False) : Clients(2, False));
     } else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(dpy);
     } else if (ev.type == KeyPress && (ev.xkey.keycode == f4_key || ev.xkey.keycode == w_key)) {
