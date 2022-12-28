@@ -25,7 +25,7 @@ Built-in binds:
   Alt+Button1: move window
   Alt+Button3: resize window
   Alt+Tab: alternate windows
-  Alt+Shift+Tab: circle windows
+  Alt+Shift+Tab or Super+Tab: circle windows
   Alt+F4: close window
   Ctrl+Shift+W: close window
   Ctrl+Alt+Delete: exit
