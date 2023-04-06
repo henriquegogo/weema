@@ -25,7 +25,6 @@ Window Clients(unsigned int iwin, Bool refresh) {
 
     for (int i = nwins - 1; i > 0; i--) {
         XGetWindowAttributes(dpy, wins[i], &wattr);
-        XSetWindowBorder(dpy, wins[i], BlackPixel(dpy, 0));
 
         if (refresh && wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable) {
             XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False), 33, 32,
@@ -229,8 +228,11 @@ void InterceptEvents() {
         XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False), 33, 32,
                 PropModeReplace, (unsigned char *) &(ev.xfocus.window), 1);
     } else if (ev.type == FocusOut && ev.xfocus.window != Clients(1, False)) {
+        XSetWindowBorder(dpy, ev.xfocus.window, BlackPixel(dpy, 0));
         XGrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
                 GrabModeSync, GrabModeSync, None, None);
+    } else if (ev.type == FocusOut) {
+        XSetWindowBorder(dpy, ev.xfocus.window, BlackPixel(dpy, 0));
     } else if (ev.type == ConfigureNotify) {
         XSetInputFocus(dpy, ev.xconfigure.window, RevertToPointerRoot, CurrentTime); 
     } else if (ev.xclient.message_type == XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False)) {
