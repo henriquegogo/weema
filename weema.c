@@ -1,4 +1,4 @@
-/* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2022.
+/* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2023.
  * MIT License */
 
 #include <X11/Xlib.h>
