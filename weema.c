@@ -25,6 +25,7 @@ Window Clients(unsigned int iwin, Bool refresh) {
 
     for (int i = nwins - 1; i > 0; i--) {
         XGetWindowAttributes(dpy, wins[i], &wattr);
+        XSetWindowBorder(dpy, wins[i], BlackPixel(dpy, 0));
 
         if (refresh && wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable) {
             XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False), 33, 32,
@@ -76,6 +77,9 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
         scr_height = scnd_scr_height;
     }
 
+    scr_width = scr_width - 2;   // Borders
+    scr_height = scr_height - 2; // Borders
+
     if (keycode == up_key && mods & ShiftMask) {
         XResizeWindow(dpy, win, wattr.width, MAX(wattr.height - scr_height / 4, scr_height / 4));
     } else if (keycode == down_key && mods & ShiftMask) {
@@ -87,13 +91,13 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
     } else if (keycode == up_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x, wattr.y - scr_height / 8);
     } else if (keycode == down_key && mods & Mod1Mask && wattr.width == scr_width && wattr.height == scr_height) {
-        XMoveWindow(dpy, win, wattr.x, wattr.height);
+        XMoveWindow(dpy, win, wattr.x, wattr.height + 2);
     } else if (keycode == down_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x, wattr.y + scr_height / 8);
     } else if (keycode == left_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x - scr_width / 8, wattr.y);
     } else if (keycode == right_key && mods & Mod1Mask && wattr.width == scr_width && wattr.height == scr_height) {
-        XMoveWindow(dpy, win, wattr.width, wattr.y);
+        XMoveWindow(dpy, win, wattr.width + 2, wattr.y);
     } else if (keycode == right_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x + scr_width / 8, wattr.y);
     } else if (keycode == up_key && wattr.y == top) {
@@ -219,6 +223,7 @@ void InterceptEvents() {
     } else if (ev.type == UnmapNotify) {
         XSetInputFocus(dpy, Clients(1, True), RevertToPointerRoot, CurrentTime);
     } else if (ev.type == FocusIn) {
+        XSetWindowBorder(dpy, ev.xfocus.window, WhitePixel(dpy, 0));
         XUngrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window);
         XAllowEvents(dpy, ReplayPointer, CurrentTime);
         XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False), 33, 32,
