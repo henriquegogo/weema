@@ -133,10 +133,10 @@ void HandleNewWindow(Window win) {
     }
 }
 
-void HandleClick(XButtonEvent ev) {
-    XGrabPointer(dpy, ev.subwindow, True, PointerMotionMask|ButtonReleaseMask,
+void HandleClick(XButtonEvent ev, Window win) {
+    XGrabPointer(dpy, win, True, PointerMotionMask|ButtonReleaseMask,
             GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-    XGetWindowAttributes(dpy, ev.subwindow, &click_attr);
+    XGetWindowAttributes(dpy, win, &click_attr);
     click_ev = ev;
 }
 
@@ -209,10 +209,11 @@ void InterceptEvents() {
         HandleWindowPosition(Clients(1, False), ev.xkey.keycode, ev.xkey.state);
     } else if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(dpy)) {
         XRaiseWindow(dpy, ev.xbutton.window);
+        if (ev.xbutton.x <= 5 || ev.xbutton.y <= 5) HandleClick(ev.xbutton, ev.xbutton.window);
     } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(dpy)
             && ev.xbutton.subwindow != None && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)) {
         XRaiseWindow(dpy, ev.xbutton.subwindow);
-        HandleClick(ev.xbutton);
+        HandleClick(ev.xbutton, ev.xbutton.subwindow);
     } else if (ev.type == ButtonRelease) {
         XUngrabPointer(dpy, CurrentTime);
     } else if (ev.type == MotionNotify) {
@@ -227,12 +228,12 @@ void InterceptEvents() {
         XAllowEvents(dpy, ReplayPointer, CurrentTime);
         XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False), 33, 32,
                 PropModeReplace, (unsigned char *) &(ev.xfocus.window), 1);
-    } else if (ev.type == FocusOut && ev.xfocus.window != Clients(1, False)) {
-        XSetWindowBorder(dpy, ev.xfocus.window, BlackPixel(dpy, 0));
-        XGrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
-                GrabModeSync, GrabModeSync, None, None);
     } else if (ev.type == FocusOut) {
         XSetWindowBorder(dpy, ev.xfocus.window, BlackPixel(dpy, 0));
+        if (ev.xfocus.window != Clients(1, False)) {
+            XGrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
+                    GrabModeSync, GrabModeSync, None, None);
+        }
     } else if (ev.type == ConfigureNotify) {
         XSetInputFocus(dpy, ev.xconfigure.window, RevertToPointerRoot, CurrentTime); 
     } else if (ev.xclient.message_type == XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False)) {
