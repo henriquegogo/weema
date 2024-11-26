@@ -1,4 +1,4 @@
-Weema by Henrique Gogó <henriquegogo@gmail.com>, 2023.
+Weema by Henrique Gogó <henriquegogo@gmail.com>, 2024.
 
 Window manager for minimalists
 
@@ -60,7 +60,6 @@ Tips:
   File ~/.weemarc will be executed every time the WM starts.
   Some key binds are customizable editing the config.h file.
   Custom less than 3 letters shortcuts will be binded 'Super-Shortcut'.
-  Current implementation supports a second monitor at right or above.
   This window manager partialy ICCM/EWMH compliant.
 
 License:
