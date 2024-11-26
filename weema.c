@@ -59,16 +59,10 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
     int left = 0;
     int scr_width = wattr.screen->width;
     int scr_height = wattr.screen->height;
-    int scnd_scr_width = rattr.width - scr_width;
     int scnd_scr_height = rattr.height - scr_height;
 
-    // Monitor at right
-    if (scnd_scr_width > scr_width && wattr.x >= scr_width) {
-        left = scr_width;
-        scr_width = rattr.width - scr_width;
-        scr_height = rattr.height;
     // Monitor below
-    } else if (scnd_scr_height > scr_height && wattr.y >= scnd_scr_height) {
+    if (scnd_scr_height > scr_height && wattr.y >= scnd_scr_height) {
         top = scnd_scr_height;
     // Monitor above
     } else if (scnd_scr_height > scr_height && wattr.y < scnd_scr_height) {
