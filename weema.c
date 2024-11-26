@@ -1,4 +1,4 @@
-/* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2023.
+/* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2024.
  * MIT License */
 
 #include <X11/Xlib.h>
@@ -59,15 +59,17 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
     int left = 0;
     int scr_width = wattr.screen->width;
     int scr_height = wattr.screen->height;
+    int scnd_scr_width = rattr.width - scr_width;
     int scnd_scr_height = rattr.height - scr_height;
 
-    // Monitor below
-    if (scnd_scr_height > scr_height && wattr.y >= scnd_scr_height) {
+    if (wattr.x < 0) {
+        left = scnd_scr_width * -1;
+    } else if (wattr.x >= scr_width) {
+        left = scnd_scr_width;
+    } else if (wattr.y < 0) {
+        top = scnd_scr_height * -1;
+    } else if (wattr.y >= scr_height) {
         top = scnd_scr_height;
-    // Monitor above
-    } else if (scnd_scr_height > scr_height && wattr.y < scnd_scr_height) {
-        scr_width = rattr.width;
-        scr_height = scnd_scr_height;
     }
 
     scr_width = scr_width - 2;   // Borders
