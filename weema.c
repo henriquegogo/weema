@@ -248,7 +248,10 @@ int main() {
     XSelectInput(dpy, XDefaultRootWindow(dpy), SubstructureNotifyMask);
     XDefineCursor(dpy, XDefaultRootWindow(dpy), XCreateFontCursor(dpy, 2));
     SetupGrab(); 
-    system("sh ~/.weemarc");
+
+    for (unsigned int i = 0; i < sizeof(STARTUP_CMDS) / sizeof(STARTUP_CMDS[0]); i++) {
+        system(STARTUP_CMDS[i]);
+    }
 
     for(;;) InterceptEvents();
 }
