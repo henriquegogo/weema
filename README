@@ -46,8 +46,8 @@ Configurable binds:
 Third party optional dependencies:
   
   We use third party applications to manage some functions.
-  You can configure this editing the config.h file.
-  Multiple monitors can be configured using xrandr in ~/.weemarc
+  Multiple monitors can be configured using xrandr at startup.
+  Shortcuts and startup commands can be customized in config.h
 
   - dmenu: applications launcher
   - slock: screen locker
@@ -57,10 +57,8 @@ Third party optional dependencies:
 
 Tips:
 
-  File ~/.weemarc will be executed every time the WM starts.
   Some key binds are customizable editing the config.h file.
   Custom less than 3 letters shortcuts will be binded 'Super-Shortcut'.
-  This window manager partialy ICCM/EWMH compliant.
 
 License:
 
