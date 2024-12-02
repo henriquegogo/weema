@@ -10,7 +10,7 @@
 
 Display *dpy = NULL;
 XButtonEvent click_ev;
-XWindowAttributes click_attr;
+XWindowAttributes last_attr;
 KeyCode up_key, down_key, left_key, right_key, w_key, f4_key, del_key, tab_key;
 
 Window Clients(unsigned int iwin, Bool refresh) {
@@ -96,11 +96,12 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
     } else if (keycode == right_key && mods & Mod1Mask) {
         XMoveWindow(dpy, win, wattr.x + scr_width / 12, wattr.y);
     } else if (keycode == up_key && wattr.y == top) {
+        last_attr = (XWindowAttributes){ .x = wattr.x, .y = wattr.y, .width = wattr.width, .height = wattr.height };
         XMoveResizeWindow(dpy, win, left, top, scr_width, scr_height);
     } else if (keycode == up_key) {
         XMoveWindow(dpy, win, wattr.x, top);
     } else if (keycode == down_key && wattr.width == scr_width && wattr.height == scr_height) {
-        XMoveResizeWindow(dpy, win, scr_width / 20 + left, scr_height / 20 + top, scr_width * 0.9, scr_height * 0.9);
+        XMoveResizeWindow(dpy, win, last_attr.x, last_attr.y, last_attr.width, last_attr.height);
     } else if (keycode == down_key) {
         XMoveWindow(dpy, win, wattr.x, scr_height - wattr.height + top);
     } else if (keycode == left_key && wattr.x == left) {
@@ -132,7 +133,7 @@ void HandleNewWindow(Window win) {
 void HandleClick(XButtonEvent ev, Window win) {
     XGrabPointer(dpy, win, True, PointerMotionMask|ButtonReleaseMask,
             GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-    XGetWindowAttributes(dpy, win, &click_attr);
+    XGetWindowAttributes(dpy, win, &last_attr);
     click_ev = ev;
 }
 
@@ -141,9 +142,9 @@ void HandleMotion(XEvent ev) {
     int ydiff = ev.xbutton.y_root - click_ev.y_root;
 
     if (click_ev.button == Button1) {
-        XMoveWindow(dpy, ev.xmotion.window, click_attr.x + xdiff, click_attr.y + ydiff);
+        XMoveWindow(dpy, ev.xmotion.window, last_attr.x + xdiff, last_attr.y + ydiff);
     } else if (click_ev.button == Button3) {
-        XResizeWindow(dpy, ev.xmotion.window, abs(click_attr.width + xdiff) + 1, abs(click_attr.height + ydiff) + 1);
+        XResizeWindow(dpy, ev.xmotion.window, abs(last_attr.width + xdiff) + 1, abs(last_attr.height + ydiff) + 1);
     }
 }
 
