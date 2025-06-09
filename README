@@ -1,4 +1,4 @@
-Weema by Henrique Gogó <henriquegogo@gmail.com>, 2024.
+Weema by Henrique Gogó <henriquegogo@gmail.com>, 2025.
 
 Window manager for minimalists
 
@@ -22,15 +22,14 @@ Usage:
 
 Built-in binds:
 
-  Alt+Button1: move window
-  Alt+Button3: resize window
+  Super+Button1: move window
+  Super+Button3: resize window
   Alt+Tab: alternate windows
   Alt+Shift+Tab or Super+Tab: circle windows
-  Alt+F4: close window
-  Ctrl+Shift+W: close window
+  Alt+F4 or Ctrl+Shift+W: close window
   Ctrl+Alt+Delete: exit
   Super+Shift+Arrows: resize window
-  Super+Alt+Arrows: move window
+  Super+Ctrl+Arrows: move window
   Super+Arrows: position window
 
 Configurable binds:
