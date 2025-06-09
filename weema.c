@@ -1,4 +1,4 @@
-/* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2024.
+/* Weema by Henrique Gogó <henriquegogo@gmail.com>, 2025.
  * MIT License */
 
 #include <X11/Xlib.h>
@@ -83,17 +83,17 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
         XResizeWindow(dpy, win, MAX(wattr.width - scr_width / 6, scr_width / 6), wattr.height);
     } else if (keycode == right_key && mods & ShiftMask) {
         XResizeWindow(dpy, win, MIN(wattr.width + scr_width / 6, scr_width), wattr.height);
-    } else if (keycode == up_key && mods & Mod1Mask) {
+    } else if (keycode == up_key && mods & ControlMask) {
         XMoveWindow(dpy, win, wattr.x, wattr.y - scr_height / 8);
-    } else if (keycode == down_key && mods & Mod1Mask && wattr.width == scr_width && wattr.height == scr_height) {
+    } else if (keycode == down_key && mods & ControlMask && wattr.width == scr_width && wattr.height == scr_height) {
         XMoveWindow(dpy, win, wattr.x, wattr.height + 2);
-    } else if (keycode == down_key && mods & Mod1Mask) {
+    } else if (keycode == down_key && mods & ControlMask) {
         XMoveWindow(dpy, win, wattr.x, wattr.y + scr_height / 8);
-    } else if (keycode == left_key && mods & Mod1Mask) {
+    } else if (keycode == left_key && mods & ControlMask) {
         XMoveWindow(dpy, win, wattr.x - scr_width / 12, wattr.y);
-    } else if (keycode == right_key && mods & Mod1Mask && wattr.width == scr_width && wattr.height == scr_height) {
+    } else if (keycode == right_key && mods & ControlMask && wattr.width == scr_width && wattr.height == scr_height) {
         XMoveWindow(dpy, win, wattr.width + 2, wattr.y);
-    } else if (keycode == right_key && mods & Mod1Mask) {
+    } else if (keycode == right_key && mods & ControlMask) {
         XMoveWindow(dpy, win, wattr.x + scr_width / 12, wattr.y);
     } else if (keycode == up_key && wattr.y == top) {
         last_attr = (XWindowAttributes){ .x = wattr.x, .y = wattr.y, .width = wattr.width, .height = wattr.height };
@@ -174,15 +174,15 @@ void SetupGrab() {
         GrabKey(down_key  = GetKeycode("Down"),   Mod4Mask|mods[i]);
         GrabKey(left_key  = GetKeycode("Left"),   Mod4Mask|mods[i]);
         GrabKey(right_key = GetKeycode("Right"),  Mod4Mask|mods[i]);
-        GrabKey(up_key    = GetKeycode("Up"),     ShiftMask|Mod4Mask|mods[i]);
-        GrabKey(down_key  = GetKeycode("Down"),   ShiftMask|Mod4Mask|mods[i]);
-        GrabKey(left_key  = GetKeycode("Left"),   ShiftMask|Mod4Mask|mods[i]);
-        GrabKey(right_key = GetKeycode("Right"),  ShiftMask|Mod4Mask|mods[i]);
-        GrabKey(up_key    = GetKeycode("Up"),     Mod1Mask|Mod4Mask|mods[i]);
-        GrabKey(down_key  = GetKeycode("Down"),   Mod1Mask|Mod4Mask|mods[i]);
-        GrabKey(left_key  = GetKeycode("Left"),   Mod1Mask|Mod4Mask|mods[i]);
-        GrabKey(right_key = GetKeycode("Right"),  Mod1Mask|Mod4Mask|mods[i]);
-        XGrabButton(dpy, AnyButton, Mod1Mask|mods[i], XDefaultRootWindow(dpy), True, ButtonPressMask,
+        GrabKey(up_key,     ShiftMask|Mod4Mask|mods[i]);
+        GrabKey(down_key,   ShiftMask|Mod4Mask|mods[i]);
+        GrabKey(left_key,   ShiftMask|Mod4Mask|mods[i]);
+        GrabKey(right_key,  ShiftMask|Mod4Mask|mods[i]);
+        GrabKey(up_key,     ControlMask|Mod4Mask|mods[i]);
+        GrabKey(down_key,   ControlMask|Mod4Mask|mods[i]);
+        GrabKey(left_key,   ControlMask|Mod4Mask|mods[i]);
+        GrabKey(right_key,  ControlMask|Mod4Mask|mods[i]);
+        XGrabButton(dpy, AnyButton, Mod4Mask|mods[i], XDefaultRootWindow(dpy), True, ButtonPressMask,
                 GrabModeAsync, GrabModeAsync, None, None);
     }
 }
