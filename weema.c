@@ -206,7 +206,6 @@ void InterceptEvents() {
         HandleWindowPosition(Clients(1, False), ev.xkey.keycode, ev.xkey.state);
     } else if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(dpy)) {
         XRaiseWindow(dpy, ev.xbutton.window);
-        if (ev.xbutton.x <= 5 || ev.xbutton.y <= 5) HandleClick(ev.xbutton, ev.xbutton.window);
     } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(dpy)
             && ev.xbutton.subwindow != None && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)) {
         XRaiseWindow(dpy, ev.xbutton.subwindow);
