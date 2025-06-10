@@ -111,7 +111,7 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
     } else if (keycode == left_key) {
         XMoveWindow(dpy, win, left, wattr.y);
     } else if (keycode == right_key && wattr.width == scr_width && wattr.height == scr_height) {
-        XMoveResizeWindow(dpy, win, scr_width - wattr.width + left, top, scr_width / 2, scr_height);
+        XMoveResizeWindow(dpy, win, left + scr_width / 2, top, scr_width / 2, scr_height);
     } else if (keycode == right_key && wattr.x == scr_width - wattr.width + left) {
         XMoveResizeWindow(dpy, win, wattr.x, top, wattr.width, scr_height);
     } else if (keycode == right_key) {
