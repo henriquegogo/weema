@@ -19,9 +19,7 @@ Window Clients(unsigned int iwin, Bool refresh) {
     Window win, *wins;
     XQueryTree(dpy, XDefaultRootWindow(dpy), &win, &win, &wins, &nwins);
 
-    if (refresh) {
-        XDeleteProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False));
-    }
+    if (refresh) XDeleteProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False));
 
     for (int i = nwins - 1; i > 0; i--) {
         XGetWindowAttributes(dpy, wins[i], &wattr);
@@ -55,22 +53,16 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
     XWindowAttributes wattr, rattr;
     XGetWindowAttributes(dpy, win, &wattr);
     XGetWindowAttributes(dpy, XDefaultRootWindow(dpy), &rattr);
-    int top = 0;
-    int left = 0;
+    int top = 0, left = 0;
     int scr_width = wattr.screen->width;
     int scr_height = wattr.screen->height;
     int scnd_scr_width = rattr.width - scr_width;
     int scnd_scr_height = rattr.height - scr_height;
 
-    if (wattr.x < 0) {
-        left = scnd_scr_width * -1;
-    } else if (wattr.x >= scr_width) {
-        left = scnd_scr_width;
-    } else if (wattr.y < 0) {
-        top = scnd_scr_height * -1;
-    } else if (wattr.y >= scr_height) {
-        top = scnd_scr_height;
-    }
+    if (wattr.x < 0) left = scnd_scr_width * -1;
+    else if (wattr.x >= scr_width) left = scnd_scr_width;
+    else if (wattr.y < 0) top = scnd_scr_height * -1;
+    else if (wattr.y >= scr_height) top = scnd_scr_height;
 
     scr_width = scr_width - 2;   // Borders
     scr_height = scr_height - 2; // Borders
@@ -196,9 +188,7 @@ void InterceptEvents() {
     XNextEvent(dpy, &ev);
 
     for (unsigned int i = 0; i < sizeof(CMD_KEYS) / sizeof(CMD_KEYS[0]); i++) {
-        if (ev.type == KeyPress && ev.xkey.keycode == GetKeycode(CMD_KEYS[i][0])) {
-            system(CMD_KEYS[i][1]);
-        }
+        if (ev.type == KeyPress && ev.xkey.keycode == GetKeycode(CMD_KEYS[i][0])) system(CMD_KEYS[i][1]);
     }
     if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
         XRaiseWindow(dpy, ev.xkey.state & (Mod4Mask|ShiftMask) ? Clients(999999999, False) : Clients(2, False));
@@ -255,9 +245,7 @@ int main() {
     XDefineCursor(dpy, XDefaultRootWindow(dpy), XCreateFontCursor(dpy, 2));
     SetupGrab(); 
 
-    for (unsigned int i = 0; i < sizeof(STARTUP_CMDS) / sizeof(STARTUP_CMDS[0]); i++) {
-        system(STARTUP_CMDS[i]);
-    }
+    for (unsigned int i = 0; i < sizeof(STARTUP_CMDS) / sizeof(STARTUP_CMDS[0]); i++) system(STARTUP_CMDS[i]);
 
     for(;;) InterceptEvents();
 }
