@@ -208,6 +208,8 @@ void InterceptEvents() {
         SendEvent(Clients(1, False), "WM_DELETE_WINDOW");
     } else if (ev.type == KeyPress) {
         HandleWindowPosition(Clients(1, False), ev.xkey.keycode, ev.xkey.state);
+    } else if (ev.type == ButtonPress && (ev.xbutton.button == Button4 || ev.xbutton.button == Button5)) {
+        XRaiseWindow(dpy, ev.xbutton.button == Button5 ? Clients(999999999, False) : Clients(2, False));
     } else if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(dpy)) {
         XRaiseWindow(dpy, ev.xbutton.window);
     } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(dpy)
