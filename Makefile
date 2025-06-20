@@ -5,7 +5,7 @@ DEPENDENCIES?=dmenu slock scrot alsa-utils x11-xserver-utils xdotool
 HIDEERRORS?=2> /dev/null || true
 
 all:
-	cp -n config.def.h config.h
+	cp --update=none config.def.h config.h
 	$(CC) $(CFLAGS) weema.c -lX11 -o weema
 
 install:
