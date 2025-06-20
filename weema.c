@@ -127,6 +127,7 @@ void HandleNewWindow(Window win) {
 }
 
 void HandleClick(XButtonEvent ev, Window win) {
+    XRaiseWindow(dpy, win);
     XGrabPointer(dpy, win, True, PointerMotionMask|ButtonReleaseMask,
             GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
     XGetWindowAttributes(dpy, win, &last_attr);
@@ -198,13 +199,10 @@ void InterceptEvents() {
         SendEvent(Clients(1, False), "WM_DELETE_WINDOW");
     } else if (ev.type == KeyPress) {
         HandleWindowPosition(Clients(1, False), ev.xkey.keycode, ev.xkey.state);
-    } else if (ev.type == ButtonPress && (ev.xbutton.button == Button4 || ev.xbutton.button == Button5)) {
-        XRaiseWindow(dpy, ev.xbutton.button == Button5 ? Clients(999999999, False) : Clients(2, False));
     } else if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(dpy)) {
         XRaiseWindow(dpy, ev.xbutton.window);
     } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(dpy)
             && ev.xbutton.subwindow != None && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)) {
-        XRaiseWindow(dpy, ev.xbutton.subwindow);
         HandleClick(ev.xbutton, ev.xbutton.subwindow);
     } else if (ev.type == ButtonRelease) {
         XUngrabPointer(dpy, CurrentTime);
