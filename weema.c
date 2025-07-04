@@ -7,11 +7,13 @@
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define NUMCODE(x) (x + 9)
 
 Display *dpy = NULL;
 XButtonEvent click_ev;
 XWindowAttributes last_attr;
 KeyCode up_key, down_key, left_key, right_key, w_key, f4_key, del_key, tab_key;
+Window owins[9];
 
 Window Clients(unsigned int iwin, Bool refresh) {
     unsigned int nwins, count = 1;
@@ -123,6 +125,13 @@ void HandleNewWindow(Window win) {
         XSetWindowBorder(dpy, win, 0);
         XRaiseWindow(dpy, win);
         XMoveWindow(dpy, Clients(1, True), wattr.x, 0);
+        
+        for (int i = 0; i < 9; i++) {
+            if (!owins[i]) {
+                owins[i] = win;
+                break;
+            }
+        }
     }
 }
 
@@ -158,8 +167,10 @@ void SetupGrab() {
         Mod2Mask|Mod3Mask, Mod2Mask|LockMask, Mod3Mask|LockMask, Mod2Mask|Mod3Mask|LockMask };
 
     for (int i = 0; i < 8; i++) {
+        for (unsigned int ikey = 1; ikey <= 9; ikey++) GrabKey(NUMCODE(ikey), Mod4Mask|mods[i]);
         for (unsigned int ikey = 0; ikey < sizeof(CMD_KEYS) / sizeof(CMD_KEYS[0]); ikey++) {
-            GrabKey(GetKeycode(CMD_KEYS[ikey][0]), CMD_KEYS[ikey][0][3] ? mods[i] : Mod4Mask|mods[i]);
+            GrabKey(GetKeycode(CMD_KEYS[ikey][0]), (CMD_KEYS[ikey][0][0] >= 'A' && CMD_KEYS[ikey][0][0] <= 'Z') ?
+                    mods[i] : Mod4Mask|mods[i]);
         }
         GrabKey(tab_key   = GetKeycode("Tab"),    Mod1Mask|mods[i]);
         GrabKey(tab_key   = GetKeycode("Tab"),    Mod4Mask|mods[i]);
@@ -191,7 +202,9 @@ void InterceptEvents() {
     for (unsigned int i = 0; i < sizeof(CMD_KEYS) / sizeof(CMD_KEYS[0]); i++) {
         if (ev.type == KeyPress && ev.xkey.keycode == GetKeycode(CMD_KEYS[i][0])) system(CMD_KEYS[i][1]);
     }
-    if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
+    if (ev.type == KeyPress && ev.xkey.keycode >= NUMCODE(1) && ev.xkey.keycode <= NUMCODE(9)) {
+        XRaiseWindow(dpy, owins[ev.xkey.keycode - 10] ? owins[ev.xkey.keycode - 10] : Clients(1, False));
+    } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key) {
         XRaiseWindow(dpy, ev.xkey.state & (Mod4Mask|ShiftMask) ? Clients(999999999, False) : Clients(2, False));
     } else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(dpy);
@@ -212,6 +225,7 @@ void InterceptEvents() {
         HandleNewWindow(ev.xmap.window);
     } else if (ev.type == UnmapNotify) {
         XSetInputFocus(dpy, Clients(1, True), RevertToPointerRoot, CurrentTime);
+        for (int i = 0; i < 9; i++) if (owins[i] == ev.xunmap.window) owins[i] = None;
     } else if (ev.type == FocusIn) {
         XSetWindowBorder(dpy, ev.xfocus.window, WhitePixel(dpy, 0));
         XUngrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window);
