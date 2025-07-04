@@ -24,6 +24,7 @@ Built-in binds:
 
   Super+Button1: move window
   Super+Button3: resize window
+  Super+1-9: alternate windows by number
   Alt+Tab: alternate windows
   Alt+Shift+Tab or Super+Tab: circle windows
   Alt+F4 or Ctrl+Shift+W: close window
@@ -57,7 +58,7 @@ Third party optional dependencies:
 Tips:
 
   Some key binds are customizable editing the config.h file.
-  Custom less than 3 letters shortcuts will be binded 'Super-Shortcut'.
+  Lower case letters will be binded as 'Super-Shortcut'.
 
 License:
 

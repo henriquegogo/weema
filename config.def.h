@@ -2,6 +2,8 @@
 const char CMD_KEYS[][24][128] = {
   {"XF86AudioRaiseVolume", "amixer set Master 5%+"},
   {"XF86AudioLowerVolume", "amixer set Master 5%-"},
+  {"equal", "amixer set Master 5%+"},
+  {"minus", "amixer set Master 5%-"},
   {"Print", "scrot -s -e 'xclip -selection clipboard -t image/png -i $f'"},
   {"a", "dmenu_run"},
   {"t", "x-terminal-emulator &"},
