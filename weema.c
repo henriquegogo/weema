@@ -173,7 +173,7 @@ void SetupGrab() {
         GrabKey(del_key   = GetKeycode("Delete"), ControlMask|Mod1Mask|mods[i]);
         GrabKey(tab_key   = GetKeycode("Tab"),    Mod1Mask|mods[i]);
         GrabKey(tab_key,    Mod4Mask|mods[i]);
-        GrabKey(tab_key,    ShiftMask|Mod1Mask|mods[i]);
+        GrabKey(tab_key,    ShiftMask|Mod4Mask|mods[i]);
         GrabKey(down_key,   ShiftMask|Mod4Mask|mods[i]);
         GrabKey(left_key,   ShiftMask|Mod4Mask|mods[i]);
         GrabKey(right_key,  ShiftMask|Mod4Mask|mods[i]);
@@ -196,12 +196,12 @@ void InterceptEvents() {
     if (ev.type == KeyPress && ev.xkey.keycode >= NUMCODE(1) && ev.xkey.keycode <= NUMCODE(9)) {
         XRaiseWindow(dpy, owins[ev.xkey.keycode - 10] ? owins[ev.xkey.keycode - 10] : Clients(1, False));
     } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & Mod1Mask) {
+        XRaiseWindow(dpy, Clients(2, False));
+    } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & Mod4Mask) {
         int i = 0;
         for (; i < 512; i++) if (owins[i] == Clients(1, False)) break;
         if (ev.xkey.state & ShiftMask) XRaiseWindow(dpy, --i < 0 ? Clients(999999999, False) : owins[i]);
         else XRaiseWindow(dpy, owins[++i] ? owins[i] : owins[0]);
-    } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & Mod4Mask) {
-        XRaiseWindow(dpy, Clients(2, False));
     } else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
         XCloseDisplay(dpy);
     } else if (ev.type == KeyPress && (ev.xkey.keycode == f4_key || ev.xkey.keycode == w_key)) {
