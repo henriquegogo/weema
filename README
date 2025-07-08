@@ -24,7 +24,7 @@ Built-in binds:
 
   Super+Button1: move window
   Super+Button3: resize window
-  Super+1-9: alternate windows by number
+  Super+1-9: switch window by number
   Alt+Tab: alternate windows
   Alt+Shift+Tab or Super+Tab: circle windows
   Alt+F4 or Ctrl+Shift+W: close window
@@ -33,7 +33,7 @@ Built-in binds:
   Super+Ctrl+Arrows: move window
   Super+Arrows: position window
 
-Configurable binds:
+Configurable binds (edit config.h):
 
   Volume up: increase volume
   Volume down: decrease volume

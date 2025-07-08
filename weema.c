@@ -13,7 +13,7 @@ Display *dpy = NULL;
 XButtonEvent click_ev;
 XWindowAttributes last_attr;
 KeyCode up_key, down_key, left_key, right_key, w_key, f4_key, del_key, tab_key;
-Window owins[9];
+Window owins[512];
 
 Window Clients(unsigned int iwin, Bool refresh) {
     unsigned int nwins, count = 1;
@@ -126,21 +126,13 @@ void HandleNewWindow(Window win) {
         XRaiseWindow(dpy, win);
         XMoveWindow(dpy, Clients(1, True), wattr.x, 0);
         
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 512; i++) {
             if (!owins[i]) {
                 owins[i] = win;
                 break;
             }
         }
     }
-}
-
-void HandleClick(XButtonEvent ev, Window win) {
-    XRaiseWindow(dpy, win);
-    XGrabPointer(dpy, win, True, PointerMotionMask|ButtonReleaseMask,
-            GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-    XGetWindowAttributes(dpy, win, &last_attr);
-    click_ev = ev;
 }
 
 void HandleMotion(XEvent ev) {
@@ -216,7 +208,11 @@ void InterceptEvents() {
         XRaiseWindow(dpy, ev.xbutton.window);
     } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(dpy)
             && ev.xbutton.subwindow != None && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)) {
-        HandleClick(ev.xbutton, ev.xbutton.subwindow);
+        XRaiseWindow(dpy, ev.xbutton.subwindow);
+        XGrabPointer(dpy, ev.xbutton.subwindow, True, PointerMotionMask|ButtonReleaseMask,
+                GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+        XGetWindowAttributes(dpy, ev.xbutton.subwindow, &last_attr);
+        click_ev = ev.xbutton;
     } else if (ev.type == ButtonRelease) {
         XUngrabPointer(dpy, CurrentTime);
     } else if (ev.type == MotionNotify) {
@@ -225,7 +221,7 @@ void InterceptEvents() {
         HandleNewWindow(ev.xmap.window);
     } else if (ev.type == UnmapNotify) {
         XSetInputFocus(dpy, Clients(1, True), RevertToPointerRoot, CurrentTime);
-        for (int i = 0; i < 9; i++) if (owins[i] == ev.xunmap.window) owins[i] = None;
+        for (int i = 0, j = i; i < 512; i++, j++) owins[i] = owins[i] == ev.xunmap.window ? owins[++j] : owins[j];
     } else if (ev.type == FocusIn) {
         XSetWindowBorder(dpy, ev.xfocus.window, WhitePixel(dpy, 0));
         XUngrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window);
