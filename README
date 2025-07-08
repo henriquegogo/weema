@@ -24,10 +24,11 @@ Built-in binds:
 
   Super+Button1: move window
   Super+Button3: resize window
-  Super+1-9: switch window by number
-  Alt+Tab: alternate windows
-  Alt+Shift+Tab or Super+Tab: circle windows
-  Alt+F4 or Ctrl+Shift+W: close window
+  Super+1-9: window by number
+  Alt+Tab: next opened window
+  Alt+Shift+Tab: previous opened window
+  Super+Tab: alternate last focused window
+  Alt+F4 or Ctrl+Shift+W : close window
   Ctrl+Alt+Delete: exit
   Super+Shift+Arrows: resize window
   Super+Ctrl+Arrows: move window
