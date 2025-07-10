@@ -174,6 +174,7 @@ void SetupGrab() {
         GrabKey(tab_key   = GetKeycode("Tab"),    Mod1Mask|mods[i]);
         GrabKey(tab_key,    Mod4Mask|mods[i]);
         GrabKey(tab_key,    ShiftMask|Mod4Mask|mods[i]);
+        GrabKey(up_key,     ShiftMask|Mod4Mask|mods[i]);
         GrabKey(down_key,   ShiftMask|Mod4Mask|mods[i]);
         GrabKey(left_key,   ShiftMask|Mod4Mask|mods[i]);
         GrabKey(right_key,  ShiftMask|Mod4Mask|mods[i]);
