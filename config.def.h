@@ -5,9 +5,9 @@ const char CMD_KEYS[][24][128] = {
   {"equal", "amixer set Master 5%+"},
   {"minus", "amixer set Master 5%-"},
   {"Print", "scrot -s -e 'xclip -selection clipboard -t image/png -i $f'"},
-  {"a", "dmenu_run"},
   {"t", "x-terminal-emulator &"},
-  {"b", "x-www-browser &"},
+  {"r", "dmenu_run -l 5"},
+  {"a", "rofi -show drun -theme $HOME/.config/rofi/launchers/type-3/style-10.rasi"},
   {"l", "slock"}
 };
 
@@ -15,6 +15,6 @@ const char STARTUP_CMDS[][128] = {
   /*
   "xsetroot -solid '#223'",
   "xrandr --output HDMI-1-0 --auto --left-of eDP-1",
-  "xcompmgr &"
+  "feh --bg-scale ~/Pictures/wallpaper.jpg"
   */
 };
