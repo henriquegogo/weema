@@ -36,12 +36,12 @@ Built-in binds:
 
 Configurable binds (edit config.h):
 
-  Volume up: increase volume
-  Volume down: decrease volume
+  Volume up / Super+=: increase volume
+  Volume down / Super+-: decrease volume
   PrntScr: print screen
-  Super+R: open application launcher
   Super+T: open terminal
-  Super+B: open browser
+  Super+R: execute a command
+  Super+A: open application launcher
   Super+L: lock screen
 
 Third party optional dependencies:
@@ -50,7 +50,7 @@ Third party optional dependencies:
   Multiple monitors can be configured using xrandr at startup.
   Shortcuts and startup commands can be customized in config.h
 
-  - dmenu: applications launcher
+  - dmenu and rofi: applications launcher
   - slock: screen locker
   - alsa-utils: volume control
   - scrot: print screen
