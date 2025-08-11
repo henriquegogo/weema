@@ -70,7 +70,7 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
 
     if (keycode == enter_key && wattr.x != left - MARGIN && wattr.y != top - MARGIN) {
         last_attr = (XWindowAttributes){ .x = wattr.x, .y = wattr.y, .width = wattr.width, .height = wattr.height };
-        XMoveResizeWindow(dpy, win, left - MARGIN, 0, wattr.screen->width, wattr.screen->height);
+        XMoveResizeWindow(dpy, win, left - MARGIN, 0, wattr.screen->width - borders, wattr.screen->height - borders);
     } else if (keycode == up_key && mods & ShiftMask) {
         XResizeWindow(dpy, win, wattr.width, MAX(wattr.height - scr_height / 4, scr_height / 4) - MARGIN / 3);
     } else if (keycode == down_key && mods & ShiftMask) {
