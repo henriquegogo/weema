@@ -14,6 +14,7 @@ XButtonEvent click_ev;
 XWindowAttributes last_attr;
 KeyCode enter_key, up_key, down_key, left_key, right_key, w_key, f4_key, del_key, tab_key;
 Window owins[512];
+int panelheight = 0;
 
 Window Clients(unsigned int iwin, Bool refresh) {
     unsigned int nwins, count = 1;
@@ -26,13 +27,10 @@ Window Clients(unsigned int iwin, Bool refresh) {
     for (int i = nwins - 1; i > 0; i--) {
         XGetWindowAttributes(dpy, wins[i], &wattr);
 
-        if (refresh && wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable) {
-            XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False), 33, 32,
-                    PropModeAppend, (unsigned char *) &(wins[i]), 1);
-        }
-
-        if (wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable && iwin >= count++) {
-            win = wins[i];
+        if (wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable && wattr.height > 100) {
+            if (iwin >= count++) win = wins[i];
+            if (refresh) XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False),
+                    33, 32, PropModeAppend, (unsigned char *) &(wins[i]), 1);
         }
     }
 
@@ -55,23 +53,24 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
     XWindowAttributes wattr, rattr;
     XGetWindowAttributes(dpy, win, &wattr);
     XGetWindowAttributes(dpy, XDefaultRootWindow(dpy), &rattr);
+    int borders = 2;
     int top = 0 + MARGIN, left = 0 + MARGIN;
-    int scr_width = wattr.screen->width - MARGIN * 2;
-    int scr_height = wattr.screen->height- MARGIN * 2;
+    int scr_width = wattr.screen->width - borders - MARGIN * 2;
+    int scr_height = wattr.screen->height - borders - MARGIN * 2;
     int scnd_scr_width = rattr.width - scr_width - MARGIN * 2;
     int scnd_scr_height = rattr.height - scr_height - MARGIN * 2;
 
-    if (wattr.x < 0) left = scnd_scr_width * -1 + MARGIN;
+    if (wattr.x >= 0 && wattr.x < scr_width && wattr.y >= 0 && wattr.y < scr_height) {
+       top = top + panelheight;
+       scr_height = scr_height - panelheight;
+    } else if (wattr.x < 0) left = scnd_scr_width * -1 + MARGIN;
     else if (wattr.x >= scr_width) left = scnd_scr_width + MARGIN;
     else if (wattr.y < 0) top = scnd_scr_height * -1 + MARGIN;
     else if (wattr.y >= scr_height) top = scnd_scr_height + MARGIN;
 
-    scr_width = scr_width - 2;   // Borders
-    scr_height = scr_height - 2; // Borders
-
     if (keycode == enter_key && wattr.x != left - MARGIN && wattr.y != top - MARGIN) {
         last_attr = (XWindowAttributes){ .x = wattr.x, .y = wattr.y, .width = wattr.width, .height = wattr.height };
-        XMoveResizeWindow(dpy, win, left - MARGIN, top - MARGIN, scr_width + MARGIN * 2, scr_height + MARGIN * 2);
+        XMoveResizeWindow(dpy, win, left - MARGIN, 0, wattr.screen->width, wattr.screen->height);
     } else if (keycode == up_key && mods & ShiftMask) {
         XResizeWindow(dpy, win, wattr.width, MAX(wattr.height - scr_height / 4, scr_height / 4) - MARGIN / 3);
     } else if (keycode == down_key && mods & ShiftMask) {
@@ -122,12 +121,15 @@ void HandleNewWindow(Window win) {
     XWindowAttributes wattr;
     XGetWindowAttributes(dpy, win, &wattr);
 
-    if (win != None && !wattr.override_redirect && wattr.map_state == IsViewable) {
+    if (win != None && !wattr.override_redirect && wattr.map_state == IsViewable && wattr.height < 100) {
+        panelheight = wattr.height;
+        XMoveWindow(dpy, win, 0, 0);
+    } else if (win != None && !wattr.override_redirect && wattr.map_state == IsViewable) {
         XSelectInput(dpy, win, FocusChangeMask);
         XSetWindowBorderWidth(dpy, win, 1);
         XSetWindowBorder(dpy, win, 0);
         XRaiseWindow(dpy, win);
-        XMoveWindow(dpy, Clients(1, True), wattr.x + MARGIN, 0 + MARGIN);
+        XMoveWindow(dpy, Clients(1, True), wattr.x + MARGIN, panelheight + MARGIN);
         
         for (int i = 0; i < 512; i++) {
             if (!owins[i]) {
