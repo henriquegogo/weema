@@ -33,6 +33,7 @@ Built-in binds:
   Super+Shift+Arrows: resize window
   Super+Ctrl+Arrows: move window
   Super+Arrows: position window
+  Super+Enter: toggle margins
 
 Configurable binds (edit config.h):
 
@@ -52,9 +53,10 @@ Third party optional dependencies:
 
   - dmenu and rofi: applications launcher
   - slock: screen locker
-  - alsa-utils: volume control
   - scrot: print screen
+  - xcompmgr: window compositing
   - xrandr: manage multiple monitors
+  - alsa-utils: volume control
 
 Tips:
 
