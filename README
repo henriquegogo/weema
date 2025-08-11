@@ -33,7 +33,7 @@ Built-in binds:
   Super+Shift+Arrows: resize window
   Super+Ctrl+Arrows: move window
   Super+Arrows: position window
-  Super+Enter: toggle margins
+  Super+Enter: fullscreen window
 
 Configurable binds (edit config.h):
 
