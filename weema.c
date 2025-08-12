@@ -27,7 +27,7 @@ Window Clients(unsigned int iwin, Bool refresh) {
     for (int i = nwins - 1; i > 0; i--) {
         XGetWindowAttributes(dpy, wins[i], &wattr);
 
-        if (wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable && wattr.height > 100) {
+        if (wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable && wattr.height > 90) {
             if (iwin >= count++) win = wins[i];
             if (refresh) XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False),
                     33, 32, PropModeAppend, (unsigned char *) &(wins[i]), 1);
@@ -121,7 +121,7 @@ void HandleNewWindow(Window win) {
     XWindowAttributes wattr;
     XGetWindowAttributes(dpy, win, &wattr);
 
-    if (win != None && !wattr.override_redirect && wattr.map_state == IsViewable && wattr.height < 100) {
+    if (win != None && !wattr.override_redirect && wattr.map_state == IsViewable && wattr.height <= 90) {
         panelheight = wattr.height;
         XMoveWindow(dpy, win, 0, 0);
     } else if (win != None && !wattr.override_redirect && wattr.map_state == IsViewable) {

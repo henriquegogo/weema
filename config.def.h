@@ -16,7 +16,7 @@ const char STARTUP_CMDS[][128] = {
   "xsetroot -solid '#223'",
   "xrandr --output HDMI-1-0 --auto --left-of eDP-1",
   "feh --bg-scale ~/Pictures/wallpaper.jpg",
-  "xcompmgr -cf &",
+  "xcompmgr -f &",
   "polybar &",
   */
 };
