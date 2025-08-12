@@ -130,6 +130,8 @@ void HandleNewWindow(Window win) {
         XSetWindowBorder(dpy, win, 0);
         XRaiseWindow(dpy, win);
         XMoveWindow(dpy, Clients(1, True), wattr.x + MARGIN, panelheight + MARGIN);
+        XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False), 33, 32,
+                PropModeReplace, (unsigned char *) &(win), 1);
         
         for (int i = 0; i < 512; i++) {
             if (!owins[i]) {
@@ -262,6 +264,10 @@ int main() {
     XSelectInput(dpy, XDefaultRootWindow(dpy), SubstructureNotifyMask);
     XDefineCursor(dpy, XDefaultRootWindow(dpy), XCreateFontCursor(dpy, 2));
     SetupGrab(); 
+
+    Atom active_window = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
+    XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_SUPPORTED", False), 4, 32,
+            PropModeReplace, (unsigned char*)&active_window, 1);
 
     for (unsigned int i = 0; i < sizeof(STARTUP_CMDS) / sizeof(STARTUP_CMDS[0]); i++) system(STARTUP_CMDS[i]);
 
