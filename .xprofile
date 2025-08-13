@@ -12,7 +12,7 @@ export GTK_THEME=Yaru-purple-dark
 (
   # Wait until WM is loaded
   while ! xprop -root _NET_SUPPORTED >/dev/null 2>&1; do sleep 0.3; done
-  sleep 0.1 # Wait some more time to garantee that WM is loaded
+  sleep 0.3 # Wait some more time to garantee that WM is loaded
 
 #  xrandr --output HDMI-1-0 --auto --left-of eDP-1
 #  feh --bg-scale ~/Pictures/wallpaper.jpg
