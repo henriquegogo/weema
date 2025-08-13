@@ -26,6 +26,7 @@ Window Clients(unsigned int iwin) {
         XGetWindowAttributes(dpy, wins[i], &wattr);
         int valid_window = wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable;
         if (valid_window && wattr.height > 60 && iwin >= count++) win = wins[i];
+        else if (valid_window && wattr.height <= 60) panelheight = wattr.height;
     }
 
     XFree(wins);
@@ -121,7 +122,6 @@ void HandleNewWindow(Window win) {
     int valid_window = win != None && !wattr.override_redirect && wattr.map_state == IsViewable;
 
     if (valid_window && wattr.height <= 60) {
-        panelheight = wattr.height;
         XMoveWindow(dpy, win, 0, 0);
     } else if (valid_window) {
         for (int i = 0; i < 512; i++) if (!owins[i] && (owins[i] = win)) break;
@@ -266,8 +266,6 @@ int main() {
         XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False),
     };
     XChangeProperty(dpy, root, supported, 4, 32, PropModeReplace, (unsigned char*)atoms, sizeof(atoms) / sizeof(Atom));
-
-    for (unsigned int i = 0; i < sizeof(STARTUP_CMDS) / sizeof(STARTUP_CMDS[0]); i++) system(STARTUP_CMDS[i]);
 
     for(;;) InterceptEvents();
 }

@@ -1,0 +1,18 @@
+# export GTK_THEME=Yaru-purple-dark
+
+# xinput set-prop 10 "libinput Tapping Enabled" 1
+# xinput set-prop 10 "libinput Natural Scrolling Enabled" 1
+# xinput set-prop 10 "libinput Scroll Method Enabled"	1, 0, 0
+# xinput set-prop 10 "libinput Click Method Enabled"	1, 0
+# xinput set-prop 10 "libinput Accel Speed" 0.75
+
+(
+  # Wait until WM is loaded
+  while ! xprop -root _NET_SUPPORTED >/dev/null 2>&1; do sleep 0.3; done
+
+  xsetroot -solid '#223'
+#  xrandr --output HDMI-1-0 --auto --left-of eDP-1
+#  feh --bg-scale ~/Pictures/wallpaper.jpg
+#  xcompmgr -f &
+#  polybar &
+) &
