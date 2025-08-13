@@ -16,22 +16,16 @@ KeyCode enter_key, up_key, down_key, left_key, right_key, w_key, f4_key, del_key
 Window owins[512];
 int panelheight = 0;
 
-Window Clients(unsigned int iwin, Bool refresh) {
+Window Clients(unsigned int iwin) {
     unsigned int nwins, count = 1;
     XWindowAttributes wattr;
     Window win, *wins, root = XDefaultRootWindow(dpy);
-    Atom clients = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
     XQueryTree(dpy, root, &win, &win, &wins, &nwins);
-
-    if (refresh) XDeleteProperty(dpy, root, clients);
 
     for (int i = nwins - 1; i > 0; i--) {
         XGetWindowAttributes(dpy, wins[i], &wattr);
-
-        if (wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable && wattr.height > 90) {
-            if (iwin >= count++) win = wins[i];
-            if (refresh) XChangeProperty(dpy, root, clients, 33, 32, PropModeAppend, (unsigned char *) &(wins[i]), 1);
-        }
+        int valid_window = wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable;
+        if (valid_window && wattr.height > 90 && iwin >= count++) win = wins[i];
     }
 
     XFree(wins);
@@ -110,7 +104,7 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
         XMoveResizeWindow(dpy, win, left, top, scr_width / 2 - MARGIN / 2, scr_height);
     } else if (keycode == left_key) {
         XMoveWindow(dpy, win, left, wattr.y);
-    } else if ((keycode == right_key && (wattr.x == scr_width - wattr.width + left)) || is_maximized) {
+    } else if (keycode == right_key && ((wattr.x == scr_width - wattr.width + left) || is_maximized)) {
         last_attr = (XWindowAttributes){ .x = wattr.x, .y = wattr.y, .width = wattr.width, .height = wattr.height };
         XMoveResizeWindow(dpy, win, left + scr_width / 2 + MARGIN / 2, top, scr_width / 2 - MARGIN / 2, scr_height);
     } else if (keycode == right_key) {
@@ -121,6 +115,7 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
 void HandleNewWindow(Window win) {
     Window root = XDefaultRootWindow(dpy);
     Atom active_window = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
+    Atom client_list = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
     XWindowAttributes wattr;
     XGetWindowAttributes(dpy, win, &wattr);
     int valid_window = win != None && !wattr.override_redirect && wattr.map_state == IsViewable;
@@ -129,14 +124,15 @@ void HandleNewWindow(Window win) {
         panelheight = wattr.height;
         XMoveWindow(dpy, win, 0, 0);
     } else if (valid_window) {
-        XSelectInput(dpy, win, FocusChangeMask);
+        for (int i = 0; i < 512; i++) if (!owins[i] && (owins[i] = win)) break;
+
         XSetWindowBorderWidth(dpy, win, 1);
         XSetWindowBorder(dpy, win, 0);
+        XSelectInput(dpy, win, FocusChangeMask);
         XRaiseWindow(dpy, win);
         XMoveWindow(dpy, win, wattr.x + MARGIN, panelheight + MARGIN);
         XChangeProperty(dpy, root, active_window, 33, 32, PropModeReplace, (unsigned char *) &(win), 1);
-        
-        for (int i = 0; i < 512; i++) if (!owins[i] && (owins[i] = win)) break;
+        XChangeProperty(dpy, root, client_list, 33, 32, PropModeReplace, (unsigned char *) owins, 512);
     }
 }
 
@@ -195,6 +191,7 @@ void SetupGrab() {
 void InterceptEvents() {
     Window root = XDefaultRootWindow(dpy);
     Atom active_window = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
+    Atom client_list = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
     XEvent ev;
     XNextEvent(dpy, &ev);
     int keycode = ev.xkey.keycode, state = ev.xkey.state;
@@ -205,18 +202,18 @@ void InterceptEvents() {
     if (ev.type == KeyPress && keycode >= NUMCODE(1) && keycode <= NUMCODE(9) && owins[keycode - 10]) {
         XRaiseWindow(dpy, owins[keycode - 10]);
     } else if (ev.type == KeyPress && keycode == tab_key && state & Mod1Mask) {
-        XRaiseWindow(dpy, Clients(2, False));
+        XRaiseWindow(dpy, Clients(2));
     } else if (ev.type == KeyPress && keycode == tab_key && state & Mod4Mask) {
         int i = 0;
-        for (; i < 512; i++) if (owins[i] == Clients(1, False)) break;
-        if (state & ShiftMask) XRaiseWindow(dpy, --i < 0 ? Clients(999999999, False) : owins[i]);
+        for (; i < 512; i++) if (owins[i] == Clients(1)) break;
+        if (state & ShiftMask) XRaiseWindow(dpy, --i < 0 ? Clients(999999999) : owins[i]);
         else XRaiseWindow(dpy, owins[++i] ? owins[i] : owins[0]);
     } else if (ev.type == KeyPress && keycode == del_key) {
         XCloseDisplay(dpy);
     } else if (ev.type == KeyPress && (keycode == f4_key || keycode == w_key)) {
-        SendEvent(Clients(1, False), "WM_DELETE_WINDOW");
+        SendEvent(Clients(1), "WM_DELETE_WINDOW");
     } else if (ev.type == KeyPress) {
-        HandleWindowPosition(Clients(1, False), keycode, state);
+        HandleWindowPosition(Clients(1), keycode, state);
     } else if (ev.type == ButtonPress && ev.xbutton.window != root) {
         XRaiseWindow(dpy, ev.xbutton.window);
     } else if (ev.type == ButtonPress && ev.xbutton.window == root
@@ -232,8 +229,9 @@ void InterceptEvents() {
     } else if (ev.type == MapNotify) {
         HandleNewWindow(ev.xmap.window);
     } else if (ev.type == UnmapNotify) {
-        XSetInputFocus(dpy, Clients(1, True), RevertToPointerRoot, CurrentTime);
-        for (int i = 0, j = i; i < 512; i++, j++) owins[i] = owins[i] == ev.xunmap.window ? owins[++j] : owins[j];
+        for (int i = 0, j = i; i < 511; i++, j++) owins[i] = owins[i] == ev.xunmap.window ? owins[++j] : owins[j];
+        XSetInputFocus(dpy, Clients(1), RevertToPointerRoot, CurrentTime);
+        XChangeProperty(dpy, root, client_list, 33, 32, PropModeReplace, (unsigned char *) owins, 512);
     } else if (ev.type == FocusIn) {
         XSetWindowBorder(dpy, ev.xfocus.window, WhitePixel(dpy, 0));
         XUngrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window);
@@ -246,6 +244,7 @@ void InterceptEvents() {
         XSetInputFocus(dpy, ev.xconfigure.window, RevertToPointerRoot, CurrentTime); 
     } else if (ev.xclient.message_type == active_window) {
         XSetInputFocus(dpy, ev.xclient.window, RevertToPointerRoot, CurrentTime);
+        XRaiseWindow(dpy, ev.xclient.window);
     }
 }
 
@@ -255,15 +254,19 @@ int ErrorHandler() {
 
 int main() {
     if (!(dpy = XOpenDisplay(NULL))) return 1;
+    Window root = XDefaultRootWindow(dpy);
 
     XSetErrorHandler(ErrorHandler);
-    XSelectInput(dpy, XDefaultRootWindow(dpy), SubstructureNotifyMask);
-    XDefineCursor(dpy, XDefaultRootWindow(dpy), XCreateFontCursor(dpy, 2));
+    XSelectInput(dpy, root, SubstructureNotifyMask);
+    XDefineCursor(dpy, root, XCreateFontCursor(dpy, 2));
     SetupGrab(); 
 
-    Atom active_window = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
-    XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_SUPPORTED", False), 4, 32,
-            PropModeReplace, (unsigned char*)&active_window, 1);
+    Atom supported, atoms[] = {
+        supported = XInternAtom(dpy, "_NET_SUPPORTED", False),
+        XInternAtom(dpy, "_NET_CLIENT_LIST", False),
+        XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False),
+    };
+    XChangeProperty(dpy, root, supported, 4, 32, PropModeReplace, (unsigned char*)atoms, sizeof(atoms) / sizeof(Atom));
 
     for (unsigned int i = 0; i < sizeof(STARTUP_CMDS) / sizeof(STARTUP_CMDS[0]); i++) system(STARTUP_CMDS[i]);
 
