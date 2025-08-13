@@ -25,7 +25,7 @@ Window Clients(unsigned int iwin) {
     for (int i = nwins - 1; i > 0; i--) {
         XGetWindowAttributes(dpy, wins[i], &wattr);
         int valid_window = wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable;
-        if (valid_window && wattr.height > 90 && iwin >= count++) win = wins[i];
+        if (valid_window && wattr.height > 60 && iwin >= count++) win = wins[i];
     }
 
     XFree(wins);
@@ -120,7 +120,7 @@ void HandleNewWindow(Window win) {
     XGetWindowAttributes(dpy, win, &wattr);
     int valid_window = win != None && !wattr.override_redirect && wattr.map_state == IsViewable;
 
-    if (valid_window && wattr.height <= 90) {
+    if (valid_window && wattr.height <= 60) {
         panelheight = wattr.height;
         XMoveWindow(dpy, win, 0, 0);
     } else if (valid_window) {
