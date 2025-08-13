@@ -243,7 +243,6 @@ void InterceptEvents() {
     } else if (ev.type == ConfigureNotify) {
         XSetInputFocus(dpy, ev.xconfigure.window, RevertToPointerRoot, CurrentTime); 
     } else if (ev.xclient.message_type == active_window) {
-        XSetInputFocus(dpy, ev.xclient.window, RevertToPointerRoot, CurrentTime);
         XRaiseWindow(dpy, ev.xclient.window);
     }
 }
