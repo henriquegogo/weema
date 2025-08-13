@@ -19,18 +19,18 @@ int panelheight = 0;
 Window Clients(unsigned int iwin, Bool refresh) {
     unsigned int nwins, count = 1;
     XWindowAttributes wattr;
-    Window win, *wins;
-    XQueryTree(dpy, XDefaultRootWindow(dpy), &win, &win, &wins, &nwins);
+    Window win, *wins, root = XDefaultRootWindow(dpy);
+    Atom clients = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
+    XQueryTree(dpy, root, &win, &win, &wins, &nwins);
 
-    if (refresh) XDeleteProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False));
+    if (refresh) XDeleteProperty(dpy, root, clients);
 
     for (int i = nwins - 1; i > 0; i--) {
         XGetWindowAttributes(dpy, wins[i], &wattr);
 
         if (wins[i] != None && !wattr.override_redirect && wattr.map_state == IsViewable && wattr.height > 90) {
             if (iwin >= count++) win = wins[i];
-            if (refresh) XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_CLIENT_LIST", False),
-                    33, 32, PropModeAppend, (unsigned char *) &(wins[i]), 1);
+            if (refresh) XChangeProperty(dpy, root, clients, 33, 32, PropModeAppend, (unsigned char *) &(wins[i]), 1);
         }
     }
 
@@ -119,27 +119,24 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
 }
 
 void HandleNewWindow(Window win) {
+    Window root = XDefaultRootWindow(dpy);
+    Atom active_window = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
     XWindowAttributes wattr;
     XGetWindowAttributes(dpy, win, &wattr);
+    int valid_window = win != None && !wattr.override_redirect && wattr.map_state == IsViewable;
 
-    if (win != None && !wattr.override_redirect && wattr.map_state == IsViewable && wattr.height <= 90) {
+    if (valid_window && wattr.height <= 90) {
         panelheight = wattr.height;
         XMoveWindow(dpy, win, 0, 0);
-    } else if (win != None && !wattr.override_redirect && wattr.map_state == IsViewable) {
+    } else if (valid_window) {
         XSelectInput(dpy, win, FocusChangeMask);
         XSetWindowBorderWidth(dpy, win, 1);
         XSetWindowBorder(dpy, win, 0);
         XRaiseWindow(dpy, win);
-        XMoveWindow(dpy, Clients(1, True), wattr.x + MARGIN, panelheight + MARGIN);
-        XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False), 33, 32,
-                PropModeReplace, (unsigned char *) &(win), 1);
+        XMoveWindow(dpy, win, wattr.x + MARGIN, panelheight + MARGIN);
+        XChangeProperty(dpy, root, active_window, 33, 32, PropModeReplace, (unsigned char *) &(win), 1);
         
-        for (int i = 0; i < 512; i++) {
-            if (!owins[i]) {
-                owins[i] = win;
-                break;
-            }
-        }
+        for (int i = 0; i < 512; i++) if (!owins[i] && (owins[i] = win)) break;
     }
 }
 
@@ -191,36 +188,38 @@ void SetupGrab() {
         GrabKey(down_key,   ControlMask|Mod4Mask|mods[i]);
         GrabKey(left_key,   ControlMask|Mod4Mask|mods[i]);
         GrabKey(right_key,  ControlMask|Mod4Mask|mods[i]);
-        XGrabButton(dpy, AnyButton, Mod4Mask|mods[i], XDefaultRootWindow(dpy), True, ButtonPressMask,
-                GrabModeAsync, GrabModeAsync, None, None);
+        XGrabButton(dpy, AnyButton, Mod4Mask|mods[i], XDefaultRootWindow(dpy), True, ButtonPressMask, 1, 1, None, None);
     }
 }
 
 void InterceptEvents() {
+    Window root = XDefaultRootWindow(dpy);
+    Atom active_window = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
     XEvent ev;
     XNextEvent(dpy, &ev);
+    int keycode = ev.xkey.keycode, state = ev.xkey.state;
 
     for (unsigned int i = 0; i < sizeof(CMD_KEYS) / sizeof(CMD_KEYS[0]); i++) {
-        if (ev.type == KeyPress && ev.xkey.keycode == GetKeycode(CMD_KEYS[i][0])) system(CMD_KEYS[i][1]);
+        if (ev.type == KeyPress && keycode == GetKeycode(CMD_KEYS[i][0])) system(CMD_KEYS[i][1]);
     }
-    if (ev.type == KeyPress && ev.xkey.keycode >= NUMCODE(1) && ev.xkey.keycode <= NUMCODE(9)) {
-        XRaiseWindow(dpy, owins[ev.xkey.keycode - 10] ? owins[ev.xkey.keycode - 10] : Clients(1, False));
-    } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & Mod1Mask) {
+    if (ev.type == KeyPress && keycode >= NUMCODE(1) && keycode <= NUMCODE(9) && owins[keycode - 10]) {
+        XRaiseWindow(dpy, owins[keycode - 10]);
+    } else if (ev.type == KeyPress && keycode == tab_key && state & Mod1Mask) {
         XRaiseWindow(dpy, Clients(2, False));
-    } else if (ev.type == KeyPress && ev.xkey.keycode == tab_key && ev.xkey.state & Mod4Mask) {
+    } else if (ev.type == KeyPress && keycode == tab_key && state & Mod4Mask) {
         int i = 0;
         for (; i < 512; i++) if (owins[i] == Clients(1, False)) break;
-        if (ev.xkey.state & ShiftMask) XRaiseWindow(dpy, --i < 0 ? Clients(999999999, False) : owins[i]);
+        if (state & ShiftMask) XRaiseWindow(dpy, --i < 0 ? Clients(999999999, False) : owins[i]);
         else XRaiseWindow(dpy, owins[++i] ? owins[i] : owins[0]);
-    } else if (ev.type == KeyPress && ev.xkey.keycode == del_key) {
+    } else if (ev.type == KeyPress && keycode == del_key) {
         XCloseDisplay(dpy);
-    } else if (ev.type == KeyPress && (ev.xkey.keycode == f4_key || ev.xkey.keycode == w_key)) {
+    } else if (ev.type == KeyPress && (keycode == f4_key || keycode == w_key)) {
         SendEvent(Clients(1, False), "WM_DELETE_WINDOW");
     } else if (ev.type == KeyPress) {
-        HandleWindowPosition(Clients(1, False), ev.xkey.keycode, ev.xkey.state);
-    } else if (ev.type == ButtonPress && ev.xbutton.window != XDefaultRootWindow(dpy)) {
+        HandleWindowPosition(Clients(1, False), keycode, state);
+    } else if (ev.type == ButtonPress && ev.xbutton.window != root) {
         XRaiseWindow(dpy, ev.xbutton.window);
-    } else if (ev.type == ButtonPress && ev.xbutton.window == XDefaultRootWindow(dpy)
+    } else if (ev.type == ButtonPress && ev.xbutton.window == root
             && ev.xbutton.subwindow != None && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)) {
         XRaiseWindow(dpy, (click_ev = ev.xbutton).subwindow);
         XGrabPointer(dpy, ev.xbutton.subwindow, True, PointerMotionMask|ButtonReleaseMask,
@@ -239,17 +238,13 @@ void InterceptEvents() {
         XSetWindowBorder(dpy, ev.xfocus.window, WhitePixel(dpy, 0));
         XUngrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window);
         XAllowEvents(dpy, ReplayPointer, CurrentTime);
-        XChangeProperty(dpy, XDefaultRootWindow(dpy), XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False), 33, 32,
-                PropModeReplace, (unsigned char *) &(ev.xfocus.window), 1);
+        XChangeProperty(dpy, root, active_window, 33, 32, PropModeReplace, (unsigned char *) &(ev.xfocus.window), 1);
     } else if (ev.type == FocusOut) {
         XSetWindowBorder(dpy, ev.xfocus.window, BlackPixel(dpy, 0));
-        if (ev.xfocus.window != Clients(1, False)) {
-            XGrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask,
-                    GrabModeSync, GrabModeSync, None, None);
-        }
+        XGrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask, 0, 0, None, None);
     } else if (ev.type == ConfigureNotify) {
         XSetInputFocus(dpy, ev.xconfigure.window, RevertToPointerRoot, CurrentTime); 
-    } else if (ev.xclient.message_type == XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False)) {
+    } else if (ev.xclient.message_type == active_window) {
         XSetInputFocus(dpy, ev.xclient.window, RevertToPointerRoot, CurrentTime);
     }
 }
