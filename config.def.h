@@ -7,13 +7,13 @@ const char CMD_KEYS[][24][128] = {
   {"Print", "scrot -s -e 'xclip -selection clipboard -t image/png -i $f'"},
   {"t", "x-terminal-emulator &"},
   {"r", "dmenu_run -l 5"},
-  {"a", "rofi -show drun -theme $HOME/.config/rofi/launchers/type-3/style-10.rasi"},
+  {"a", "rofi -show drun"},
   {"l", "slock"}
 };
 
 const char STARTUP_CMDS[][128] = {
-  /*
   "xsetroot -solid '#223'",
+  /*
   "xrandr --output HDMI-1-0 --auto --left-of eDP-1",
   "feh --bg-scale ~/Pictures/wallpaper.jpg",
   "xcompmgr -f &",

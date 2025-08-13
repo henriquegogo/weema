@@ -63,6 +63,12 @@ Tips:
   Some key binds are customizable editing the config.h file.
   Lower case letters will be binded as 'Super-Shortcut'.
 
+Third-party config tips:
+  Install adi1090x rofi themes and set in config.h.
+  Configure Touchpad and GTK theme in .xprofile or .xinitrc:
+    export GTK_THEME=Yaru-purple-dark
+    xinput set-prop <id> "libinput Tapping Enabled" 1
+
 License:
 
   MIT
