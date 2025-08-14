@@ -21,6 +21,7 @@ Window Clients(unsigned int iwin) {
     XWindowAttributes wattr;
     Window win, *wins, root = XDefaultRootWindow(dpy);
     XQueryTree(dpy, root, &win, &win, &wins, &nwins);
+    panelheight = 0;
 
     for (int i = nwins - 1; i > 0; i--) {
         XGetWindowAttributes(dpy, wins[i], &wattr);
@@ -125,7 +126,6 @@ void HandleNewWindow(Window win) {
         XMoveWindow(dpy, win, 0, 0);
     } else if (valid_window) {
         for (int i = 0; i < 512; i++) if (!owins[i] && (owins[i] = win)) break;
-
         XSetWindowBorderWidth(dpy, win, 1);
         XSetWindowBorder(dpy, win, 0);
         XSelectInput(dpy, win, FocusChangeMask);
