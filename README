@@ -57,11 +57,13 @@ Third party optional dependencies:
   - xcompmgr: window compositing
   - xrandr: manage multiple monitors
   - alsa-utils: volume control
+  - brightnessctl: brightness control
 
 Tips:
 
   Some key binds are customizable editing the config.h file.
   Lower case letters will be binded as 'Super-Shortcut'.
+  Add your user to 'video' group to use brightness control.
   Edit .xprofile script in your home to autoload applications.
 
 License:
