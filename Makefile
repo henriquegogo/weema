@@ -1,7 +1,7 @@
 BINDIR?=/usr/bin
 XSESSIONSDIR?=/usr/share/xsessions
 CFLAGS?=-Wpedantic -Wall -Wextra
-DEPENDENCIES?=suckless-tools rofi scrot xcompmgr alsa-utils x11-xserver-utils xdotool
+DEPENDENCIES?=suckless-tools rofi scrot xcompmgr brightnessctl alsa-utils x11-xserver-utils xdotool
 HIDEERRORS?=2> /dev/null || true
 
 all:
