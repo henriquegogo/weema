@@ -57,7 +57,6 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
     XWindowAttributes wattr, rattr;
     XGetWindowAttributes(dpy, win, &wattr);
     XGetWindowAttributes(dpy, XDefaultRootWindow(dpy), &rattr);
-    XRaiseWindow(dpy, win);
 
     int borders = BORDER * 2;
     int top = 0 + MARGIN, left = 0 + MARGIN;
