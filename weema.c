@@ -31,7 +31,7 @@ unsigned long GrayPixel(Display *dpy, int screen, int level) {
     XColor color;
     color.red = color.green = color.blue = level * 655.35;
     color.flags = DoRed | DoGreen | DoBlue;
-    XAllocColor(dpy, DefaultColormap(dpy, screen), &color);
+    XAllocColor(dpy, XDefaultColormap(dpy, screen), &color);
     return color.pixel;
 }
 
