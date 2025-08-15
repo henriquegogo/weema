@@ -14,3 +14,4 @@ const char CMD_KEYS[][24][128] = {
 };
 
 const int MARGIN = 12;
+const int BORDER = 2;
