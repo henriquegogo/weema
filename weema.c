@@ -16,6 +16,25 @@ KeyCode enter_key, up_key, down_key, left_key, right_key, w_key, f4_key, del_key
 Window owins[512];
 int panelheight = 0;
 
+void SendEvent(Window win, const char *atom_name) {
+    XEvent ev;
+    ev.xclient.type = ClientMessage;
+    ev.xclient.window = win;
+    ev.xclient.message_type = XInternAtom(dpy, "WM_PROTOCOLS", True);
+    ev.xclient.format = 32;
+    ev.xclient.data.l[0] = XInternAtom(dpy, atom_name, False);
+    ev.xclient.data.l[1] = CurrentTime;
+    XSendEvent(dpy, win, False, NoEventMask, &ev);
+}
+
+unsigned long GrayPixel(Display *dpy, int screen, int level) {
+    XColor color;
+    color.red = color.green = color.blue = level * 655.35;
+    color.flags = DoRed | DoGreen | DoBlue;
+    XAllocColor(dpy, DefaultColormap(dpy, screen), &color);
+    return color.pixel;
+}
+
 Window Clients(unsigned int iwin) {
     unsigned int nwins, count = 1;
     XWindowAttributes wattr;
@@ -34,24 +53,13 @@ Window Clients(unsigned int iwin) {
     return win;
 }
 
-void SendEvent(Window win, const char *atom_name) {
-    XEvent ev;
-    ev.xclient.type = ClientMessage;
-    ev.xclient.window = win;
-    ev.xclient.message_type = XInternAtom(dpy, "WM_PROTOCOLS", True);
-    ev.xclient.format = 32;
-    ev.xclient.data.l[0] = XInternAtom(dpy, atom_name, False);
-    ev.xclient.data.l[1] = CurrentTime;
-    XSendEvent(dpy, win, False, NoEventMask, &ev);
-}
-
 void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
     XWindowAttributes wattr, rattr;
     XGetWindowAttributes(dpy, win, &wattr);
     XGetWindowAttributes(dpy, XDefaultRootWindow(dpy), &rattr);
     XRaiseWindow(dpy, win);
 
-    int borders = 2;
+    int borders = BORDER * 2;
     int top = 0 + MARGIN, left = 0 + MARGIN;
     int scr_width = wattr.screen->width - borders - MARGIN * 2;
     int scr_height = wattr.screen->height - borders - MARGIN * 2;
@@ -126,8 +134,8 @@ void HandleNewWindow(Window win) {
         XMoveWindow(dpy, win, 0, 0);
     } else if (valid_window) {
         for (int i = 0; i < 512; i++) if (!owins[i] && (owins[i] = win)) break;
-        XSetWindowBorderWidth(dpy, win, 1);
-        XSetWindowBorder(dpy, win, WhitePixel(dpy, 0));
+        XSetWindowBorderWidth(dpy, win, BORDER);
+        XSetWindowBorder(dpy, win, GrayPixel(dpy, 0, 50));
         XSelectInput(dpy, win, FocusChangeMask);
         XSetInputFocus(dpy, win, RevertToPointerRoot, CurrentTime); 
         XChangeProperty(dpy, root, active_window, 33, 32, PropModeReplace, (unsigned char *) &(win), 1);
@@ -233,7 +241,7 @@ void InterceptEvents() {
         XSetInputFocus(dpy, Clients(1), RevertToPointerRoot, CurrentTime);
         XChangeProperty(dpy, root, client_list, 33, 32, PropModeReplace, (unsigned char *) owins, 512);
     } else if (ev.type == FocusIn) {
-        XSetWindowBorder(dpy, ev.xfocus.window, WhitePixel(dpy, 0));
+        XSetWindowBorder(dpy, ev.xfocus.window, GrayPixel(dpy, 0, 50));
         XUngrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window);
         XAllowEvents(dpy, ReplayPointer, CurrentTime);
         XChangeProperty(dpy, root, active_window, 33, 32, PropModeReplace, (unsigned char *) &(ev.xfocus.window), 1);
