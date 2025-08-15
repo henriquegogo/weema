@@ -127,12 +127,12 @@ void HandleNewWindow(Window win) {
     } else if (valid_window) {
         for (int i = 0; i < 512; i++) if (!owins[i] && (owins[i] = win)) break;
         XSetWindowBorderWidth(dpy, win, 1);
-        XSetWindowBorder(dpy, win, 0);
+        XSetWindowBorder(dpy, win, WhitePixel(dpy, 0));
         XSelectInput(dpy, win, FocusChangeMask);
-        XRaiseWindow(dpy, win);
-        XMoveWindow(dpy, win, wattr.x + MARGIN, panelheight + MARGIN);
+        XSetInputFocus(dpy, win, RevertToPointerRoot, CurrentTime); 
         XChangeProperty(dpy, root, active_window, 33, 32, PropModeReplace, (unsigned char *) &(win), 1);
         XChangeProperty(dpy, root, client_list, 33, 32, PropModeReplace, (unsigned char *) owins, 512);
+        if (wattr.x == 0 && wattr.y == 0) XMoveWindow(dpy, win, wattr.x + MARGIN, panelheight + MARGIN);
     }
 }
 
