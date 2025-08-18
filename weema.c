@@ -131,6 +131,7 @@ void HandleNewWindow(Window win) {
 
     if (valid_window && wattr.height <= 60) {
         XMoveWindow(dpy, win, 0, 0);
+        panelheight = wattr.height;
     } else if (valid_window) {
         for (int i = 0; i < 512; i++) if (!owins[i] && (owins[i] = win)) break;
         XSetWindowBorderWidth(dpy, win, BORDER);
@@ -196,12 +197,13 @@ void SetupGrab() {
 }
 
 void InterceptEvents() {
-    Window root = XDefaultRootWindow(dpy);
-    Atom active_window = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
-    Atom client_list = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
     XEvent ev;
     XNextEvent(dpy, &ev);
-    int keycode = ev.xkey.keycode, state = ev.xkey.state;
+    int revert_to, keycode = ev.xkey.keycode, state = ev.xkey.state;
+    Atom active_window = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
+    Atom client_list = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
+    Window root = XDefaultRootWindow(dpy), focused;
+    XGetInputFocus(dpy, &focused, &revert_to);
 
     for (unsigned int i = 0; i < sizeof(CMD_KEYS) / sizeof(CMD_KEYS[0]); i++) {
         if (ev.type == KeyPress && keycode == GetKeycode(CMD_KEYS[i][0])) system(CMD_KEYS[i][1]);
@@ -212,15 +214,15 @@ void InterceptEvents() {
         XRaiseWindow(dpy, Clients(2));
     } else if (ev.type == KeyPress && keycode == tab_key && state & Mod4Mask) {
         int i = 0;
-        for (; i < 512; i++) if (owins[i] == Clients(1)) break;
+        for (; i < 512; i++) if (owins[i] == focused) break;
         if (state & ShiftMask) XRaiseWindow(dpy, --i < 0 ? Clients(999999999) : owins[i]);
         else XRaiseWindow(dpy, owins[++i] ? owins[i] : owins[0]);
     } else if (ev.type == KeyPress && keycode == del_key) {
         XCloseDisplay(dpy);
     } else if (ev.type == KeyPress && (keycode == f4_key || keycode == w_key)) {
-        SendEvent(Clients(1), "WM_DELETE_WINDOW");
+        SendEvent(focused, "WM_DELETE_WINDOW");
     } else if (ev.type == KeyPress) {
-        HandleWindowPosition(Clients(1), keycode, state);
+        HandleWindowPosition(focused, keycode, state);
     } else if (ev.type == ButtonPress && ev.xbutton.window != root) {
         XRaiseWindow(dpy, ev.xbutton.window);
     } else if (ev.type == ButtonPress && ev.xbutton.window == root
