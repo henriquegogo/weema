@@ -13,7 +13,7 @@ Display *dpy = NULL;
 XButtonEvent click_ev;
 XWindowAttributes last_attr;
 KeyCode enter_key, up_key, down_key, left_key, right_key, w_key, f4_key, del_key, tab_key;
-Window owins[512];
+Window root, owins[512];
 int panelheight = 0;
 
 void SendEvent(Window win, const char *atom_name) {
@@ -38,7 +38,7 @@ unsigned long GrayPixel(Display *dpy, int screen, int level) {
 Window Clients(unsigned int iwin) {
     unsigned int nwins, count = 1;
     XWindowAttributes wattr;
-    Window win, *wins, root = XDefaultRootWindow(dpy);
+    Window win, *wins;
     XQueryTree(dpy, root, &win, &win, &wins, &nwins);
     panelheight = 0;
 
@@ -56,7 +56,7 @@ Window Clients(unsigned int iwin) {
 void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
     XWindowAttributes wattr, rattr;
     XGetWindowAttributes(dpy, win, &wattr);
-    XGetWindowAttributes(dpy, XDefaultRootWindow(dpy), &rattr);
+    XGetWindowAttributes(dpy, root, &rattr);
 
     int borders = BORDER * 2;
     int top = 0 + MARGIN, left = 0 + MARGIN;
@@ -122,7 +122,6 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
 }
 
 void HandleNewWindow(Window win) {
-    Window root = XDefaultRootWindow(dpy);
     Atom active_window = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
     Atom client_list = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
     XWindowAttributes wattr;
@@ -156,7 +155,7 @@ void HandleMotion(XEvent ev) {
 }
 
 void GrabKey(int keycode, unsigned int mods) {
-    XGrabKey(dpy, keycode, mods, XDefaultRootWindow(dpy), True, GrabModeAsync, GrabModeAsync);
+    XGrabKey(dpy, keycode, mods, root, True, GrabModeAsync, GrabModeAsync);
 }
 
 KeyCode GetKeycode(const char *key) {
@@ -192,7 +191,7 @@ void SetupGrab() {
         GrabKey(down_key,   ControlMask|Mod4Mask|mods[i]);
         GrabKey(left_key,   ControlMask|Mod4Mask|mods[i]);
         GrabKey(right_key,  ControlMask|Mod4Mask|mods[i]);
-        XGrabButton(dpy, AnyButton, Mod4Mask|mods[i], XDefaultRootWindow(dpy), True, ButtonPressMask, 1, 1, None, None);
+        XGrabButton(dpy, AnyButton, Mod4Mask|mods[i], root, True, ButtonPressMask, 1, 1, None, None);
     }
 }
 
@@ -202,7 +201,7 @@ void InterceptEvents() {
     int revert_to, keycode = ev.xkey.keycode, state = ev.xkey.state;
     Atom active_window = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
     Atom client_list = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
-    Window root = XDefaultRootWindow(dpy), focused;
+    Window focused;
     XGetInputFocus(dpy, &focused, &revert_to);
 
     for (unsigned int i = 0; i < sizeof(CMD_KEYS) / sizeof(CMD_KEYS[0]); i++) {
@@ -261,8 +260,7 @@ int ErrorHandler() {
 }
 
 int main() {
-    if (!(dpy = XOpenDisplay(NULL))) return 1;
-    Window root = XDefaultRootWindow(dpy);
+    if (!(dpy = XOpenDisplay(NULL)) || !(root = XDefaultRootWindow(dpy))) return 1;
 
     XSetErrorHandler(ErrorHandler);
     XSelectInput(dpy, root, SubstructureNotifyMask);
