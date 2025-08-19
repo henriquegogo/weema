@@ -208,14 +208,14 @@ void InterceptEvents() {
         if (ev.type == KeyPress && keycode == GetKeycode(CMD_KEYS[i][0])) system(CMD_KEYS[i][1]);
     }
     if (ev.type == KeyPress && keycode >= NUMCODE(1) && keycode <= NUMCODE(9) && owins[keycode - 10]) {
-        XRaiseWindow(dpy, owins[keycode - 10]);
+        XSetInputFocus(dpy, owins[keycode - 10], RevertToPointerRoot, CurrentTime); 
     } else if (ev.type == KeyPress && keycode == tab_key && state & Mod1Mask) {
-        XRaiseWindow(dpy, Clients(2));
+        XSetInputFocus(dpy, Clients(2), RevertToPointerRoot, CurrentTime); 
     } else if (ev.type == KeyPress && keycode == tab_key && state & Mod4Mask) {
         int i = 0;
         for (; i < 512; i++) if (owins[i] == focused) break;
-        if (state & ShiftMask) XRaiseWindow(dpy, --i < 0 ? Clients(999999999) : owins[i]);
-        else XRaiseWindow(dpy, owins[++i] ? owins[i] : owins[0]);
+        Window win = state & ShiftMask ? (--i < 0 ? Clients(999) : owins[i]) : (owins[++i] ? owins[i] : owins[0]);
+        XSetInputFocus(dpy, win, RevertToPointerRoot, CurrentTime); 
     } else if (ev.type == KeyPress && keycode == del_key) {
         XCloseDisplay(dpy);
     } else if (ev.type == KeyPress && (keycode == f4_key || keycode == w_key)) {
@@ -223,10 +223,10 @@ void InterceptEvents() {
     } else if (ev.type == KeyPress) {
         HandleWindowPosition(focused, keycode, state);
     } else if (ev.type == ButtonPress && ev.xbutton.window != root) {
-        XRaiseWindow(dpy, ev.xbutton.window);
+        XSetInputFocus(dpy, ev.xbutton.window, RevertToPointerRoot, CurrentTime); 
     } else if (ev.type == ButtonPress && ev.xbutton.window == root
             && ev.xbutton.subwindow != None && (ev.xbutton.button == Button1 || ev.xbutton.button == Button3)) {
-        XRaiseWindow(dpy, (click_ev = ev.xbutton).subwindow);
+        XSetInputFocus(dpy, (click_ev = ev.xbutton).subwindow, RevertToPointerRoot, CurrentTime); 
         XGrabPointer(dpy, ev.xbutton.subwindow, True, PointerMotionMask|ButtonReleaseMask,
                 GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
         XGetWindowAttributes(dpy, ev.xbutton.subwindow, &last_attr);
@@ -241,6 +241,7 @@ void InterceptEvents() {
         XSetInputFocus(dpy, Clients(1), RevertToPointerRoot, CurrentTime);
         XChangeProperty(dpy, root, client_list, 33, 32, PropModeReplace, (unsigned char *) owins, 512);
     } else if (ev.type == FocusIn) {
+        XRaiseWindow(dpy, ev.xfocus.window);
         XSetWindowBorder(dpy, ev.xfocus.window, GrayPixel(dpy, 0, 50));
         XUngrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window);
         XAllowEvents(dpy, ReplayPointer, CurrentTime);
@@ -248,10 +249,8 @@ void InterceptEvents() {
     } else if (ev.type == FocusOut) {
         XSetWindowBorder(dpy, ev.xfocus.window, BlackPixel(dpy, 0));
         XGrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask, 0, 0, None, None);
-    } else if (ev.type == ConfigureNotify) {
-        XSetInputFocus(dpy, ev.xconfigure.window, RevertToPointerRoot, CurrentTime); 
     } else if (ev.xclient.message_type == active_window) {
-        XRaiseWindow(dpy, ev.xclient.window);
+        XSetInputFocus(dpy, ev.xclient.window, RevertToPointerRoot, CurrentTime); 
     }
 }
 
