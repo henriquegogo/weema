@@ -137,6 +137,7 @@ void HandleNewWindow(Window win) {
         XSetWindowBorder(dpy, win, GrayPixel(dpy, 0, 50));
         XSelectInput(dpy, win, FocusChangeMask);
         XSetInputFocus(dpy, win, RevertToPointerRoot, CurrentTime); 
+        XResizeWindow(dpy, win, wattr.width - BORDER * 2, wattr.height - BORDER * 2);
         XChangeProperty(dpy, root, active_window, 33, 32, PropModeReplace, (unsigned char *) &(win), 1);
         XChangeProperty(dpy, root, client_list, 33, 32, PropModeReplace, (unsigned char *) owins, 512);
         if (wattr.x == 0 && wattr.y == 0) XMoveWindow(dpy, win, wattr.x + MARGIN, panelheight + MARGIN);
