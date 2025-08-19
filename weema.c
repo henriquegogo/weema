@@ -240,13 +240,13 @@ void InterceptEvents() {
         for (int i = 0, j = i; i < 511; i++, j++) owins[i] = owins[i] == ev.xunmap.window ? owins[++j] : owins[j];
         XSetInputFocus(dpy, Clients(1), RevertToPointerRoot, CurrentTime);
         XChangeProperty(dpy, root, client_list, 33, 32, PropModeReplace, (unsigned char *) owins, 512);
-    } else if (ev.type == FocusIn) {
+    } else if (ev.type == FocusIn && ev.xfocus.detail != NotifyPointer && ev.xfocus.detail != NotifyPointerRoot) {
         XRaiseWindow(dpy, ev.xfocus.window);
         XSetWindowBorder(dpy, ev.xfocus.window, GrayPixel(dpy, 0, 50));
         XUngrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window);
         XAllowEvents(dpy, ReplayPointer, CurrentTime);
         XChangeProperty(dpy, root, active_window, 33, 32, PropModeReplace, (unsigned char *) &(ev.xfocus.window), 1);
-    } else if (ev.type == FocusOut) {
+    } else if (ev.type == FocusOut && ev.xfocus.detail != NotifyPointer && ev.xfocus.detail != NotifyPointerRoot) {
         XSetWindowBorder(dpy, ev.xfocus.window, BlackPixel(dpy, 0));
         XGrabButton(dpy, AnyButton, AnyModifier, ev.xfocus.window, True, ButtonPressMask, 0, 0, None, None);
     } else if (ev.xclient.message_type == active_window) {
