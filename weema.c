@@ -213,9 +213,9 @@ void InterceptEvents() {
     } else if (ev.type == KeyPress && keycode == tab_key && state & Mod1Mask) {
         XSetInputFocus(dpy, Clients(2), RevertToPointerRoot, CurrentTime); 
     } else if (ev.type == KeyPress && keycode == tab_key && state & Mod4Mask) {
-        int i = 0;
-        for (; i < 512; i++) if (owins[i] == focused) break;
-        Window win = state & ShiftMask ? (--i < 0 ? Clients(999) : owins[i]) : (owins[++i] ? owins[i] : owins[0]);
+        int li = 0, fi = 0;
+        for (; owins[li]; li++, fi++) if (owins[fi] == focused) fi--;
+        Window win = li ? owins[state & ShiftMask ? (fi - 1 + li) % li : (fi + 1) % li] : None;
         XSetInputFocus(dpy, win, RevertToPointerRoot, CurrentTime); 
     } else if (ev.type == KeyPress && keycode == del_key) {
         XCloseDisplay(dpy);
