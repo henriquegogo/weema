@@ -12,7 +12,7 @@
 Display *dpy = NULL;
 XButtonEvent click_ev;
 XWindowAttributes last_attr;
-KeyCode enter_key, up_key, down_key, left_key, right_key, w_key, f4_key, del_key, tab_key;
+KeyCode enter_key, up_key, down_key, left_key, right_key, f4_key, del_key, tab_key;
 Window root, owins[512];
 int panelheight = 0;
 
@@ -179,7 +179,6 @@ void SetupGrab() {
         GrabKey(left_key  = GetKeycode("Left"),   Mod4Mask|mods[i]);
         GrabKey(right_key = GetKeycode("Right"),  Mod4Mask|mods[i]);
         GrabKey(f4_key    = GetKeycode("F4"),     Mod1Mask|mods[i]);
-        GrabKey(w_key     = GetKeycode("w"),      ControlMask|ShiftMask|mods[i]);
         GrabKey(del_key   = GetKeycode("Delete"), ControlMask|Mod1Mask|mods[i]);
         GrabKey(tab_key   = GetKeycode("Tab"),    Mod1Mask|mods[i]);
         GrabKey(tab_key,    Mod4Mask|mods[i]);
@@ -219,7 +218,7 @@ void InterceptEvents() {
         XSetInputFocus(dpy, win, RevertToPointerRoot, CurrentTime); 
     } else if (ev.type == KeyPress && keycode == del_key) {
         XCloseDisplay(dpy);
-    } else if (ev.type == KeyPress && (keycode == f4_key || keycode == w_key)) {
+    } else if (ev.type == KeyPress && keycode == f4_key) {
         SendEvent(focused, "WM_DELETE_WINDOW");
     } else if (ev.type == KeyPress) {
         HandleWindowPosition(focused, keycode, state);
