@@ -68,8 +68,8 @@ void HandleWindowPosition(Window win, unsigned int keycode, unsigned int mods) {
     if (wattr.x >= 0 && wattr.x < scr_width && wattr.y >= 0 && wattr.y < scr_height) {
        top = top + panelheight;
        scr_height = scr_height - panelheight;
-    } else if (wattr.x < 0) left = scnd_scr_width * -1 + MARGIN;
-    else if (wattr.x >= scr_width) left = scnd_scr_width + MARGIN;
+    } else if (wattr.x < 0) left = scnd_scr_width * -1 + MARGIN - borders;
+    else if (wattr.x >= scr_width) left = scnd_scr_width + MARGIN - borders;
     else if (wattr.y < 0) top = scnd_scr_height * -1 + MARGIN;
     else if (wattr.y >= scr_height) top = scnd_scr_height + MARGIN;
 
