@@ -5,7 +5,6 @@
 # xinput set-prop 19 "libinput Click Method Enabled" 1, 0
 # xinput set-prop 19 "libinput Accel Speed" 0.75
 
-xbindkeys
 xsetroot -solid '#222'
 export GTK_THEME=Yaru-purple-dark
 
@@ -15,6 +14,7 @@ sleep 0.5
 if pgrep -x weema; then
 #  xrandr --output HDMI-1-0 --auto --left-of eDP-1
 #  feh --bg-scale ~/Pictures/wallpaper.jpg
+#  xbindkeys
 #  xcompmgr -f &
 #  polybar &
 fi
