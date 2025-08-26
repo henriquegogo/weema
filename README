@@ -35,7 +35,7 @@ Built-in binds:
   Super+Arrows: position window
   Super+Enter: fullscreen window
 
-Configurable binds (edit config.h):
+Configurable binds (edit .xbindkeysrc):
 
   Volume up / Super+=: increase volume
   Volume down / Super+-: decrease volume
@@ -49,15 +49,16 @@ Third party optional dependencies:
   
   We use third party applications to manage some functions.
   Multiple monitors can be configured using xrandr at startup.
-  Shortcuts and startup commands can be customized in config.h
+  Shortcuts are configured in .xbindkeysrc.
 
-  - dmenu and rofi: applications launcher
-  - slock: screen locker
-  - scrot: print screen
-  - xcompmgr: window compositing
-  - xrandr: manage multiple monitors
   - alsa-utils: volume control
   - brightnessctl: brightness control
+  - dmenu and rofi: applications launcher
+  - scrot: print screen
+  - slock: screen locker
+  - xbindkeys: key binds
+  - xcompmgr: window compositing
+  - xrandr: manage multiple monitors
 
 Tips:
 

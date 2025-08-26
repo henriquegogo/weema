@@ -1,3 +1,11 @@
+# Get the touchpad <id> from "xinput list" command
+# xinput set-prop 19 "libinput Tapping Enabled" 1
+# xinput set-prop 19 "libinput Natural Scrolling Enabled" 1
+# xinput set-prop 19 "libinput Scroll Method Enabled" 1, 0, 0
+# xinput set-prop 19 "libinput Click Method Enabled" 1, 0
+# xinput set-prop 19 "libinput Accel Speed" 0.75
+
+xbindkeys
 xsetroot -solid '#222'
 export GTK_THEME=Yaru-purple-dark
 
@@ -5,16 +13,9 @@ export GTK_THEME=Yaru-purple-dark
 while ! xprop -root _NET_SUPPORTED >/dev/null 2>&1; do sleep 0.3; done
 sleep 0.5
 if pgrep -x weema; then
-  # Get the touchpad <id> from "xinput list" command
-  # xinput set-prop <id> "libinput Tapping Enabled" 1
-  # xinput set-prop <id> "libinput Natural Scrolling Enabled" 1
-  # xinput set-prop <id> "libinput Scroll Method Enabled" 1, 0, 0
-  # xinput set-prop <id> "libinput Click Method Enabled" 1, 0
-  # xinput set-prop <id> "libinput Accel Speed" 0.75
-
-  # xrandr --output HDMI-1-0 --auto --left-of eDP-1
-  # feh --bg-scale ~/Pictures/wallpaper.jpg
-  # xcompmgr -f &
-  # polybar &
+#  xrandr --output HDMI-1-0 --auto --left-of eDP-1
+#  feh --bg-scale ~/Pictures/wallpaper.jpg
+#  xcompmgr -f &
+#  polybar &
 fi
 ) &

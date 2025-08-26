@@ -171,10 +171,6 @@ void SetupGrab() {
 
     for (int i = 0; i < 8; i++) {
         for (unsigned int ikey = 1; ikey <= 9; ikey++) GrabKey(NUMCODE(ikey), Mod4Mask|mods[i]);
-        for (unsigned int ikey = 0; ikey < sizeof(CMD_KEYS) / sizeof(CMD_KEYS[0]); ikey++) {
-            GrabKey(GetKeycode(CMD_KEYS[ikey][0]), (CMD_KEYS[ikey][0][0] >= 'A' && CMD_KEYS[ikey][0][0] <= 'Z') ?
-                    mods[i] : Mod4Mask|mods[i]);
-        }
         GrabKey(enter_key = GetKeycode("Return"), Mod4Mask|mods[i]);
         GrabKey(up_key    = GetKeycode("Up"),     Mod4Mask|mods[i]);
         GrabKey(down_key  = GetKeycode("Down"),   Mod4Mask|mods[i]);
@@ -206,9 +202,6 @@ void InterceptEvents() {
     Window focused;
     XGetInputFocus(dpy, &focused, &revert_to);
 
-    for (unsigned int i = 0; i < sizeof(CMD_KEYS) / sizeof(CMD_KEYS[0]); i++) {
-        if (ev.type == KeyPress && keycode == GetKeycode(CMD_KEYS[i][0])) system(CMD_KEYS[i][1]);
-    }
     if (ev.type == KeyPress && keycode >= NUMCODE(1) && keycode <= NUMCODE(9) && owins[keycode - 10]) {
         XSetInputFocus(dpy, owins[keycode - 10], RevertToPointerRoot, CurrentTime); 
     } else if (ev.type == KeyPress && keycode == tab_key && state & Mod1Mask) {

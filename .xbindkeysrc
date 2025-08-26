@@ -1,0 +1,32 @@
+"brightnessctl set 8%+"
+    XF86MonBrightnessUp
+
+"brightnessctl set 8%-"
+    XF86MonBrightnessDown
+
+"amixer set Master 5%+"
+    XF86AudioRaiseVolume
+
+"amixer set Master 5%-"
+    XF86AudioLowerVolume
+
+"amixer set Master 5%+"
+    Mod4 + equal
+
+"amixer set Master 5%-"
+    Mod4 + minus
+
+"scrot -s -e 'xclip -selection clipboard -t image/png -i $f'"
+    Print
+
+"x-terminal-emulator"
+    Mod4 + t
+
+"dmenu_run -l 5"
+    Mod4 + r
+
+"rofi -normal-window -show drun"
+    Mod4 + a
+
+"slock"
+    Mod4 + l

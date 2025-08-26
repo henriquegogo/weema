@@ -1,10 +1,11 @@
 BINDIR?=/usr/bin
 XSESSIONSDIR?=/usr/share/xsessions
 CFLAGS?=-Wpedantic -Wall -Wextra
-DEPENDENCIES?=suckless-tools rofi scrot xcompmgr brightnessctl alsa-utils x11-xserver-utils xdotool
+DEPENDENCIES?=alsa-utils brightnessctl rofi scrot suckless-tools x11-xserver-utils xbindkeys xcompmgr xdotool
 HIDEERRORS?=2> /dev/null || true
 
 all:
+	cp --update=none .xbindkeysrc $(HOME)/.xbindkeysrc
 	cp --update=none .xprofile $(HOME)/.xprofile
 	cp --update=none config.def.h config.h
 	$(CC) $(CFLAGS) weema.c -lX11 -o weema
