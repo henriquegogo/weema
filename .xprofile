@@ -8,6 +8,9 @@
 xsetroot -solid '#222'
 export GTK_THEME=Yaru-purple-dark
 
+export WEEMA_BORDER=2
+export WEEMA_MARGIN=12
+
 (
 while ! xprop -root _NET_SUPPORTED >/dev/null 2>&1; do sleep 0.3; done
 sleep 0.5

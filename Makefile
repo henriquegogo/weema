@@ -7,7 +7,6 @@ HIDEERRORS?=2> /dev/null || true
 all:
 	cp --update=none .xbindkeysrc $(HOME)/.xbindkeysrc
 	cp --update=none .xprofile $(HOME)/.xprofile
-	cp --update=none config.def.h config.h
 	$(CC) $(CFLAGS) weema.c -lX11 -o weema
 
 install:
