@@ -1,9 +1,9 @@
 # Get the touchpad <id> from "xinput list" command
-# xinput set-prop 19 "libinput Tapping Enabled" 1
-# xinput set-prop 19 "libinput Natural Scrolling Enabled" 1
-# xinput set-prop 19 "libinput Scroll Method Enabled" 1, 0, 0
-# xinput set-prop 19 "libinput Click Method Enabled" 1, 0
-# xinput set-prop 19 "libinput Accel Speed" 0.75
+# xinput set-prop <id> "libinput Tapping Enabled" 1
+# xinput set-prop <id> "libinput Natural Scrolling Enabled" 1
+# xinput set-prop <id> "libinput Scroll Method Enabled" 1, 0, 0
+# xinput set-prop <id> "libinput Click Method Enabled" 1, 0
+# xinput set-prop <id> "libinput Accel Speed" 0.75
 
 xsetroot -solid '#222'
 export GTK_THEME=Yaru-purple-dark
